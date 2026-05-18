@@ -579,7 +579,8 @@ function renderRulesPanel(activeAlerts=[]) {
 
 // ==================== DATA ====================
 const AKEY = 'TAMEIO_API_V3';
-let apiUrl = localStorage.getItem(AKEY) || '';
+const HARDCODED_URL = 'https://script.google.com/macros/s/AKfycbynzjoV1XpNn80eqnm5Z7SIn2271gEVOn5HQHM1qE4-DoygIov1wIDsJfWfVKDrok3S/exec';
+let apiUrl = HARDCODED_URL;
 let currentMonth = 'ΜΑΙΟΣ_2026';
 let D = { days:{}, metrita:{}, bank:{}, d15:{}, telos:{}, trapEisp:{}, trapPlirom:{}, epitages:[] };
 
@@ -606,7 +607,7 @@ function toast(msg,type='ok') {
 
 // ==================== SETUP ====================
 window.onload = () => {
-  if (apiUrl) { document.getElementById('setupOverlay').style.display='none'; }
+  document.getElementById('setupOverlay').style.display='none';
   renderAll();
 };
 function connectSheets() {
