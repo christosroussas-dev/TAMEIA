@@ -831,7 +831,6 @@ function exportCSV(){
 window.onload=async()=>{
   // 1. Χτίσε dropdowns
   buildMonthSelect('2026');
-  // Βρες τον τρέχοντα μήνα (2026)
   const now=new Date();
   const curMn=MONTHS_EL[now.getMonth()]+'_2026';
   document.getElementById('msel').value=curMn;
@@ -839,12 +838,46 @@ window.onload=async()=>{
   document.getElementById('mbadge').textContent=curMn.replace('_',' ');
   renderAll();
 
-  // 2. Φόρτωσε ΟΛΑ παράλληλα
-  const [,] = await Promise.all([
-    loadAllEpitages(),   // Όλες οι επιταγές (1 request)
-    loadFromSheets()     // Δεδομένα τρέχοντος μήνα (1 request)
+  // 2. Φόρτωσε ΚΡΙΣΙΜΑ παράλληλα (επιταγές + τρέχων μήνας)
+  await Promise.all([
+    loadAllEpitages(),
+    loadFromSheets()
   ]);
+
+  // 3. Προφόρτωσε ΟΛΑ τα υπόλοιπα στο παρασκήνιο (για instant popup)
+  preloadAllMonths();
 };
+
+// Προφόρτωση όλων των μηνών στο παρασκήνιο
+async function preloadAllMonths(){
+  const years=['2023','2024','2025','2026'];
+  const toLoad=[];
+  years.forEach(yr=>{
+    MONTHS_EL.forEach(mn=>{
+      const k=mn+'_'+yr;
+      if(!D.days[k]||D.days[k].length===0) toLoad.push(k);
+    });
+  });
+  // Φόρτωσε 3-3 για να μην φράξει το δίκτυο
+  for(let i=0;i<toLoad.length;i+=3){
+    const batch=toLoad.slice(i,i+3);
+    await Promise.all(batch.map(async k=>{
+      try{
+        const r=await fetch(API+'?action=load&month='+k);
+        const j=await r.json();
+        if(j.success&&j.exists&&j.data){
+          if(j.data.days) Object.assign(D.days,j.data.days);
+          if(j.data.trapEisp) Object.assign(D.trapEisp,j.data.trapEisp);
+          if(j.data.metrita) Object.assign(D.metrita,j.data.metrita);
+          if(j.data.bank) Object.assign(D.bank,j.data.bank);
+          if(j.data.d15) Object.assign(D.d15,j.data.d15);
+          if(j.data.telos) Object.assign(D.telos,j.data.telos);
+        }
+      }catch(e){}
+    }));
+  }
+  toast('Όλα τα δεδομένα φορτώθηκαν ✓','ok');
+}
 </script>
 
 <!-- DAY COMPARISON POPUP -->
