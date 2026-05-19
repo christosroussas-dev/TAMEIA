@@ -108,7 +108,7 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
     <div class="login-logo">ΑΦΟΙ ΡΟΥΣΣΑ</div>
     <div class="login-sub">ΛΙΟΣΙΑ · Σύστημα Ταμείου</div>
     <input class="login-inp" type="password" id="loginPin" placeholder="● ● ● ● ● ●" maxlength="10"
-      onkeydown="if(event.key==='Enter')doLogin()"/>
+      onkeydown="if(event.key==='Enter'){doLogin();}" onkeyup="" autocomplete="off"/>
     <button class="login-btn" onclick="doLogin()">ΕΙΣΟΔΟΣ</button>
     <div class="login-err" id="loginErr"></div>
   </div>
@@ -389,21 +389,26 @@ const HIST=[{year:'2023',month:1,total:43961,avg_day:1911,work_days:23},{year:'2
 const API='https://script.google.com/macros/s/AKfycbynzjoV1XpNn80eqnm5Z7SIn2271gEVOn5HQHM1qE4-DoygIov1wIDsJfWfVKDrok3S/exec';
 let CM='ΜΑΙΟΣ_2026';
 // AUTH
-const ROLES={ADMIN:'2481000', EMP:'2483'};
+const PIN_ADMIN='2481000';
+const PIN_EMP='2483';
 let currentRole=null;
 
 function doLogin(){
-  const pin=document.getElementById('loginPin').value.trim();
-  if(pin===ROLES.ADMIN){currentRole='ADMIN';applyRole();}
-  else if(pin===ROLES.EMP){currentRole='EMP';applyRole();}
-  else{
-    document.getElementById('loginErr').textContent='Λάθος κωδικός. Δοκιμάστε ξανά.';
+  var pin=document.getElementById('loginPin').value.trim();
+  var err=document.getElementById('loginErr');
+  if(pin===PIN_ADMIN){
+    currentRole='ADMIN';
+  } else if(pin===PIN_EMP){
+    currentRole='EMP';
+  } else {
+    err.textContent='Λάθος κωδικός!';
     document.getElementById('loginPin').value='';
     document.getElementById('loginPin').focus();
     return;
   }
+  err.textContent='';
+  applyRole();
   document.getElementById('loginScreen').style.display='none';
-  // Ξεκίνα φόρτωση
   initApp();
 }
 
