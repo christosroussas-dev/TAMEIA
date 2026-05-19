@@ -478,28 +478,24 @@ async function loadFromSheets(){
 // Φόρτωση ΟΛΩΝ των επιταγών - 1 request
 async function loadAllEpitages(){
   try{
-    // Προσπάθησε GET πρώτα
-    const r=await fetch(API+'?action=load&month=ALL_EPITAGES');
-    const text=await r.text();
-    const j=JSON.parse(text);
-    if(j.success&&j.exists&&j.data&&j.data.epitages&&j.data.epitages.length>0){
-      D.epitages=j.data.epitages;
-      renderEpit();runRules();
-      return;
-    }
-  }catch(e){}
-  try{
-    // Fallback: φόρτωσε ανά χρόνο
-    const years=['2026','2025','2024','2023'];
-    for(const yr of years){
-      const r=await fetch(API+'?action=load_epitages_year&year='+yr);
-      const j=await r.json();
-      if(j.success&&j.epitages){
-        j.epitages.forEach(e=>D.epitages.push(e));
+    D.epitages=[];
+    // Φόρτωσε ανά έτος - μικρά requests
+    const years=['2020','2021','2022','2023','2024','2025','2026','2027'];
+    const results=await Promise.all(years.map(yr=>
+      fetch(API+'?action=load&month=EPITAGES_'+yr)
+        .then(r=>r.json())
+        .catch(()=>null)
+    ));
+    results.forEach(j=>{
+      if(j&&j.success&&j.exists&&j.data&&j.data.epitages){
+        j.data.epitages.forEach(e=>D.epitages.push(e));
       }
+    });
+    if(D.epitages.length>0){
+      renderEpit();runRules();
+      toast('Επιταγές: '+D.epitages.length+' ✓','ok');
     }
-    if(D.epitages.length>0){renderEpit();runRules();}
-  }catch(e){}
+  }catch(e){toast('Αποτυχία φόρτωσης επιταγών','err');}
 }
 
 // TABS
