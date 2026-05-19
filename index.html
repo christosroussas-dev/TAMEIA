@@ -368,11 +368,11 @@ function toast(m,t='ok'){const el=document.getElementById('toast');el.textConten
 
 // ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ = Εισπράξεις + ΕισπράξειςΕμβάσματος - Κρατήσεις POS 1.3% - Μετρητά - Τράπεζα(ΛΙΟΣΙΑ) - 15ου(ΛΙΟΣΙΑ) - Τέλους(ΛΙΟΣΙΑ) - Επιταγές(ΛΙΟΣΙΑ)
 function calcYP(){
-  const k=ek(),mn=k.split('_')[0];
+  const k=ek(),mn=k.split('_')[0],yr=k.split('_')[1];
   const totalPos=(D.days[k]||[]).reduce((s,r)=>s+(r.pos||0),0);
   const totalMet=(D.days[k]||[]).reduce((s,r)=>s+(r.metrita||0),0);
-  const kratiseis=Math.round(totalPos*0.013*100)/100; // Κρατήσεις τράπεζας POS 1.3%
-  const eisp=totalMet+totalPos-kratiseis; // Καθαρές εισπράξεις
+  const kratiseis=Math.round(totalPos*0.013*100)/100;
+  const eisp=totalMet+totalPos-kratiseis;
   const tEisp=(D.trapEisp[k]||[]).reduce((s,r)=>s+(r.poso||0),0);
   const met=(D.metrita[k]||[]).reduce((s,r)=>s+(r.poso||0),0);
   const bnk=(D.bank[k]||[]).reduce((s,r)=>s+(r.poso||0),0);
