@@ -443,7 +443,6 @@ function changeYear(yr){
 async function changeMonth(v){
   CM=v;
   document.getElementById('mbadge').textContent=v.replace('_',' ');
-  // Καθάρισε τα δεδομένα του τρέχοντος μήνα για να μην φαίνονται τα παλιά
   D.days[v]=D.days[v]||[];
   D.trapEisp[v]=D.trapEisp[v]||[];
   D.trapPl[v]=D.trapPl[v]||[];
@@ -452,8 +451,37 @@ async function changeMonth(v){
   D.d15[v]=D.d15[v]||[];
   D.telos[v]=D.telos[v]||[];
   renderAll();
-  // Φόρτωσε από Sheet και κάνε render ξανά
   await loadFromSheets();
+  // Αν ο μήνας είναι νέος (κανένα δεδομένο), πρόσθεσε αυτόματα RLED + Επιταγές
+  autoInitNewMonth(v);
+}
+
+function autoInitNewMonth(v){
+  const hasData = (D.days[v]||[]).length > 0 ||
+                  (D.bank[v]||[]).length > 0 ||
+                  (D.metrita[v]||[]).length > 0;
+  if(hasData) return; // Ήδη έχει δεδομένα — μην κάνεις τίποτα
+
+  const mn = v.split('_')[0];
+  const yr = v.split('_')[1];
+
+  // 1. RLED — 2.000€ πάγιο κάθε μήνα
+  if(!(D.bank[v]||[]).some(r=>r.ait&&r.ait.includes('RLED'))){
+    if(!D.bank[v]) D.bank[v]=[];
+    D.bank[v].push({date:'', ait:'ΕΝΑΝΤΙ RLED', poso:2000});
+    toast('Προστέθηκε αυτόματα: RLED 2.000€','info');
+  }
+
+  // 2. Επιταγές του μήνα — από D.epitages
+  const monthEp = (D.epitages||[]).filter(e=>e.month===mn && e.date&&e.date.startsWith(yr));
+  if(monthEp.length > 0){
+    const epTot = monthEp.reduce((s,e)=>s+(e.liosia||0),0);
+    toast('Επιταγές μήνα: '+fmt(epTot)+' ('+monthEp.length+' επιταγές)','info');
+  }
+
+  renderAll();
+  // Αποθήκευσε αυτόματα
+  if(D.bank[v] && D.bank[v].length > 0) saveToSheets();
 }
 function renderAll(){buildDD();renderMain();renderTrap();renderMet();renderBnk();renderD5();renderTel();renderEpit();runRules();document.getElementById('mbadge').textContent=CM.replace('_',' ');}
 
