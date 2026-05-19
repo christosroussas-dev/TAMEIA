@@ -379,19 +379,10 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
 <div id="toast"></div>
 
 <script>
-const MONTHS_EL=['ΙΑΝΟΥΑΡΙΟΣ','ΦΕΒΡΟΥΑΡΙΟΣ','ΜΑΡΤΙΟΣ','ΑΠΡΙΛΙΟΣ','ΜΑΙΟΣ','ΙΟΥΝΙΟΣ','ΙΟΥΛΙΟΣ','ΑΥΓΟΥΣΤΟΣ','ΣΕΠΤΕΜΒΡΙΟΣ','ΟΚΤΩΒΡΙΟΣ','ΝΟΕΜΒΡΙΟΣ','ΔΕΚΕΜΒΡΙΟΣ'];
-const MS=['','ΙΑΝ','ΦΕΒ','ΜΑΡ','ΑΠΡ','ΜΑΙ','ΙΟΥ','ΙΟΛ','ΑΥΓ','ΣΕΠ','ΟΚΤ','ΝΟΕ','ΔΕΚ'];
-const DAYS=['ΚΥΡΙΑΚΗ','ΔΕΥΤΕΡΑ','ΤΡΙΤΗ','ΤΕΤΑΡΤΗ','ΠΕΜΠΤΗ','ΠΑΡΑΣΚΕΥΗ','ΣΑΒΒΑΤΟ'];
-const COL={'2023':'#5599dd','2024':'#4caf7d','2025':'#e0904b','2026':'#cc5577'};
-const TGT={1:{ok:1802,warn:1531,danger:1261},2:{ok:1719,warn:1461,danger:1203},3:{ok:1783,warn:1515,danger:1248},4:{ok:1664,warn:1414,danger:1165},5:{ok:1566,warn:1331,danger:1096},6:{ok:1807,warn:1536,danger:1265},7:{ok:1687,warn:1434,danger:1181},8:{ok:1286,warn:1093,danger:900},9:{ok:1687,warn:1434,danger:1181},10:{ok:1996,warn:1697,danger:1397},11:{ok:2138,warn:1817,danger:1497},12:{ok:2427,warn:2063,danger:1699}};
-const HIST=[{year:'2023',month:1,total:43961,avg_day:1911,work_days:23},{year:'2023',month:2,total:36293,avg_day:1578,work_days:23},{year:'2023',month:4,total:35028,avg_day:1459,work_days:24},{year:'2023',month:5,total:42001,avg_day:1615,work_days:26},{year:'2023',month:6,total:38781,avg_day:1551,work_days:25},{year:'2023',month:7,total:39202,avg_day:1568,work_days:25},{year:'2023',month:8,total:33557,avg_day:1290,work_days:26},{year:'2023',month:9,total:42202,avg_day:1623,work_days:26},{year:'2023',month:10,total:46615,avg_day:1864,work_days:25},{year:'2023',month:11,total:56596,avg_day:2176,work_days:26},{year:'2023',month:12,total:54226,avg_day:2259,work_days:24},{year:'2024',month:1,total:37874,avg_day:1578,work_days:24},{year:'2024',month:2,total:46498,avg_day:1859,work_days:25},{year:'2024',month:3,total:43350,avg_day:1806,work_days:24},{year:'2024',month:4,total:55096,avg_day:2119,work_days:26},{year:'2024',month:5,total:36073,avg_day:1442,work_days:25},{year:'2024',month:6,total:48456,avg_day:2019,work_days:24},{year:'2024',month:7,total:41940,avg_day:1553,work_days:27},{year:'2024',month:8,total:28744,avg_day:1105,work_days:26},{year:'2024',month:9,total:40509,avg_day:1620,work_days:25},{year:'2024',month:10,total:53451,avg_day:2055,work_days:26},{year:'2024',month:11,total:54648,avg_day:2101,work_days:26},{year:'2024',month:12,total:57113,avg_day:2379,work_days:24},{year:'2025',month:1,total:44038,avg_day:1834,work_days:24},{year:'2025',month:2,total:38833,avg_day:1618,work_days:24},{year:'2025',month:3,total:43415,avg_day:1736,work_days:25},{year:'2025',month:4,total:38330,avg_day:1533,work_days:25},{year:'2025',month:5,total:42678,avg_day:1641,work_days:26},{year:'2025',month:6,total:44418,avg_day:1850,work_days:24},{year:'2025',month:7,total:52408,avg_day:1941,work_days:27},{year:'2025',month:8,total:36491,avg_day:1459,work_days:25},{year:'2025',month:9,total:47233,avg_day:1816,work_days:26},{year:'2025',month:10,total:53773,avg_day:2068,work_days:26},{year:'2025',month:11,total:53364,avg_day:2134,work_days:25},{year:'2025',month:12,total:66027,avg_day:2641,work_days:25},{year:'2026',month:1,total:45196,avg_day:1883,work_days:24},{year:'2026',month:2,total:40008,avg_day:1818,work_days:22},{year:'2026',month:3,total:45126,avg_day:1805,work_days:25},{year:'2026',month:4,total:38589,avg_day:1543,work_days:25}];
-
-const API='https://script.google.com/macros/s/AKfycbynzjoV1XpNn80eqnm5Z7SIn2271gEVOn5HQHM1qE4-DoygIov1wIDsJfWfVKDrok3S/exec';
-let CM='ΜΑΙΟΣ_2026';
-// AUTH
-const PIN_ADMIN='2481000';
-const PIN_EMP='2483';
-let currentRole=null;
+// === LOGIN ===
+var PIN_ADMIN='2481000';
+var PIN_EMP='2483';
+var currentRole=null;
 
 function doLogin(){
   var pin=document.getElementById('loginPin').value.trim();
@@ -407,10 +398,33 @@ function doLogin(){
     return;
   }
   err.textContent='';
-  applyRole();
   document.getElementById('loginScreen').style.display='none';
+  applyRole();
   initApp();
 }
+
+function doLogout(){
+  currentRole=null;
+  // Reset D
+  Object.keys(D.days).forEach(k=>delete D.days[k]);
+  document.getElementById('loginPin').value='';
+  document.getElementById('loginErr').textContent='';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loginPin').focus();
+}
+// === END LOGIN ===
+
+const MONTHS_EL=['ΙΑΝΟΥΑΡΙΟΣ','ΦΕΒΡΟΥΑΡΙΟΣ','ΜΑΡΤΙΟΣ','ΑΠΡΙΛΙΟΣ','ΜΑΙΟΣ','ΙΟΥΝΙΟΣ','ΙΟΥΛΙΟΣ','ΑΥΓΟΥΣΤΟΣ','ΣΕΠΤΕΜΒΡΙΟΣ','ΟΚΤΩΒΡΙΟΣ','ΝΟΕΜΒΡΙΟΣ','ΔΕΚΕΜΒΡΙΟΣ'];
+const MS=['','ΙΑΝ','ΦΕΒ','ΜΑΡ','ΑΠΡ','ΜΑΙ','ΙΟΥ','ΙΟΛ','ΑΥΓ','ΣΕΠ','ΟΚΤ','ΝΟΕ','ΔΕΚ'];
+const DAYS=['ΚΥΡΙΑΚΗ','ΔΕΥΤΕΡΑ','ΤΡΙΤΗ','ΤΕΤΑΡΤΗ','ΠΕΜΠΤΗ','ΠΑΡΑΣΚΕΥΗ','ΣΑΒΒΑΤΟ'];
+const COL={'2023':'#5599dd','2024':'#4caf7d','2025':'#e0904b','2026':'#cc5577'};
+const TGT={1:{ok:1802,warn:1531,danger:1261},2:{ok:1719,warn:1461,danger:1203},3:{ok:1783,warn:1515,danger:1248},4:{ok:1664,warn:1414,danger:1165},5:{ok:1566,warn:1331,danger:1096},6:{ok:1807,warn:1536,danger:1265},7:{ok:1687,warn:1434,danger:1181},8:{ok:1286,warn:1093,danger:900},9:{ok:1687,warn:1434,danger:1181},10:{ok:1996,warn:1697,danger:1397},11:{ok:2138,warn:1817,danger:1497},12:{ok:2427,warn:2063,danger:1699}};
+const HIST=[{year:'2023',month:1,total:43961,avg_day:1911,work_days:23},{year:'2023',month:2,total:36293,avg_day:1578,work_days:23},{year:'2023',month:4,total:35028,avg_day:1459,work_days:24},{year:'2023',month:5,total:42001,avg_day:1615,work_days:26},{year:'2023',month:6,total:38781,avg_day:1551,work_days:25},{year:'2023',month:7,total:39202,avg_day:1568,work_days:25},{year:'2023',month:8,total:33557,avg_day:1290,work_days:26},{year:'2023',month:9,total:42202,avg_day:1623,work_days:26},{year:'2023',month:10,total:46615,avg_day:1864,work_days:25},{year:'2023',month:11,total:56596,avg_day:2176,work_days:26},{year:'2023',month:12,total:54226,avg_day:2259,work_days:24},{year:'2024',month:1,total:37874,avg_day:1578,work_days:24},{year:'2024',month:2,total:46498,avg_day:1859,work_days:25},{year:'2024',month:3,total:43350,avg_day:1806,work_days:24},{year:'2024',month:4,total:55096,avg_day:2119,work_days:26},{year:'2024',month:5,total:36073,avg_day:1442,work_days:25},{year:'2024',month:6,total:48456,avg_day:2019,work_days:24},{year:'2024',month:7,total:41940,avg_day:1553,work_days:27},{year:'2024',month:8,total:28744,avg_day:1105,work_days:26},{year:'2024',month:9,total:40509,avg_day:1620,work_days:25},{year:'2024',month:10,total:53451,avg_day:2055,work_days:26},{year:'2024',month:11,total:54648,avg_day:2101,work_days:26},{year:'2024',month:12,total:57113,avg_day:2379,work_days:24},{year:'2025',month:1,total:44038,avg_day:1834,work_days:24},{year:'2025',month:2,total:38833,avg_day:1618,work_days:24},{year:'2025',month:3,total:43415,avg_day:1736,work_days:25},{year:'2025',month:4,total:38330,avg_day:1533,work_days:25},{year:'2025',month:5,total:42678,avg_day:1641,work_days:26},{year:'2025',month:6,total:44418,avg_day:1850,work_days:24},{year:'2025',month:7,total:52408,avg_day:1941,work_days:27},{year:'2025',month:8,total:36491,avg_day:1459,work_days:25},{year:'2025',month:9,total:47233,avg_day:1816,work_days:26},{year:'2025',month:10,total:53773,avg_day:2068,work_days:26},{year:'2025',month:11,total:53364,avg_day:2134,work_days:25},{year:'2025',month:12,total:66027,avg_day:2641,work_days:25},{year:'2026',month:1,total:45196,avg_day:1883,work_days:24},{year:'2026',month:2,total:40008,avg_day:1818,work_days:22},{year:'2026',month:3,total:45126,avg_day:1805,work_days:25},{year:'2026',month:4,total:38589,avg_day:1543,work_days:25}];
+
+const API='https://script.google.com/macros/s/AKfycbynzjoV1XpNn80eqnm5Z7SIn2271gEVOn5HQHM1qE4-DoygIov1wIDsJfWfVKDrok3S/exec';
+let CM='ΜΑΙΟΣ_2026';
+// AUTH
+// LOGIN_PLACEHOLDER
 
 function applyRole(){
   const isAdmin=currentRole==='ADMIN';
