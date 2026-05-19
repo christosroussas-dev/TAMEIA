@@ -432,6 +432,8 @@ function applyRole(){
 
 
 function gmi(ms){const[mn,yr]=ms.split('_');const mi=MONTHS_EL.indexOf(mn);const y=parseInt(yr);return{mi,y,days:new Date(y,mi+1,0).getDate()};}
+function ek(){return CM;}
+function ea(obj,k){if(!obj[k])obj[k]=[];}
 function dn(y,mi,d){return DAYS[new Date(y,mi,d).getDay()];}
 function toast(m,t='ok'){const el=document.getElementById('toast');el.textContent=m;el.className='show '+t;setTimeout(()=>el.classList.remove('show'),2600);}
 
