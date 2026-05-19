@@ -384,7 +384,7 @@ var PIN_ADMIN='2481000';
 var PIN_EMP='2483';
 var currentRole=null;
 
-function doLogin(){
+async function doLogin(){
   var pin=document.getElementById('loginPin').value.trim();
   var err=document.getElementById('loginErr');
   if(pin===PIN_ADMIN){
@@ -399,8 +399,8 @@ function doLogin(){
   }
   err.textContent='';
   document.getElementById('loginScreen').style.display='none';
+  await initApp();
   applyRole();
-  initApp();
 }
 
 function doLogout(){
@@ -446,17 +446,21 @@ function applyRole(){
       if(oc.indexOf("'epitages'")>-1) hide=true;
       if(oc.indexOf("'stats'")>-1) hide=true;
       if(oc.indexOf("'alerts'")>-1) hide=true;
+      if(oc.indexOf("'metrita'")>-1) hide=true;
     }
     tab.style.display=hide?'none':'';
   });
 
-  // ΑΠΟΘ + ΦΟΡΤ κουμπιά — μόνο admin
+  // ΑΠΟΘ + ΦΟΡΤ + EXCEL κουμπιά — μόνο admin
   document.querySelectorAll('.btn').forEach(function(b){
     var txt=b.textContent||'';
-    if(txt.indexOf('ΑΠΟΘ')>-1||txt.indexOf('ΦΟΡΤ')>-1){
+    if(txt.indexOf('ΑΠΟΘ')>-1||txt.indexOf('ΦΟΡΤ')>-1||txt.indexOf('EXCEL')>-1){
       b.style.display=isAdmin?'':'none';
     }
   });
+  // Κρύψε year selector από εργαζόμενο
+  var ysel=document.getElementById('ysel');
+  if(ysel) ysel.style.display=isAdmin?'':'none';
 }
 
 
