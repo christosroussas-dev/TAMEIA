@@ -904,6 +904,8 @@ async function initApp(){
   document.getElementById('mbadge').textContent=curMn.replace('_',' ');
   renderAll();
   await Promise.all([loadAllEpitages(),loadFromSheets()]);
+  renderEpit();
+  runRules();
   preloadAllMonths();
 }
 
