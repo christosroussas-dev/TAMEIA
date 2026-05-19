@@ -424,52 +424,47 @@ const HIST=[{year:'2023',month:1,total:43961,avg_day:1911,work_days:23},{year:'2
 const API='https://script.google.com/macros/s/AKfycbynzjoV1XpNn80eqnm5Z7SIn2271gEVOn5HQHM1qE4-DoygIov1wIDsJfWfVKDrok3S/exec';
 let CM='ΜΑΙΟΣ_2026';
 // AUTH
-// LOGIN_PLACEHOLDER
+
 
 function applyRole(){
-  const isAdmin=currentRole==='ADMIN';
+  var isAdmin=(currentRole==='ADMIN');
   
   // User badge
-  const label=document.getElementById('userLabel');
+  var label=document.getElementById('userLabel');
   if(label){
-    label.textContent=isAdmin?'👑 ADMIN':'👤 ΕΡΓΑΖΟΜΕΝΟΣ';
+    label.textContent=isAdmin?'ADMIN':'ΕΡΓΑΖΟΜΕΝΟΣ';
     label.style.background=isAdmin?'rgba(184,148,42,.2)':'rgba(76,175,125,.15)';
     label.style.color=isAdmin?'var(--accent)':'var(--green)';
-    label.style.border=isAdmin?'1px solid var(--accent)':'1px solid var(--green)';
+    label.style.border=isAdmin?'1px solid rgba(184,148,42,.5)':'1px solid rgba(76,175,125,.5)';
   }
 
-  // Καρτέλες που κρύβονται από υπάλληλο
-  const adminTabs=['trap','bank','d5','telos','epitages','stats','alerts'];
-  adminTabs.forEach(id=>{
-    const tab=document.querySelector('[onclick*="''+id+''"]');
-    if(tab) tab.style.display=isAdmin?'':'none';
+  // Κρύψε/δείξε καρτέλες
+  var allTabs=document.querySelectorAll('.tab');
+  allTabs.forEach(function(tab){
+    var oc=tab.getAttribute('onclick')||'';
+    var hide=false;
+    if(!isAdmin){
+      if(oc.indexOf("'trap'")>-1) hide=true;
+      if(oc.indexOf("'bank'")>-1) hide=true;
+      if(oc.indexOf("'d5'")>-1) hide=true;
+      if(oc.indexOf("'telos'")>-1) hide=true;
+      if(oc.indexOf("'epitages'")>-1) hide=true;
+      if(oc.indexOf("'stats'")>-1) hide=true;
+      if(oc.indexOf("'alerts'")>-1) hide=true;
+    }
+    tab.style.display=hide?'none':'';
   });
-  
-  // Καρτέλα ΜΕΤΡΗΤΑ — υπάλληλος τη βλέπει
-  const metTab=document.querySelector('[onclick*="'metrita'"]');
-  if(metTab) metTab.style.display='';
 
   // ΑΠΟΘ + ΦΟΡΤ κουμπιά — μόνο admin
-  document.querySelectorAll('.btn').forEach(b=>{
-    if(b.textContent.includes('ΑΠΟΘ')) b.style.display=isAdmin?'':'none';
-    if(b.textContent.includes('ΦΟΡΤ')) b.style.display=isAdmin?'':'none';
+  document.querySelectorAll('.btn').forEach(function(b){
+    var txt=b.textContent||'';
+    if(txt.indexOf('ΑΠΟΘ')>-1||txt.indexOf('ΦΟΡΤ')>-1){
+      b.style.display=isAdmin?'':'none';
+    }
   });
 }
 
-function doLogout(){
-  currentRole=null;
-  document.getElementById('loginPin').value='';
-  document.getElementById('loginErr').textContent='';
-  document.getElementById('loginScreen').style.display='flex';
-  document.getElementById('loginPin').focus();
-}
 
-let D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},epitages:[]};
-
-const fmt=n=>(n||0).toLocaleString('el-GR',{minimumFractionDigits:2,maximumFractionDigits:2})+'€';
-const fK=n=>((n||0)/1000).toFixed(1)+'κ€';
-const ek=()=>CM;
-const ea=(o,k)=>{if(!o[k])o[k]=[];};
 function gmi(ms){const[mn,yr]=ms.split('_');const mi=MONTHS_EL.indexOf(mn);const y=parseInt(yr);return{mi,y,days:new Date(y,mi+1,0).getDate()};}
 function dn(y,mi,d){return DAYS[new Date(y,mi,d).getDay()];}
 function toast(m,t='ok'){const el=document.getElementById('toast');el.textContent=m;el.className='show '+t;setTimeout(()=>el.classList.remove('show'),2600);}
