@@ -879,14 +879,11 @@ function renderStats(){
   // Για σύγκριση vs πέρσι — ίδιοι μήνες
   document.getElementById('statsKpis').innerHTML=['2023','2024','2025','2026'].map(yr=>{
     const tot=yt[yr];
-    const nMonths=yt[yr+'_months']||1;
     const label=yt[yr+'_label']||'';
-    // Σύγκριση με ίδιους μήνες πέρσι
     const prevYr=String(parseInt(yr)-1);
     let d=null;
     if(yt[prevYr]){
       if(yr===curYear){
-        // Σύγκριση ίδιων μηνών πέρσι
         const prevSameMonths=HIST.filter(r=>r.year===prevYr&&r.month<=curMonth-1).reduce((s,r)=>s+r.total,0);
         if(prevSameMonths>0) d=(tot-prevSameMonths)/prevSameMonths*100;
       } else {
@@ -894,12 +891,9 @@ function renderStats(){
       }
     }
     const isCur=yr===curYear;
-    return\`<div class="kpi" style="border-top:2px solid \${COL[yr]}!important">
-      <div class="kl">\${yr}\${isCur?' (εως τωρα)':''}</div>
-      <div class="kv">\${fmt(tot)}</div>
-      \${label?'<div class="ks" style="color:var(--muted)">'+label+'</div>':''}
-      \${d!==null?'<div class="ks" style="color:'+(d>=0?'var(--green)':'var(--red)')+'">'+(d>=0?'▲':'▼')+Math.abs(d).toFixed(1)+'% vs πέρσι</div>':''}
-    </div>\`;
+    const pct=d!==null?'<div class="ks" style="color:'+(d>=0?'var(--green)':'var(--red)')+'">'+(d>=0?'▲':'▼')+Math.abs(d).toFixed(1)+'% vs πέρσι</div>':'';
+    const lbl=label?'<div class="ks" style="color:var(--muted)">'+label+'</div>':'';
+    return '<div class="kpi" style="border-top:2px solid '+COL[yr]+'!important"><div class="kl">'+yr+(isCur?' (εως τωρα)')+'</div><div class="kv">'+fmt(tot)+'</div>'+lbl+pct+'</div>';
   }).join('');
   const chart=document.getElementById('histChart');chart.innerHTML='';
   const maxV=Math.max(...HIST.map(r=>r.total));
