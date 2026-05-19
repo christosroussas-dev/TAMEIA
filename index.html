@@ -453,7 +453,10 @@ async function changeMonth(v){
   D.telos[v]=D.telos[v]||[];
   renderAll();
   await loadFromSheets();
-  // Αν ο μήνας είναι νέος (κανένα δεδομένο), πρόσθεσε αυτόματα RLED + Επιταγές
+  // Αν ο μήνας είναι νέος — μετά τη φόρτωση των επιταγών
+  if(D.epitages.length===0){
+    await loadAllEpitages();
+  }
   autoInitNewMonth(v);
 }
 
@@ -461,28 +464,33 @@ function autoInitNewMonth(v){
   const hasData = (D.days[v]||[]).length > 0 ||
                   (D.bank[v]||[]).length > 0 ||
                   (D.metrita[v]||[]).length > 0;
-  if(hasData) return; // Ήδη έχει δεδομένα — μην κάνεις τίποτα
+  if(hasData) return;
 
   const mn = v.split('_')[0];
   const yr = v.split('_')[1];
 
-  // 1. RLED — 2.000€ πάγιο κάθε μήνα
-  if(!(D.bank[v]||[]).some(r=>r.ait&&r.ait.includes('RLED'))){
-    if(!D.bank[v]) D.bank[v]=[];
+  // 1. RLED — 2.000€ πάγιο
+  if(!D.bank[v]) D.bank[v]=[];
+  if(!(D.bank[v]).some(r=>r.ait&&r.ait.includes('RLED'))){
     D.bank[v].push({date:'', ait:'ΕΝΑΝΤΙ RLED', poso:2000});
-    toast('Προστέθηκε αυτόματα: RLED 2.000€','info');
   }
 
-  // 2. Επιταγές του μήνα — από D.epitages
-  const monthEp = (D.epitages||[]).filter(e=>e.month===mn && e.date&&e.date.startsWith(yr));
-  if(monthEp.length > 0){
-    const epTot = monthEp.reduce((s,e)=>s+(e.liosia||0),0);
-    toast('Επιταγές μήνα: '+fmt(epTot)+' ('+monthEp.length+' επιταγές)','info');
-  }
+  // 2. Εισπράξεις εμβάσματος — κρατήσεις POS προηγ. μήνα (αν υπάρχουν)
+  // Αυτό το αφήνουμε για χειροκίνητη καταχώρηση
 
+  // 3. Ενημέρωση — δείξε επιταγές μήνα
+  const monthEp=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr))));
+  const epTot=monthEp.reduce((s,e)=>s+(e.liosia||0),0);
+  
   renderAll();
-  // Αποθήκευσε αυτόματα
-  if(D.bank[v] && D.bank[v].length > 0) saveToSheets();
+  
+  if(epTot>0){
+    toast('RLED 2.000€ + Επιταγές '+fmt(epTot),'info');
+  } else {
+    toast('Προστέθηκε: RLED 2.000€','info');
+  }
+  
+  saveToSheets();
 }
 function renderAll(){buildDD();renderMain();renderTrap();renderMet();renderBnk();renderD5();renderTel();renderEpit();runRules();document.getElementById('mbadge').textContent=CM.replace('_',' ');}
 
