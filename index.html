@@ -379,39 +379,6 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
 <div id="toast"></div>
 
 <script>
-// === LOGIN ===
-var PIN_ADMIN='2481000';
-var PIN_EMP='2483';
-var currentRole=null;
-
-async function doLogin(){
-  var pin=document.getElementById('loginPin').value.trim();
-  var err=document.getElementById('loginErr');
-  if(pin===PIN_ADMIN){
-    currentRole='ADMIN';
-  } else if(pin===PIN_EMP){
-    currentRole='EMP';
-  } else {
-    err.textContent='Λάθος κωδικός!';
-    document.getElementById('loginPin').value='';
-    document.getElementById('loginPin').focus();
-    return;
-  }
-  err.textContent='';
-  document.getElementById('loginScreen').style.display='none';
-  await initApp();
-  applyRole();
-}
-
-function doLogout(){
-  currentRole=null;
-  document.getElementById('loginPin').value='';
-  document.getElementById('loginErr').textContent='';
-  document.getElementById('loginScreen').style.display='flex';
-  document.getElementById('loginPin').focus();
-}
-// === END LOGIN ===
-
 const MONTHS_EL=['ΙΑΝΟΥΑΡΙΟΣ','ΦΕΒΡΟΥΑΡΙΟΣ','ΜΑΡΤΙΟΣ','ΑΠΡΙΛΙΟΣ','ΜΑΙΟΣ','ΙΟΥΝΙΟΣ','ΙΟΥΛΙΟΣ','ΑΥΓΟΥΣΤΟΣ','ΣΕΠΤΕΜΒΡΙΟΣ','ΟΚΤΩΒΡΙΟΣ','ΝΟΕΜΒΡΙΟΣ','ΔΕΚΕΜΒΡΙΟΣ'];
 const MS=['','ΙΑΝ','ΦΕΒ','ΜΑΡ','ΑΠΡ','ΜΑΙ','ΙΟΥ','ΙΟΛ','ΑΥΓ','ΣΕΠ','ΟΚΤ','ΝΟΕ','ΔΕΚ'];
 const DAYS=['ΚΥΡΙΑΚΗ','ΔΕΥΤΕΡΑ','ΤΡΙΤΗ','ΤΕΤΑΡΤΗ','ΠΕΜΠΤΗ','ΠΑΡΑΣΚΕΥΗ','ΣΑΒΒΑΤΟ'];
@@ -936,8 +903,40 @@ async function initApp(){
   preloadAllMonths();
 }
 
-window.onload=()=>{
-  // Εμφάνισε login — περίμενε PIN
+// === LOGIN SYSTEM ===
+var PIN_ADMIN='2481000';
+var PIN_EMP='2483';
+var currentRole=null;
+
+async function doLogin(){
+  var pin=document.getElementById('loginPin').value.trim();
+  var err=document.getElementById('loginErr');
+  if(pin===PIN_ADMIN){
+    currentRole='ADMIN';
+  } else if(pin===PIN_EMP){
+    currentRole='EMP';
+  } else {
+    err.textContent='Λάθος κωδικός!';
+    document.getElementById('loginPin').value='';
+    document.getElementById('loginPin').focus();
+    return;
+  }
+  err.textContent='';
+  document.getElementById('loginScreen').style.display='none';
+  await initApp();
+  applyRole();
+}
+
+function doLogout(){
+  currentRole=null;
+  document.getElementById('loginPin').value='';
+  document.getElementById('loginErr').textContent='';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loginPin').focus();
+}
+// === END LOGIN ===
+
+window.onload=function(){
   document.getElementById('loginPin').focus();
 };
 
