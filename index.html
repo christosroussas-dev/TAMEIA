@@ -378,7 +378,8 @@ function calcYP(){
   const bnk=(D.bank[k]||[]).reduce((s,r)=>s+(r.poso||0),0);
   const d15=(D.d15[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
   const tel=(D.telos[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
-  const epit=(D.epitages||[]).filter(e=>e.month===mn&&e.date&&e.date.startsWith(yr)).reduce((s,e)=>s+(e.liosia||0),0);
+  // Χρησιμοποιούμε file_year (έτος αρχείου) αντί για έτος λήξης
+  const epit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(e.liosia||0),0);
   return eisp+tEisp-met-bnk-d15-tel-epit;
 }
 
@@ -570,7 +571,7 @@ function renderMain(){
   const pMet=(D.metrita[k]||[]).reduce((s,r)=>s+r.poso,0),pBnk=(D.bank[k]||[]).reduce((s,r)=>s+r.poso,0);
   const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(r.liosia||0),0),pTel=(D.telos[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
   const pEisp=(D.trapEisp[k]||[]).reduce((s,r)=>s+r.poso,0);
-  const mn=ek().split('_')[0],yr2=ek().split('_')[1],pEpit=(D.epitages||[]).filter(e=>e.month===mn&&e.date&&e.date.startsWith(yr2)).reduce((s,e)=>s+(e.liosia||0),0);
+  const mn=ek().split('_')[0],yr2=ek().split('_')[1],pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr2||(e.date&&e.date.startsWith(yr2)))).reduce((s,e)=>s+(e.liosia||0),0);
   const allP=pMet+pBnk+pD5+pTel+pEpit;
   document.getElementById('sumBody').innerHTML=`
     <tr><td>Σύνολο Εισπράξεων + POS</td><td class="pos">${fmt(tAll)}</td></tr>
