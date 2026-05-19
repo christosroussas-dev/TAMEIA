@@ -118,7 +118,7 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
   <div class="logo" onclick="window.location.reload(true)" style="cursor:pointer" title="Ανανέωση">ΑΦΟΙ ΡΟΥΣΣΑ · ΛΙΟΣΙΑ</div>
   <div id="userBadge" style="display:flex;align-items:center;gap:8px;margin-left:8px;">
     <span id="userLabel" style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.05em;"></span>
-    <button onclick="doLogout()" style="background:none;border:1px solid var(--border2);color:var(--muted);padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer;font-weight:700;" title="Αποσύνδεση">⏻ ΕΞΟΔΟΣ</button>
+    <button onclick="doLogout()" style="background:none;border:1px solid var(--border2);color:var(--muted);padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer;font-weight:700;" title="Αποσύνδεση" onclick="doLogout()">⏻ ΕΞΟΔΟΣ</button>
   </div>
   <div class="mbadge" id="mbadge">ΜΑΙΟΣ 2026</div>
   <div class="hr">
@@ -405,8 +405,6 @@ function doLogin(){
 
 function doLogout(){
   currentRole=null;
-  // Reset D
-  Object.keys(D.days).forEach(k=>delete D.days[k]);
   document.getElementById('loginPin').value='';
   document.getElementById('loginErr').textContent='';
   document.getElementById('loginScreen').style.display='flex';
@@ -423,9 +421,6 @@ const HIST=[{year:'2023',month:1,total:43961,avg_day:1911,work_days:23},{year:'2
 
 const API='https://script.google.com/macros/s/AKfycbynzjoV1XpNn80eqnm5Z7SIn2271gEVOn5HQHM1qE4-DoygIov1wIDsJfWfVKDrok3S/exec';
 let CM='ΜΑΙΟΣ_2026';
-// AUTH
-
-
 function applyRole(){
   var isAdmin=(currentRole==='ADMIN');
   
