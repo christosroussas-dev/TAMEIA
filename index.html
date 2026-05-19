@@ -547,67 +547,74 @@ function addDay(){
 }
 function closeDayPopup(){document.getElementById('dayPopup').style.display='none';}
 
-function showDayPopup(day, dname, mi, currentYear){
-  const MONTHS_SHORT=['','ΙΑΝ','ΦΕΒ','ΜΑΡ','ΑΠΡ','ΜΑΙ','ΙΟΥ','ΙΟΛ','ΑΥΓ','ΣΕΠ','ΟΚΤ','ΝΟΕ','ΔΕΚ'];
+async function showDayPopup(day, dname, mi, currentYear){
   const monthEl=MONTHS_EL[mi];
   const popup=document.getElementById('dayPopup');
-  
-  // Βρες δεδομένα για αυτή τη μέρα στον τρέχοντα μήνα
-  const k=monthEl+'_'+currentYear;
-  const cur=(D.days[k]||[]).find(r=>r.day===day);
-  const curTot=cur?(cur.metrita+cur.pos):0;
-  
-  // Τίτλος
   document.getElementById('popupTitle').textContent=day+' '+dname+' — Σύγκριση ετών';
-  
-  // Φτιάξε πίνακα σύγκρισης
+  document.getElementById('popupContent').innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">Φόρτωση...</div>';
+  popup.style.display='flex';
+
+  // Φόρτωσε παράλληλα όλα τα έτη από το Sheet
+  const years=[currentYear,currentYear-1,currentYear-2,currentYear-3].filter(y=>y>=2023);
+  const fetchYear=async(yr)=>{
+    const k=monthEl+'_'+yr;
+    // Αν ήδη φορτωμένο στη μνήμη
+    if(D.days[k]&&D.days[k].length>0) return {yr,days:D.days[k]};
+    // Αλλιώς φόρτωσε από Sheet
+    try{
+      const r=await fetch(API+'?action=load&month='+k);
+      const j=await r.json();
+      if(j.success&&j.exists&&j.data&&j.data.days){
+        const days=j.data.days[k]||[];
+        D.days[k]=days; // Cache
+        return {yr,days};
+      }
+    }catch(e){}
+    return {yr,days:[]};
+  };
+
+  const results=await Promise.all(years.map(fetchYear));
+
+  // Βρες τρέχον σύνολο
+  const curRes=results.find(r=>r.yr===currentYear);
+  const curDay=curRes?(curRes.days.find(r=>r.day===day)):null;
+  const curTot=curDay?(curDay.metrita+curDay.pos):0;
+
   let rows='';
-  const years=[currentYear, currentYear-1, currentYear-2, currentYear-3].filter(y=>y>=2023);
-  
-  years.forEach(yr=>{
-    const mk=monthEl+'_'+yr;
-    const dayData=(D.days[mk]||[]).find(r=>r.day===day);
+  results.forEach(({yr,days})=>{
+    const dayData=days.find(r=>r.day===day);
     const tot=dayData?(dayData.metrita+dayData.pos):null;
     const isCurrent=yr===currentYear;
-    
-    // Ποσοστό vs τρέχον έτος
     let pct='';
-    if(!isCurrent && tot!==null && curTot>0){
+    if(!isCurrent&&tot!==null&&tot>0){
       const diff=((curTot-tot)/tot*100);
       pct=`<span style="color:${diff>=0?'var(--green)':'var(--red)'};font-weight:700;">${diff>=0?'▲':'▼'}${Math.abs(diff).toFixed(1)}%</span>`;
     }
-    
-    const bg=isCurrent?'rgba(184,148,42,.1)':'var(--bg3)';
-    const border=isCurrent?'var(--accent)':'var(--border2)';
-    
     if(tot!==null){
-      rows+=`<tr style="background:${bg};">
-        <td style="padding:8px 12px;font-weight:${isCurrent?'700':'400'};color:${isCurrent?'var(--accent)':'var(--text)'};">${yr}${isCurrent?' (τώρα)':''}</td>
+      rows+=`<tr style="background:${isCurrent?'rgba(184,148,42,.1)':'var(--bg3)'};">
+        <td style="padding:8px 12px;font-weight:${isCurrent?700:400};color:${isCurrent?'var(--accent)':'var(--text)'};">${yr}${isCurrent?' ★':''}</td>
         <td style="padding:8px 12px;font-family:var(--mono);text-align:right;">${fmt(dayData.metrita)}</td>
         <td style="padding:8px 12px;font-family:var(--mono);text-align:right;color:var(--blue);">${fmt(dayData.pos)}</td>
         <td style="padding:8px 12px;font-family:var(--mono);text-align:right;font-weight:700;">${fmt(tot)}</td>
         <td style="padding:8px 12px;text-align:right;">${pct}</td>
       </tr>`;
-    } else if(yr<currentYear) {
-      rows+=`<tr><td style="padding:8px 12px;color:var(--muted);">${yr}</td><td colspan="4" style="padding:8px 12px;color:var(--muted);font-size:11px;">Δεν βρέθηκαν δεδομένα</td></tr>`;
+    } else {
+      rows+=`<tr><td style="padding:8px 12px;color:var(--muted);">${yr}</td>
+        <td colspan="4" style="padding:8px 12px;color:var(--muted);font-size:11px;">Δεν υπάρχουν δεδομένα</td></tr>`;
     }
   });
-  
+
   document.getElementById('popupContent').innerHTML=`
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
-      <thead>
-        <tr style="border-bottom:1px solid var(--border2);">
-          <th style="padding:6px 12px;text-align:left;font-size:10px;color:var(--muted);">ΕΤΟΣ</th>
-          <th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">ΜΕΤΡΗΤΑ</th>
-          <th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">POS</th>
-          <th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">ΣΥΝΟΛΟ</th>
-          <th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">vs ΤΩΡΑ</th>
-        </tr>
-      </thead>
+      <thead><tr style="border-bottom:1px solid var(--border2);">
+        <th style="padding:6px 12px;text-align:left;font-size:10px;color:var(--muted);">ΕΤΟΣ</th>
+        <th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">ΜΕΤΡΗΤΑ</th>
+        <th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">POS</th>
+        <th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">ΣΥΝΟΛΟ</th>
+        <th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">vs ΤΩΡΑ</th>
+      </tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
-  
-  popup.style.display='flex';
 }
 
 function delDay(d){const k=ek();D.days[k]=(D.days[k]||[]).filter(r=>r.day!==d);renderAll();saveToSheets();}
