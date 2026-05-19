@@ -378,7 +378,7 @@ function calcYP(){
   const bnk=(D.bank[k]||[]).reduce((s,r)=>s+(r.poso||0),0);
   const d15=(D.d15[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
   const tel=(D.telos[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
-  const epit=(D.epitages||[]).filter(e=>e.month===mn).reduce((s,e)=>s+(e.liosia||0),0);
+  const epit=(D.epitages||[]).filter(e=>e.month===mn&&e.date&&e.date.startsWith(yr)).reduce((s,e)=>s+(e.liosia||0),0);
   return eisp+tEisp-met-bnk-d15-tel-epit;
 }
 
@@ -570,7 +570,7 @@ function renderMain(){
   const pMet=(D.metrita[k]||[]).reduce((s,r)=>s+r.poso,0),pBnk=(D.bank[k]||[]).reduce((s,r)=>s+r.poso,0);
   const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(r.liosia||0),0),pTel=(D.telos[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
   const pEisp=(D.trapEisp[k]||[]).reduce((s,r)=>s+r.poso,0);
-  const mn=ek().split('_')[0],pEpit=(D.epitages||[]).filter(e=>e.month===mn).reduce((s,e)=>s+(e.liosia||0),0);
+  const mn=ek().split('_')[0],yr2=ek().split('_')[1],pEpit=(D.epitages||[]).filter(e=>e.month===mn&&e.date&&e.date.startsWith(yr2)).reduce((s,e)=>s+(e.liosia||0),0);
   const allP=pMet+pBnk+pD5+pTel+pEpit;
   document.getElementById('sumBody').innerHTML=`
     <tr><td>Σύνολο Εισπράξεων + POS</td><td class="pos">${fmt(tAll)}</td></tr>
@@ -692,8 +692,8 @@ function runRules(){
   const tAllNet=tAll-kratiseis; // Καθαρό (αφαιρεί κρατήσεις POS)
   const avg=wd?tAllNet/wd:0,yp=calcYP(),t=TGT[mi+1]||{ok:1700,warn:1445,danger:1190};
   const today=new Date().toISOString().slice(0,10),in10=new Date();in10.setDate(in10.getDate()+10);const in30=new Date();in30.setDate(in30.getDate()+30);
-  const ep10=(D.epitages||[]).filter(e=>e.date&&e.date>=today&&new Date(e.date)<=in10).reduce((s,e)=>s+(e.liosia||0),0);
-  const ep30=(D.epitages||[]).filter(e=>e.date&&e.date>=today&&new Date(e.date)<=in30).reduce((s,e)=>s+(e.liosia||0),0);
+  const ep10=(D.epitages||[]).filter(e=>e.date&&e.date>=today&&new Date(e.date)<=in10&&e.liosia>0).reduce((s,e)=>s+(e.liosia||0),0);
+  const ep30=(D.epitages||[]).filter(e=>e.date&&e.date>=today&&new Date(e.date)<=in30&&e.liosia>0).reduce((s,e)=>s+(e.liosia||0),0);
   const alerts=[];
   if(wd>=3){if(avg<t.danger)alerts.push({level:'red',icon:'📊',name:'Μέσος Όρος/Μέρα',msg:`${fmt(avg)}/μέρα — ΚΑΤΩ από ελάχιστο (${fmt(t.danger)})`,val:fmt(avg)});else if(avg<t.warn)alerts.push({level:'yellow',icon:'📊',name:'Μέσος Όρος/Μέρα',msg:`${fmt(avg)}/μέρα — χαμηλότερα από κανονικό (${fmt(t.ok)})`,val:fmt(avg)});else alerts.push({level:'green',icon:'📊',name:'Μέσος Όρος/Μέρα',msg:`${fmt(avg)}/μέρα — εντός στόχου ✓`,val:fmt(avg)});}
   if(wd>=5){if(yp<-5000)alerts.push({level:'red',icon:'💰',name:'Υπόλοιπο για Μάζεμα',msg:`${fmt(yp)} — αρνητικό >5.000€! Ανάγκη ρευστότητας`,val:fmt(yp)});else if(yp<0)alerts.push({level:'yellow',icon:'💰',name:'Υπόλοιπο για Μάζεμα',msg:`${fmt(yp)} — αρνητικό`,val:fmt(yp)});else alerts.push({level:'green',icon:'💰',name:'Υπόλοιπο για Μάζεμα',msg:`${fmt(yp)} — θετικό ✓`,val:fmt(yp)});}
