@@ -163,6 +163,7 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
 .login-btn{width:100%;background:var(--accent);color:#000;border:none;padding:12px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;letter-spacing:.05em;}
 .login-err{color:var(--red);font-size:12px;margin-top:10px;min-height:18px;}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <div id="alertsBar"><div class="alert-inner" id="alertsInner"></div></div>
@@ -190,6 +191,7 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
     <select id="ysel" onchange="changeYear(this.value)" style="background:var(--bg3);border:1px solid var(--accent);color:var(--accent);padding:4px 8px;border-radius:4px;font-size:11px;font-family:var(--sans);font-weight:700;">
       <option value="2023">2023</option><option value="2024">2024</option>
       <option value="2025">2025</option><option value="2026" selected>2026</option>
+      <option value="2027">2027</option>
     </select>
     <select id="msel" onchange="changeMonth(this.value)"></select>
     <button class="btn p" onclick="saveToSheets()">↑ ΑΠΟΘ.</button>
@@ -424,7 +426,20 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
       <div class="fi"><label>Ημ. έκδοσης</label><input type="date" id="ep-ek"></div>
       <div class="fi"><label>Αρ. Επιταγής</label><input type="text" id="ep-n"></div>
       <div class="fi"><label>Προμηθευτής</label>
-        <select id="ep-p"><option>EUROLAMP ΑΒΕΕ</option><option>ΧΑΤΖΗΣΤΑΥΡΟΥ</option><option>ΚΟΡΩΝΑΚΗΣ</option><option>ΑΛΛΟΣ</option></select>
+        <input type="text" id="ep-p" list="ep-p-list" placeholder="EUROLAMP, ΚΑΣΙΝΑΚΗΣ..." autocomplete="off" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:6px 8px;border-radius:4px;font-family:var(--sans);font-size:12px;">
+        <datalist id="ep-p-list">
+          <option>EUROLAMP ΑΒΕΕ</option>
+          <option>ΧΑΤΖΗΣΤΑΥΡΟΥ</option>
+          <option>ΚΟΡΩΝΑΚΗΣ</option>
+          <option>ΖΑΧΑΡΟΠΟΥΛΟΣ</option>
+          <option>RLED</option>
+          <option>ΚΑΣΙΝΑΚΗΣ</option>
+          <option>SPOTLIGHT</option>
+          <option>VIOKAR ΚΑΡΑΧΑΛΙΟΣ</option>
+          <option>SMART ACTION ONE ΙΚΕ</option>
+          <option>FORELCA</option>
+          <option>Lamda Electronics</option>
+        </datalist>
       </div>
       <div class="fi"><label>Ποσό ΛΙΟΣΙΑ (€)</label><input type="number" id="ep-v" step="0.01"></div>
     </div>
@@ -516,7 +531,7 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
 const MONTHS_EL=['ΙΑΝΟΥΑΡΙΟΣ','ΦΕΒΡΟΥΑΡΙΟΣ','ΜΑΡΤΙΟΣ','ΑΠΡΙΛΙΟΣ','ΜΑΙΟΣ','ΙΟΥΝΙΟΣ','ΙΟΥΛΙΟΣ','ΑΥΓΟΥΣΤΟΣ','ΣΕΠΤΕΜΒΡΙΟΣ','ΟΚΤΩΒΡΙΟΣ','ΝΟΕΜΒΡΙΟΣ','ΔΕΚΕΜΒΡΙΟΣ'];
 const MS=['','ΙΑΝ','ΦΕΒ','ΜΑΡ','ΑΠΡ','ΜΑΙ','ΙΟΥ','ΙΟΛ','ΑΥΓ','ΣΕΠ','ΟΚΤ','ΝΟΕ','ΔΕΚ'];
 const DAYS=['ΚΥΡΙΑΚΗ','ΔΕΥΤΕΡΑ','ΤΡΙΤΗ','ΤΕΤΑΡΤΗ','ΠΕΜΠΤΗ','ΠΑΡΑΣΚΕΥΗ','ΣΑΒΒΑΤΟ'];
-const COL={'2023':'#5599dd','2024':'#4caf7d','2025':'#e0904b','2026':'#cc5577'};
+const COL={'2023':'#5599dd','2024':'#4caf7d','2025':'#e0904b','2026':'#cc5577','2027':'#aa44cc'};
 const TGT={1:{ok:1802,warn:1531,danger:1261},2:{ok:1719,warn:1461,danger:1203},3:{ok:1783,warn:1515,danger:1248},4:{ok:1664,warn:1414,danger:1165},5:{ok:1566,warn:1331,danger:1096},6:{ok:1807,warn:1536,danger:1265},7:{ok:1687,warn:1434,danger:1181},8:{ok:1286,warn:1093,danger:900},9:{ok:1687,warn:1434,danger:1181},10:{ok:1996,warn:1697,danger:1397},11:{ok:2138,warn:1817,danger:1497},12:{ok:2427,warn:2063,danger:1699}};
 const HIST=[{year:'2023',month:1,total:43961,avg_day:1911,work_days:23},{year:'2023',month:2,total:36293,avg_day:1578,work_days:23},{year:'2023',month:4,total:35028,avg_day:1459,work_days:24},{year:'2023',month:5,total:42001,avg_day:1615,work_days:26},{year:'2023',month:6,total:38781,avg_day:1551,work_days:25},{year:'2023',month:7,total:39202,avg_day:1568,work_days:25},{year:'2023',month:8,total:33557,avg_day:1290,work_days:26},{year:'2023',month:9,total:42202,avg_day:1623,work_days:26},{year:'2023',month:10,total:46615,avg_day:1864,work_days:25},{year:'2023',month:11,total:56596,avg_day:2176,work_days:26},{year:'2023',month:12,total:54226,avg_day:2259,work_days:24},{year:'2024',month:1,total:37874,avg_day:1578,work_days:24},{year:'2024',month:2,total:46498,avg_day:1859,work_days:25},{year:'2024',month:3,total:43350,avg_day:1806,work_days:24},{year:'2024',month:4,total:55096,avg_day:2119,work_days:26},{year:'2024',month:5,total:36073,avg_day:1442,work_days:25},{year:'2024',month:6,total:48456,avg_day:2019,work_days:24},{year:'2024',month:7,total:41940,avg_day:1553,work_days:27},{year:'2024',month:8,total:28744,avg_day:1105,work_days:26},{year:'2024',month:9,total:40509,avg_day:1620,work_days:25},{year:'2024',month:10,total:53451,avg_day:2055,work_days:26},{year:'2024',month:11,total:54648,avg_day:2101,work_days:26},{year:'2024',month:12,total:57113,avg_day:2379,work_days:24},{year:'2025',month:1,total:44038,avg_day:1834,work_days:24},{year:'2025',month:2,total:38833,avg_day:1618,work_days:24},{year:'2025',month:3,total:43415,avg_day:1736,work_days:25},{year:'2025',month:4,total:38330,avg_day:1533,work_days:25},{year:'2025',month:5,total:42678,avg_day:1641,work_days:26},{year:'2025',month:6,total:44418,avg_day:1850,work_days:24},{year:'2025',month:7,total:52408,avg_day:1941,work_days:27},{year:'2025',month:8,total:36491,avg_day:1459,work_days:25},{year:'2025',month:9,total:47233,avg_day:1816,work_days:26},{year:'2025',month:10,total:53773,avg_day:2068,work_days:26},{year:'2025',month:11,total:53364,avg_day:2134,work_days:25},{year:'2025',month:12,total:66027,avg_day:2641,work_days:25},{year:'2026',month:1,total:45196,avg_day:1883,work_days:24},{year:'2026',month:2,total:40008,avg_day:1818,work_days:22},{year:'2026',month:3,total:45126,avg_day:1805,work_days:25},{year:'2026',month:4,total:38589,avg_day:1543,work_days:25}];
 
@@ -1048,7 +1063,7 @@ function renderTel(){
 }
 
 // ===== ★ ΕΠΙΤΑΓΕΣ — 12ΜΗΝΟ ΗΜΕΡΟΛΟΓΙΟ =====
-function addEpit(){const m=document.getElementById('ep-m').value,d=document.getElementById('ep-d').value,ek2=document.getElementById('ep-ek').value,n=document.getElementById('ep-n').value.trim(),p=document.getElementById('ep-p').value,v=parseFloat(document.getElementById('ep-v').value)||0;if(!v)return;D.epitages.push({month:m,date:d,ekdosi:ek2,num:n,prom:p,liosia:v});['ep-n','ep-v','ep-d','ep-ek'].forEach(id=>document.getElementById(id).value='');renderEpit();saveToSheets();}
+function addEpit(){const m=document.getElementById('ep-m').value,d=document.getElementById('ep-d').value,ek2=document.getElementById('ep-ek').value,n=document.getElementById('ep-n').value.trim(),p=document.getElementById('ep-p').value.trim(),v=parseFloat(document.getElementById('ep-v').value)||0;if(!v||!p)return;D.epitages.push({month:m,date:d,ekdosi:ek2,num:n,prom:p,liosia:v});['ep-n','ep-v','ep-d','ep-ek','ep-p'].forEach(id=>document.getElementById(id).value='');renderEpit();saveToSheets();}
 function delEpit(i){D.epitages.splice(i,1);renderEpit();saveToSheets();}
 let epYear='ΟΛΕΣ';
 
@@ -1104,7 +1119,7 @@ function renderEpit(){
 // ΣΤΑΤΙΣΤΙΚΑ
 function renderStats(){
   const curYear=String(new Date().getFullYear());const curMonth=new Date().getMonth()+1;
-  const yt={};['2023','2024','2025','2026'].forEach(yr=>{
+  const yt={};['2023','2024','2025','2026','2027'].forEach(yr=>{
     const months=HIST.filter(r=>r.year===yr);
     if(yr===curYear){
       // HIST έχει μόνο ολοκληρωμένους μήνες — χρήση απευθείας χωρίς εξάρτηση από D.days
@@ -1117,7 +1132,7 @@ function renderStats(){
     }
     else{yt[yr]=months.reduce((s,r)=>s+r.total,0);yt[yr+'_months']=months.length;yt[yr+'_label']='';}
   });
-  document.getElementById('statsKpis').innerHTML=['2023','2024','2025','2026'].map(yr=>{
+  document.getElementById('statsKpis').innerHTML=['2023','2024','2025','2026','2027'].map(yr=>{
     const tot=yt[yr];const label=yt[yr+'_label']||'';const prevYr=String(parseInt(yr)-1);let d=null;
     if(yt[prevYr]){
       if(yr===curYear){
@@ -1135,7 +1150,7 @@ function renderStats(){
   const chart=document.getElementById('histChart');chart.innerHTML='';const maxV=Math.max(...HIST.map(r=>r.total));
   [1,2,3,4,5,6,7,8,9,10,11,12].forEach(m=>{
     const grp=document.createElement('div');grp.style.cssText='flex:1;display:flex;gap:1px;align-items:flex-end;position:relative;';
-    ['2023','2024','2025','2026'].forEach(yr=>{const r=HIST.find(x=>x.year===yr&&x.month===m);if(!r)return;const h=Math.max(2,(r.total/maxV)*120);const b=document.createElement('div');b.style.cssText=`flex:1;height:${h}px;background:${COL[yr]};border-radius:2px 2px 0 0;opacity:.85;min-width:3px;`;b.title=`${yr} ${MS[m]}: ${fmt(r.total)}`;grp.appendChild(b);});
+    ['2023','2024','2025','2026','2027'].forEach(yr=>{const r=HIST.find(x=>x.year===yr&&x.month===m);if(!r)return;const h=Math.max(2,(r.total/maxV)*120);const b=document.createElement('div');b.style.cssText=`flex:1;height:${h}px;background:${COL[yr]};border-radius:2px 2px 0 0;opacity:.85;min-width:3px;`;b.title=`${yr} ${MS[m]}: ${fmt(r.total)}`;grp.appendChild(b);});
     const ml=document.createElement('div');ml.style.cssText='position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--muted);font-family:var(--mono);';ml.textContent=MS[m];grp.appendChild(ml);chart.appendChild(grp);
   });
   const sorted=[...HIST].sort((a,b)=>b.year!==a.year?b.year.localeCompare(a.year):b.month-a.month);
@@ -1166,14 +1181,204 @@ function runRules(){
   document.getElementById('rulesPanel').innerHTML=alerts.map(a=>`<div class="tw" style="margin-bottom:7px;"><div style="padding:9px 13px;display:flex;align-items:center;gap:10px;"><span style="font-size:16px">${a.icon}</span><div style="flex:1;"><div style="font-size:11px;font-weight:600;margin-bottom:1px;">${a.name}</div><div style="font-size:11px;color:var(--muted)">${a.msg}</div></div><span class="sl ${a.level==='green'?'ok':a.level==='red'?'danger':'warn'}"></span></div></div>`).join('');
 }
 
-// EXPORT
+// EXPORT EXCEL — ακριβώς ίδιο οπτικά με το ΤΑΜΕΙΟ_[ΜΗΝΑΣ].xlsx
 function exportCSV(){
-  const k=ek();const{mi,y,days}=gmi(k);const rows=D.days[k]||[];
-  let csv='\uFEFF'+'ΤΑΜΕΙΟ '+k.replace('_',' ')+'\n';
-  csv+='ΗΜΕΡΑ,ΗΜ,ΕΙΣΠΡΑΞΕΙΣ,POS,τελ.ΕΙΣΠΡΑΞΕΙΣ,REPORT,ΔΙΑΦΟΡΑ\n';
-  for(let d=1;d<=days;d++){const dname=dn(y,mi,d);if(dname==='ΚΥΡΙΑΚΗ')continue;const r=rows.find(x=>x.day===d);const met=r?r.metrita:0,pos=r?r.pos:0,tot=met+pos,rep=r?r.report:0;csv+=`${dname},${d},${met},${pos},${tot},${rep},${tot-rep}\n`;}
-  csv+='\nΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ,,'+calcYP()+'\n';
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ΤΑΜΕΙΟ_'+k+'.csv';a.click();toast('Εξαγωγή ✓','ok');
+  if(typeof XLSX==='undefined'){toast('Φόρτωση βιβλιοθήκης...','info');setTimeout(exportCSV,1500);return;}
+  const k=ek();const{mi,y,days:dim}=gmi(k);const rows=D.days[k]||[];
+  const mn=k.split('_')[0];const yr=k.split('_')[1];
+
+  // Helpers
+  const RED='FFFF0000', GREEN='FF92D050', GREY='FFD9D9D9', YELL='FFFFFF00';
+  function cs(v,bold,sz,color,bg,ha,fmt){
+    const c={v:v,t:typeof v==='number'?'n':'s'};
+    const s={};
+    s.font={name:'Calibri',bold:!!bold,sz:sz||10};
+    if(color) s.font.color={rgb:color};
+    if(bg) s.fill={fgColor:{rgb:bg},patternType:'solid'};
+    if(ha) s.alignment={horizontal:ha,vertical:'center',wrapText:true};
+    if(fmt) s.numFmt=fmt;
+    c.s=s;
+    return c;
+  }
+  function cn(v,bold,sz,color,bg,ha){return cs(v,bold,sz,color,bg,ha,'#,##0.00');}
+  function ce(){return {v:'',t:'s',s:{}};}
+
+  // Υπολογισμοί
+  const tMet=rows.reduce((s,r)=>s+(r.metrita||0),0);
+  const tPos=rows.reduce((s,r)=>s+(r.pos||0),0);
+  const kratiseis=Math.round(tPos*0.013*100)/100;
+  const tAllNet=tMet+tPos-kratiseis;
+  const tEisp=(D.trapEisp[k]||[]).reduce((s,r)=>s+(r.poso||0),0);
+  const pMet=(D.metrita[k]||[]).reduce((s,r)=>s+(r.poso||0),0);
+  const pBnk=(D.bank[k]||[]).reduce((s,r)=>s+(r.poso||0),0);
+  const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
+  const pTel=(D.telos[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
+  const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(e.liosia||0),0);
+  const allP=pMet+pBnk+pD5+pTel+pEpit;
+  const yp=tAllNet+tEisp-allP;
+  const wd=rows.filter(r=>r.dayName!=='ΚΥΡΙΑΚΗ'&&(r.metrita+r.pos)>0).length;
+  const avg=wd?tAllNet/wd:0;
+
+  const wb=XLSX.utils.book_new();
+  wb.Props={Title:'ΤΑΜΕΙΟ '+mn+' '+yr};
+
+  // ═══════════════════════════════════════════════
+  // ΦΥΛΛΟ 1: ΟΙΚΟΝΟΜΙΚΗ ΑΝΑΛΥΣΗ ΜΗΝΟΣ
+  // ═══════════════════════════════════════════════
+  const ws1data=[];
+  // R1 κενή
+  ws1data.push([ce(),ce(),ce(),ce(),ce(),ce(),ce(),ce(),ce(),ce(),ce()]);
+  // R2: τίτλος
+  ws1data.push([ce(),ce(),ce(),cs('   ',false,16),cs(mn+' '+yr,true,18),ce(),ce(),ce(),ce(),ce(),ce()]);
+  // R3 κενή
+  ws1data.push(Array(11).fill(ce()));
+  // R4: headers
+  ws1data.push([
+    ce(),
+    cs('ΗΜΕΡΟΜ.',true,10,null,null,'center'),
+    cs('ΗΜΕΡΑ',true,10,null,null,'center'),
+    cs('ΕΙΣΠΡΑΞΕΙΣ',true,10,null,null,'center'),
+    cs('POS',true,10,RED,null,'center'),
+    cs('τελικές Εισπράξεις Μηνός',true,10,null,null,'center'),
+    ce(),
+    cs('REPORT',true,10,null,GREEN,'center'),
+    cs('ΔΙΑΦΟΡΑ',true,10,null,GREEN,'center'),
+    ce(),
+    cs('',true,10,null,null,'center'),
+  ]);
+
+  // Ημέρες
+  let sideK6done=false,sideK10done=false,sideK17done=false,sideK24done=false;
+  let dayRowCount=0;
+  for(let d=1;d<=dim;d++){
+    const dname=dn(y,mi,d);
+    const r=rows.find(x=>x.day===d);
+    const sun=dname==='ΚΥΡΙΑΚΗ';
+    const met=r?r.metrita:null,pos=r?r.pos:null,rep=r?r.report:null;
+    // Sidebar label logic (αντιστοιχεί σε row 6,10,17,24 του πρωτοτύπου)
+    let sideVal=ce();
+    dayRowCount++;
+    if(dayRowCount===2) sideVal=cs('ΣΥΝΟΛΙΚΟΣ ΜΕΣΟΣ ΟΡΟΣ ΕΙΣΠΡΑΞΕΩΝ',true,10,null,null,'center');
+    else if(dayRowCount===3) sideVal=cn(avg,true,12,null,null,'center');
+    else if(dayRowCount===6) sideVal=cs('ΣΥΝΟΛΟ ΕΙΣΠΡΑΞ. + POS + ΚΑΤΑΘΕΣΕΙΣ',true,10,null,null,'center');
+    else if(dayRowCount===7) sideVal=cn(tAllNet+tEisp,true,12,null,null,'center');
+    else if(dayRowCount===13) sideVal=cs('ΚΑΘΑΡΟ ΣΥΝΟΛΟ ΜΗΝΟΣ',true,10,null,null,'center');
+    else if(dayRowCount===14) sideVal=cn(yp,false,12,null,null,'center');
+    else if(dayRowCount===20) sideVal=cs('ΕΠΙΤΑΓΕΣ',false,10,null,null,'center');
+    else if(dayRowCount===21) sideVal=cn(pEpit,false,10,null,null,'center');
+
+    ws1data.push([
+      ce(),
+      cs(d,true,10,null,null,'center'),
+      cs(dname,true,14),
+      sun?ce():(met!=null?cn(met,false,13):ce()),
+      sun?ce():(pos!=null?cn(pos,false,13,RED):ce()),
+      sun?ce():cn((met||0)+(pos||0),true,13),
+      ce(),
+      (!sun&&rep!=null)?cn(rep,false,12):ce(),
+      (!sun&&rep!=null)?cn((met||0)+(pos||0)-rep,false,12,RED):ce(),
+      ce(),
+      sideVal,
+    ]);
+  }
+  // POS σύνολο
+  ws1data.push([ce(),ce(),ce(),ce(),cn(tPos,false,10,RED),ce(),ce(),ce(),ce(),ce(),ce()]);
+  // Κρατήσεις
+  ws1data.push([ce(),ce(),cs('κρατησεις τραπεζας POS',false,9),cs(0.013,false,9,null,null,null),cn(kratiseis,false,9,RED),ce(),ce(),ce(),ce(),ce(),cs('YΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ',false,13,null,null,'center')]);
+  // Σύνολα
+  const ypColor=yp<0?RED:null;
+  const ypBg=yp<0?YELL:null;
+  ws1data.push([ce(),ce(),cn(tMet,false,10),cn(tPos,true,12,RED),cn(tAllNet,false,10),ce(),ce(),cn(allP,false,10),ce(),ce(),cn(yp,false,20,ypColor,ypBg,'center')]);
+  ws1data.push(Array(11).fill(ce()));
+  ws1data.push(Array(11).fill(ce()));
+  ws1data.push(Array(11).fill(ce()));
+  ws1data.push(Array(11).fill(ce()));
+  ws1data.push(Array(11).fill(ce()));
+  ws1data.push([ce(),cs('ΤΕΛΙΚΟΣ ΑΠΟΛΟΓΙΣΜΟΣ:',false,17),ce(),ce(),ce(),ce(),ce(),ce(),ce(),ce(),ce()]);
+
+  const ws1=XLSX.utils.aoa_to_sheet(ws1data);
+  ws1['!cols']=[{wch:8.86},{wch:9.71},{wch:20.86},{wch:12.29},{wch:14.14},{wch:13.86},{wch:3.86},{wch:13.29},{wch:12.71},{wch:11.29},{wch:39.86}];
+  ws1['!rows']=[{hpt:13.5},{hpt:28.5},{hpt:11.25},{hpt:39},...Array(dim).fill({hpt:19.5}),{hpt:16.5},{hpt:16.5},{hpt:48.2}];
+  XLSX.utils.book_append_sheet(wb,ws1,'ΟΙΚΟΝΟΜΙΚΗ ΑΝΑΛΥΣΗ ΜΗΝΟΣ');
+
+  // ═══════════════════════════════════════════════
+  // ΦΥΛΛΟ 2: ΤΡΑΠΕΖΙΚΕΣ ΚΙΝΗΣΕΙΣ ΜΗΝΟΣ
+  // ═══════════════════════════════════════════════
+  const tPl=D.trapPl[k]||[];const tEi=D.trapEisp[k]||[];
+  const ws2data=[];
+  ws2data.push([cs('Πληρωμές με Εμβασμα',true,11),ce(),ce(),cs('Εισπράξεις με Εμβασμα',true,11),ce(),ce()]);
+  ws2data.push([cs('Ημερομ.',true,10,null,GREY,'center'),cs('Προμηθευτής',true,10,null,GREY,'center'),cs('ποσό',true,10,null,GREY,'center'),cs('Ημερομ.',true,10,null,GREY,'center'),cs('Πελάτης',true,10,null,GREY,'center'),cs('ποσό',true,10,null,GREY,'center')]);
+  const maxR2=Math.max(tPl.length,tEi.length,1);
+  for(let i=0;i<maxR2;i++){
+    const p=tPl[i]||{},e=tEi[i]||{};
+    ws2data.push([cs(p.date||'',false,10),cs(p.prom||'',false,10),p.poso!=null?cn(p.poso,false,10):ce(),cs(e.date||'',false,10),cs(e.pelatis||'',false,10),e.poso!=null?cn(e.poso,false,10):ce()]);
+  }
+  const totPl=tPl.reduce((s,r)=>s+(r.poso||0),0);
+  ws2data.push([ce(),cs('σύνολα πληρωμών :',true,10),cn(totPl,true,10),ce(),cs('ΣΥΝΟΛΟ',true,10),cn(tEisp,true,10)]);
+  const ws2=XLSX.utils.aoa_to_sheet(ws2data);
+  ws2['!cols']=[{wch:14},{wch:32},{wch:14},{wch:14},{wch:42},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws2,'ΤΡΑΠΕΖΙΚΕΣ ΚΙΝΗΣΕΙΣ ΜΗΝΟΣ');
+
+  // ═══════════════════════════════════════════════
+  // ΦΥΛΛΟ 3: ΠΛΗΡΩΜΕΣ-ΜΕΤΡΗΤΑ
+  // ═══════════════════════════════════════════════
+  const ws3data=[[cs('ΗΜΕΡΟΜΗΝΙΑ',true,10,null,GREY,'center'),cs('ΠΛΗΡΩΜΕΣ ΜΕ ΜΕΤΡΗΤΑ  ',true,10,null,GREY,'center'),cs('ΠΟΣΟ',true,10,null,GREY,'center')]];
+  (D.metrita[k]||[]).forEach(r=>ws3data.push([cs(r.date||'',false,10),cs(r.ait||'',false,10),cn(r.poso,false,10)]));
+  ws3data.push([ce(),ce(),ce()]);
+  ws3data.push([ce(),cs('                                      ΣΥΝΟΛΟ',true,10),cn(pMet,true,10)]);
+  const ws3=XLSX.utils.aoa_to_sheet(ws3data);
+  ws3['!cols']=[{wch:16},{wch:42},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws3,'ΠΛΗΡΩΜΕΣ-ΜΕΤΡΗΤΑ');
+
+  // ═══════════════════════════════════════════════
+  // ΦΥΛΛΟ 4: ΠΛΗΡΩΜΕΣ-ΤΡΑΠΕΖΑ
+  // ═══════════════════════════════════════════════
+  const ws4data=[[cs('ΗΜΕΡΟΜΗΝΙΑ',true,10,null,GREY,'center'),cs('ΠΛΗΡΩΜΕΣ ΜΕΣΩ ΤΡΑΠΕΖΑΣ  ',true,10,null,GREY,'center'),cs('ΠΟΣΟ',true,10,null,GREY,'center')]];
+  (D.bank[k]||[]).forEach(r=>ws4data.push([cs(r.date||'',false,10),cs(r.ait||'',false,10),cn(r.poso,false,10)]));
+  ws4data.push([ce(),ce(),ce()]);
+  ws4data.push([ce(),cs('ΣΥΝΟΛΟ ΠΛΗΡΩΜΩΝ 15 ΤΟΥ ΜΗΝΑ ',true,10),cn(pD5,true,10)]);
+  ws4data.push([ce(),cs('ΣΥΝΟΛΟ ΠΛΗΡΩΜΩΝ ΤΕΛΟΣ ΤΟΥ ΜΗΝΑ ',true,10),cn(pTel,true,10)]);
+  ws4data.push([ce(),ce(),ce()]);
+  ws4data.push([ce(),cs('                               ΣΥΝΟΛΟ',true,10),cn(pBnk+pD5+pTel,true,10)]);
+  const ws4=XLSX.utils.aoa_to_sheet(ws4data);
+  ws4['!cols']=[{wch:16},{wch:42},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws4,'ΠΛΗΡΩΜΕΣ-ΤΡΑΠΕΖΑ');
+
+  // ═══════════════════════════════════════════════
+  // ΦΥΛΛΟ 5: ΠΛΗΡΩΜΕΣ 15 ΤΟΥ ΜΗΝΑ
+  // ═══════════════════════════════════════════════
+  const ws5data=[];
+  ws5data.push([ce(),ce(),ce(),cs('ΠΛΗΡΩΜΕΣ 15 ΤΟΥ ΜΗΝΑ',true,14,null,null,'center'),ce(),ce(),ce()]);
+  ws5data.push(Array(7).fill(ce()));
+  ws5data.push([ce(),cs('ΚΩΔ.',true,10,null,GREY,'center'),cs('ΠΡΟΜΗΘΕΥΤΗΣ',true,10,null,GREY,'center'),cs('ΑΡΙΘΜΟΣ ΛΟΓΑΡΙΑΣΜΟΥ',true,10,null,GREY,'center'),cs('ΣΥΝΟΛΟ',true,10,null,GREY,'center'),cs('ΛΙΟΣΙΑ',true,10,null,GREY,'center'),cs('ΛΟΥΤΡΑΚΙ',true,10,null,GREY,'center')]);
+  (D.d15[k]||[]).forEach(r=>ws5data.push([ce(),cs(r.cod||'',false,10),cs(r.prom||'',false,10),cs(r.iban||'',false,10),cn(r.synolo||0,false,10),cn(r.liosia||0,false,10),cn(r.loutraki||0,false,10)]));
+  ws5data.push(Array(7).fill(ce()));
+  const tot5syn=(D.d15[k]||[]).reduce((s,r)=>s+(r.synolo||0),0);
+  const tot5lou=(D.d15[k]||[]).reduce((s,r)=>s+(r.loutraki||0),0);
+  ws5data.push([ce(),cs('ΣΥΝΟΛΑ :  ',true,10),ce(),ce(),cn(tot5syn,true,10),cn(pD5,true,10),cn(tot5lou,true,10)]);
+  const ws5=XLSX.utils.aoa_to_sheet(ws5data);
+  ws5['!cols']=[{wch:4},{wch:10},{wch:36},{wch:40},{wch:14},{wch:14},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws5,'ΠΛΗΡΩΜΕΣ 15 ΤΟΥ ΜΗΝΑ');
+
+  // ═══════════════════════════════════════════════
+  // ΦΥΛΛΟ 6: ΠΛΗΡΩΜΕΣ ΤΕΛΟΣ ΤΟΥ ΜΗΝΑ
+  // ═══════════════════════════════════════════════
+  const ws6data=[];
+  ws6data.push([ce(),ce(),ce(),cs('ΠΛΗΡΩΜΕΣ ΤΕΛΟΣ ΤΟΥ ΜΗΝΑ',true,14,null,null,'center'),ce(),ce(),ce()]);
+  ws6data.push(Array(7).fill(ce()));
+  ws6data.push([ce(),cs('ΚΩΔ.',true,10,null,GREY,'center'),cs('ΑΡΙΘΜΟΣ ΛΟΓΑΡΙΑΣΜΟΥ',true,10,null,GREY,'center'),cs('ΠΡΟΜΗΘΕΥΤΗΣ',true,10,null,GREY,'center'),cs('ΣΥΝΟΛΟ',true,10,null,GREY,'center'),cs('ΛΙΟΣΙΑ',true,10,null,GREY,'center'),cs('ΛΟΥΤΡΑΚΙ',true,10,null,GREY,'center')]);
+  (D.telos[k]||[]).forEach(r=>ws6data.push([ce(),cs(r.cod||'',false,10),cs(r.iban||'',false,10),cs(r.name||'',false,10),cn(r.synolo||0,false,10),cn(r.liosia||0,false,10),cn(r.loutraki||0,false,10)]));
+  ws6data.push(Array(7).fill(ce()));
+  const tot6syn=(D.telos[k]||[]).reduce((s,r)=>s+(r.synolo||0),0);
+  const tot6lou=(D.telos[k]||[]).reduce((s,r)=>s+(r.loutraki||0),0);
+  ws6data.push([ce(),ce(),ce(),cs('ΣΥΝΟΛΟ',true,10),cn(tot6syn,true,10),cn(pTel,true,10),cn(tot6lou,true,10)]);
+  const ws6=XLSX.utils.aoa_to_sheet(ws6data);
+  ws6['!cols']=[{wch:4},{wch:10},{wch:40},{wch:32},{wch:14},{wch:14},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws6,'ΠΛΗΡΩΜΕΣ ΤΕΛΟΣ ΤΟΥ ΜΗΝΑ');
+
+  // ΑΠΟΘΗΚΕΥΣΗ
+  XLSX.writeFile(wb,'ΤΑΜΕΙΟ_'+mn+'_'+yr+'.xlsx',{cellStyles:true,bookSST:false});
+  toast('Excel εξήχθη ✓','ok');
 }
 
 async function initApp(){
@@ -1196,7 +1401,7 @@ function doLogout(){currentRole=null;document.getElementById('loginPin').value='
 window.onload=function(){document.getElementById('loginPin').focus();};
 
 async function preloadAllMonths(){
-  const years=['2023','2024','2025','2026'];const toLoad=[];
+  const years=['2023','2024','2025','2026','2027'];const toLoad=[];
   years.forEach(yr=>{MONTHS_EL.forEach(mn=>{const k=mn+'_'+yr;if(!D.days[k]||D.days[k].length===0)toLoad.push(k);});});
   for(let i=0;i<toLoad.length;i+=3){
     const batch=toLoad.slice(i,i+3);
