@@ -821,7 +821,7 @@ let epYear='ΟΛΕΣ';
 function renderEpit(){
   const allRows=D.epitages||[];
   // Φιλτράρισμα ανά έτος
-  const rows=epYear==='ΟΛΕΣ'?allRows:allRows.filter(e=>e.date&&e.date.startsWith(epYear));
+  const rows=epYear==='ΟΛΕΣ'?allRows:allRows.filter(e=>(e.file_year===epYear)||(e.date&&e.date.startsWith(epYear)));
   const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);
   document.getElementById('epTot').textContent=fmt(tot);
   // Ημερολόγιο
@@ -838,7 +838,7 @@ function renderEpit(){
     const past=r.date&&r.date<today,soon=r.date&&r.date>=today&&new Date(r.date)<=in30;
     const st=past?'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(76,175,125,.15);color:var(--green)">✓ΕΞΟΦΛ.</span>':soon?'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(224,85,85,.15);color:var(--red)">⚠ΕΡΧΕΤΑΙ</span>':'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(100,100,100,.15);color:var(--muted)">◼ΜΕΛΛΟΝ</span>';
     return`<tr><td>${r.month}</td><td style="font-family:var(--mono)">${r.date||'—'}</td><td style="font-family:var(--mono)">${r.ekdosi||'—'}</td><td style="font-family:var(--mono)">${r.num||'—'}</td><td>${r.prom}</td><td class="acc">${fmt(r.liosia)}</td><td>${st}</td><td><button class="btn-del" onclick="delEpit(${i})">✕</button></td></tr>`;
-  }).join('')+(rows.length?`<tr class="tot"><td colspan="5">ΣΥΝΟΛΟ ΛΙΟΣΙΑ 2026</td><td class="acc">${fmt(tot)}</td><td></td><td></td></tr>`:'');
+  }).join('')+(rows.length?`<tr class="tot"><td colspan="5">ΣΥΝΟΛΟ ΛΙΟΣΙΑ ${epYear==='ΟΛΕΣ'?'ΟΛΑ ΤΑ ΕΤΗ':epYear}</td><td class="acc">${fmt(tot)}</td><td></td><td></td></tr>`:'');
   renderMain();
 }
 
