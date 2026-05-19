@@ -398,24 +398,18 @@ async function loadFromSheets(){
   }catch(e){toast('Αποτυχία','err');}
 }
 
-// Φόρτωση ΟΛΩΝ των επιταγών από όλους τους μήνες
+// Φόρτωση ΟΛΩΝ των επιταγών - 1 request
 async function loadAllEpitages(){
-  const allEp=[];
-  const months=MONTHS_EL;
-  const years=['2020','2021','2022','2023','2024','2025','2026','2027'];
-  for(const yr of years){
-    for(const mn of months){
-      const key=mn+'_'+yr;
-      try{
-        const r=await fetch(API+'?action=load&month='+key);
-        const j=await r.json();
-        if(j.success&&j.exists&&j.data&&j.data.epitages){
-          j.data.epitages.forEach(e=>allEp.push(e));
-        }
-      }catch(e){}
-    }
-  }
-  if(allEp.length>0){D.epitages=allEp;renderEpit();runRules();}
+  toast('Φόρτωση επιταγών...','info');
+  try{
+    const r=await fetch(API+'?action=load&month=ALL_EPITAGES');
+    const j=await r.json();
+    if(j.success&&j.exists&&j.data&&j.data.epitages&&j.data.epitages.length>0){
+      D.epitages=j.data.epitages;
+      renderEpit();runRules();
+      toast('Επιταγές: '+D.epitages.length+' ✓','ok');
+    }else{toast('Δεν βρέθηκαν επιταγές','err');}
+  }catch(e){toast('Αποτυχία φόρτωσης','err');}
 }
 
 // TABS
@@ -686,9 +680,10 @@ window.onload=async()=>{
   buildMonthSelect('2026');
   document.getElementById('msel').value='ΜΑΙΟΣ_2026';
   renderAll();
+  // Φόρτωσε επιταγές πρώτα (1 request)
+  await loadAllEpitages();
+  // Μετά φόρτωσε τον τρέχοντα μήνα
   await loadFromSheets();
-  // Φόρτωσε τις επιταγές ΟΛΩ ΝΤΩ χρόνων στο παρασκήνιο
-  loadAllEpitages();
 };
 </script>
 </body>
