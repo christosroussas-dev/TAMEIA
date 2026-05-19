@@ -478,24 +478,28 @@ async function loadFromSheets(){
 // Φόρτωση ΟΛΩΝ των επιταγών - 1 request
 async function loadAllEpitages(){
   try{
-    // POST request για μεγάλα δεδομένα
-    const payload=JSON.stringify({action:'load',month:'ALL_EPITAGES'});
-    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:payload});
-    const j=await r.json();
+    // Προσπάθησε GET πρώτα
+    const r=await fetch(API+'?action=load&month=ALL_EPITAGES');
+    const text=await r.text();
+    const j=JSON.parse(text);
     if(j.success&&j.exists&&j.data&&j.data.epitages&&j.data.epitages.length>0){
       D.epitages=j.data.epitages;
       renderEpit();runRules();
-      toast('Επιταγές: '+D.epitages.length+' ✓','ok');
-    }else{
-      // Fallback σε GET
-      const r2=await fetch(API+'?action=load&month=ALL_EPITAGES');
-      const j2=await r2.json();
-      if(j2.success&&j2.exists&&j2.data&&j2.data.epitages){
-        D.epitages=j2.data.epitages;
-        renderEpit();runRules();
+      return;
+    }
+  }catch(e){}
+  try{
+    // Fallback: φόρτωσε ανά χρόνο
+    const years=['2026','2025','2024','2023'];
+    for(const yr of years){
+      const r=await fetch(API+'?action=load_epitages_year&year='+yr);
+      const j=await r.json();
+      if(j.success&&j.epitages){
+        j.epitages.forEach(e=>D.epitages.push(e));
       }
     }
-  }catch(e){toast('Αποτυχία φόρτωσης επιταγών','err');}
+    if(D.epitages.length>0){renderEpit();runRules();}
+  }catch(e){}
 }
 
 // TABS
