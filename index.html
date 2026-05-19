@@ -452,10 +452,11 @@ async function changeMonth(v){
   D.d15[v]=D.d15[v]||[];
   D.telos[v]=D.telos[v]||[];
   renderAll();
-  await loadFromSheets();
-  // Αν ο μήνας είναι νέος — μετά τη φόρτωση των επιταγών
+  // Φόρτωσε παράλληλα: δεδομένα μήνα + επιταγές (αν δεν υπάρχουν)
   if(D.epitages.length===0){
-    await loadAllEpitages();
+    await Promise.all([loadFromSheets(), loadAllEpitages()]);
+  } else {
+    await loadFromSheets();
   }
   autoInitNewMonth(v);
 }
@@ -730,13 +731,21 @@ function exportCSV(){
 }
 
 window.onload=async()=>{
+  // 1. Χτίσε dropdowns
   buildMonthSelect('2026');
-  document.getElementById('msel').value='ΜΑΙΟΣ_2026';
+  // Βρες τον τρέχοντα μήνα (2026)
+  const now=new Date();
+  const curMn=MONTHS_EL[now.getMonth()]+'_2026';
+  document.getElementById('msel').value=curMn;
+  CM=curMn;
+  document.getElementById('mbadge').textContent=curMn.replace('_',' ');
   renderAll();
-  // Φόρτωσε επιταγές πρώτα (1 request)
-  await loadAllEpitages();
-  // Μετά φόρτωσε τον τρέχοντα μήνα
-  await loadFromSheets();
+
+  // 2. Φόρτωσε ΟΛΑ παράλληλα
+  const [,] = await Promise.all([
+    loadAllEpitages(),   // Όλες οι επιταγές (1 request)
+    loadFromSheets()     // Δεδομένα τρέχοντος μήνα (1 request)
+  ]);
 };
 </script>
 </body>
