@@ -125,12 +125,12 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
     <div style="flex:1">
       <div class="yp-label">ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ — ΛΙΟΣΙΑ</div>
       <div class="yp-val" id="ypVal" style="color:var(--green)">0,00€</div>
-      <div id="ypMonthLabel" style="font-family:var(--mono);font-size:22px;font-weight:700;margin-top:2px;"></div>
       <div class="yp-sub" id="ypSub">Εισπράξεις + Εμβάσματα − Πληρωμές ΛΙΟΣΙΑ − Επιταγές</div>
     </div>
-    <div style="text-align:center">
-      <div style="font-size:48px" id="ypIcon">💰</div>
-      <div id="ypGrade" style="font-size:10px;font-weight:700;margin-top:2px;"></div>
+    <div id="ypMonthLabel" style="font-family:var(--mono);font-size:26px;font-weight:700;align-self:center;text-align:center;padding:0 12px;"></div>
+    <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;">
+      <div style="font-size:48px;line-height:1" id="ypIcon">💰</div>
+      <div id="ypGrade" style="font-size:10px;font-weight:700;"></div>
     </div>
   </div>
   <div class="kpis" id="kpiStrip"></div>
@@ -580,8 +580,26 @@ function renderMain(){
   document.getElementById('kpiStrip').innerHTML=`<div class="kpi ${kst}"><div class="kl">Μέσος Όρος/Μέρα</div><div class="kv ${avg<t.warn?'neg':''}">${fmt(avg)}</div><div class="ks">Στόχος >${fmt(t.ok)}</div></div><div class="kpi ok"><div class="kl">Καθαρές Εισπράξεις</div><div class="kv pos">${fmt(tAllNet)}</div><div class="ks">${wd} εργάσιμες</div></div><div class="kpi info"><div class="kl">Μετρητά</div><div class="kv">${fmt(tMet)}</div></div><div class="kpi info"><div class="kl">POS (−1,3% κράτηση)</div><div class="kv">${fmt(tPos)}</div><div class="ks">−${fmt(kratiseis)} κρατήσεις</div></div>`;
   document.getElementById('totBadge').textContent=fmt(tAllNet);
   // ΥΠΟΛΟΙΠΟ card
-  const card=document.getElementById('ypCard');document.getElementById('ypVal').textContent=(yp>=0?'+':'')+fmt(yp);document.getElementById('ypVal').style.color=yp>=0?'var(--green)':'var(--red)';
-  card.style.background=yp>=0?'rgba(76,175,125,.07)':'rgba(224,85,85,.07)';card.style.borderColor=yp>=0?'rgba(76,175,125,.4)':'rgba(224,85,85,.4)';document.getElementById('ypIcon').textContent=yp>=0?'💚':'🔴';
+  const card=document.getElementById('ypCard');
+  // Ποσό
+  document.getElementById('ypVal').textContent=(yp>=0?'+':'')+fmt(yp);
+  document.getElementById('ypVal').style.color=yp>=0?'var(--green)':'var(--red)';
+  // Χρώμα card
+  card.style.background=yp>=0?'rgba(76,175,125,.07)':'rgba(224,85,85,.07)';
+  card.style.borderColor=yp>=0?'rgba(76,175,125,.4)':'rgba(224,85,85,.4)';
+  // Μήνας ολογράφως κάτω από το ποσό
+  document.getElementById('ypMonthLabel').textContent=CM.replace('_',' ');
+  document.getElementById('ypMonthLabel').style.color=yp>=0?'var(--green)':'var(--red)';
+  // Αξιολόγηση
+  let ypIcon,ypGrade,ypGradeColor;
+  if(yp>10000){ypIcon='🟢';ypGrade='ΕΞΑΙΡΕΤΙΚΟΣ';ypGradeColor='var(--green)';}
+  else if(yp>0){ypIcon='💚';ypGrade='ΘΕΤΙΚΟΣ';ypGradeColor='var(--green)';}
+  else if(yp>-5000){ypIcon='🟡';ypGrade='ΠΡΟΣΟΧΗ';ypGradeColor='var(--yellow)';}
+  else if(yp>-15000){ypIcon='🔴';ypGrade='ΔΥΣΚΟΛΟΣ';ypGradeColor='var(--red)';}
+  else{ypIcon='🚨';ypGrade='ΚΡΙΣΙΜΟΣ';ypGradeColor='var(--red)';}
+  document.getElementById('ypIcon').textContent=ypIcon;
+  document.getElementById('ypGrade').textContent=ypGrade;
+  document.getElementById('ypGrade').style.color=ypGradeColor;
   // Summaries
   const pMet=(D.metrita[k]||[]).reduce((s,r)=>s+r.poso,0),pBnk=(D.bank[k]||[]).reduce((s,r)=>s+r.poso,0);
   const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(r.liosia||0),0),pTel=(D.telos[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
