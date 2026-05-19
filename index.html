@@ -93,7 +93,7 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
 <body>
 <div id="alertsBar"><div class="alert-inner" id="alertsInner"></div></div>
 <div class="header">
-  <div class="logo">ΑΦΟΙ ΡΟΥΣΣΑ · ΛΙΟΣΙΑ</div>
+  <div class="logo" onclick="window.location.reload(true)" style="cursor:pointer" title="Ανανέωση">ΑΦΟΙ ΡΟΥΣΣΑ · ΛΙΟΣΙΑ</div>
   <div class="mbadge" id="mbadge">ΜΑΙΟΣ 2026</div>
   <div class="hr">
     <select id="ysel" onchange="changeYear(this.value)" style="background:var(--bg3);border:1px solid var(--accent);color:var(--accent);padding:4px 8px;border-radius:4px;font-size:11px;font-family:var(--sans);font-weight:700;">
@@ -122,10 +122,16 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
 <!-- ΤΑΜΕΙΟ -->
 <div class="panel active" id="tab-main">
   <div class="yp-card" id="ypCard" style="background:rgba(76,175,125,.07);border-color:rgba(76,175,125,.4)">
-    <div><div class="yp-label">ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ — ΛΙΟΣΙΑ</div>
-    <div class="yp-val" id="ypVal" style="color:var(--green)">0,00€</div>
-    <div class="yp-sub" id="ypSub">Εισπράξεις + Εμβάσματα − Πληρωμές ΛΙΟΣΙΑ − Επιταγές</div></div>
-    <div style="font-size:42px" id="ypIcon">💰</div>
+    <div style="flex:1">
+      <div class="yp-label">ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ — ΛΙΟΣΙΑ</div>
+      <div class="yp-val" id="ypVal" style="color:var(--green)">0,00€</div>
+      <div id="ypMonthLabel" style="font-family:var(--mono);font-size:22px;font-weight:700;margin-top:2px;"></div>
+      <div class="yp-sub" id="ypSub">Εισπράξεις + Εμβάσματα − Πληρωμές ΛΙΟΣΙΑ − Επιταγές</div>
+    </div>
+    <div style="text-align:center">
+      <div style="font-size:48px" id="ypIcon">💰</div>
+      <div id="ypGrade" style="font-size:10px;font-weight:700;margin-top:2px;"></div>
+    </div>
   </div>
   <div class="kpis" id="kpiStrip"></div>
   <div class="tw" style="margin-bottom:12px;">
