@@ -893,7 +893,7 @@ function renderStats(){
     const isCur=yr===curYear;
     const pct=d!==null?'<div class="ks" style="color:'+(d>=0?'var(--green)':'var(--red)')+'">'+(d>=0?'▲':'▼')+Math.abs(d).toFixed(1)+'% vs πέρσι</div>':'';
     const lbl=label?'<div class="ks" style="color:var(--muted)">'+label+'</div>':'';
-    return '<div class="kpi" style="border-top:2px solid '+COL[yr]+'!important"><div class="kl">'+yr+(isCur?' (εως τωρα)')+'</div><div class="kv">'+fmt(tot)+'</div>'+lbl+pct+'</div>';
+    return '<div class="kpi" style="border-top:2px solid '+COL[yr]+'!important"><div class="kl">'+yr+(isCur?' (εως τωρα)':'')+'</div><div class="kv">'+fmt(tot)+'</div>'+lbl+pct+'</div>';
   }).join('');
   const chart=document.getElementById('histChart');chart.innerHTML='';
   const maxV=Math.max(...HIST.map(r=>r.total));
