@@ -544,6 +544,7 @@ const HIST=[{year:'2023',month:1,total:43961,avg_day:1911,work_days:23},{year:'2
 const API='https://script.google.com/macros/s/AKfycbynzjoV1XpNn80eqnm5Z7SIn2271gEVOn5HQHM1qE4-DoygIov1wIDsJfWfVKDrok3S/exec';
 let CM='ΜΑΙΟΣ_2026';
 let D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},epitages:[]};
+var appReady=false; // true μόνο μετά το πλήρες φόρτωμα
 
 function applyRole(){
   var isAdmin=(currentRole==='ADMIN');
@@ -598,8 +599,16 @@ function calcYP(){
 async function saveToSheets(){
   toast('Αποθήκευση...','info');
   try{
-    // Αποθήκευση δεδομένων μήνα (χωρίς επιταγές)
-    const monthData={days:D.days,trapEisp:D.trapEisp,trapPl:D.trapPl,metrita:D.metrita,bank:D.bank,d15:D.d15,telos:D.telos};
+    // Στέλνουμε ΜΟΝΟ τον τρέχοντα μήνα (όχι όλους)
+    const monthData={
+      days:{[CM]:D.days[CM]||[]},
+      trapEisp:{[CM]:D.trapEisp[CM]||[]},
+      trapPl:{[CM]:D.trapPl[CM]||[]},
+      metrita:{[CM]:D.metrita[CM]||[]},
+      bank:{[CM]:D.bank[CM]||[]},
+      d15:{[CM]:D.d15[CM]||[]},
+      telos:{[CM]:D.telos[CM]||[]}
+    };
     const p=encodeURIComponent(JSON.stringify({action:'save',month:CM,data:monthData}));
     await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
     // Αποθήκευση επιταγών ανά έτος ξεχωριστά
@@ -763,6 +772,7 @@ function onDaySelect(sel){
 }
 
 function addDay(){
+  if(!appReady){toast('⚠️ Περίμενε να φορτώσει πρώτα','err');return;}
   const day=parseInt(document.getElementById('inp-day').value);
   if(!day){toast('⚠️ Επίλεξε ημέρα','err');return;}
   const metStr=document.getElementById('inp-met').value.trim();
@@ -1454,14 +1464,14 @@ async function initApp(){
   buildMonthSelect('2026');const now=new Date();const curMn=MONTHS_EL[now.getMonth()]+'_2026';
   document.getElementById('msel').value=curMn;CM=curMn;
   document.getElementById('mbadge').textContent=curMn.replace('_',' ');
-  // Απενεργοποίησε φόρμα μέχρι να φορτώσει
+  appReady=false;
   document.getElementById('inp-day').disabled=true;
   document.querySelector('.btn-add').disabled=true;
   document.querySelector('.btn-add').textContent='Φόρτωση...';
   renderAll();
   await loadFromSheets();
   await loadAllEpitages();
-  // Ενεργοποίησε φόρμα
+  appReady=true;
   document.getElementById('inp-day').disabled=false;
   document.querySelector('.btn-add').disabled=false;
   document.querySelector('.btn-add').textContent='ΚΑΤΑΧΩΡΗΣΗ';
