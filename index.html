@@ -764,8 +764,14 @@ function onDaySelect(sel){
 }
 
 function addDay(){
-  const day=parseInt(document.getElementById('inp-day').value);if(!day){toast('Επίλεξε ημέρα','err');return;}
-  const met=parseFloat(document.getElementById('inp-met').value)||0;const pos=parseFloat(document.getElementById('inp-pos').value)||0;const rep=parseFloat(document.getElementById('inp-rep').value)||0;
+  const day=parseInt(document.getElementById('inp-day').value);
+  if(!day){toast('⚠️ Επίλεξε ημέρα','err');return;}
+  const met=parseFloat(document.getElementById('inp-met').value);
+  const pos=parseFloat(document.getElementById('inp-pos').value);
+  const rep=parseFloat(document.getElementById('inp-rep').value);
+  if(isNaN(met)||met===0){toast('⚠️ Πέρασε Εισπράξεις/Μετρητά','err');return;}
+  if(isNaN(pos)||pos===0){toast('⚠️ Πέρασε POS','err');return;}
+  if(isNaN(rep)||rep===0){toast('⚠️ Πέρασε Report ERP','err');return;}
   const{mi,y}=gmi(ek());const k=ek();ea(D.days,k);const ex=D.days[k].find(r=>r.day===day);
   if(ex){if(!confirm(`⚠️ Η ${day}η ${dn(y,mi,day)} έχει ήδη καταχωρηθεί!\nΕισπράξεις: ${fmt(ex.metrita)} | POS: ${fmt(ex.pos)}\n\nΑντικατάσταση;`))return;D.days[k]=D.days[k].filter(r=>r.day!==day);}
   D.days[k].push({day,dayName:dn(y,mi,day),metrita:met,pos,report:rep});D.days[k].sort((a,b)=>a.day-b.day);
@@ -789,7 +795,7 @@ async function showDayPopup(day,dname,mi,currentYear){
   document.getElementById('popupContent').innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr style="border-bottom:1px solid var(--border2);"><th style="padding:6px 12px;text-align:left;font-size:10px;color:var(--muted);">ΕΤΟΣ</th><th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">ΜΕΤΡΗΤΑ</th><th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">POS</th><th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">ΣΥΝΟΛΟ</th><th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">vs ΤΩΡΑ</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-function delDay(d){const k=ek();D.days[k]=(D.days[k]||[]).filter(r=>r.day!==d);renderAll();saveToSheets();}
+function delDay(d){const k=ek();D.days[k]=(D.days[k]||[]).filter(r=>r.day!==parseInt(d));renderAll();saveToSheets();}
 
 // RENDER MAIN
 function renderMain(){
