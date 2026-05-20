@@ -732,10 +732,35 @@ window.addEventListener('keydown',e=>{
 function onDaySelect(sel){
   const day=parseInt(sel.value);const div=document.getElementById('dayCompare');
   if(!day){div.innerHTML='';return;}
-  const{mi}=gmi(ek());const cyr=parseInt(ek().split('_')[1]);
-  let html='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">';
-  [cyr-1,cyr-2].forEach(yr=>{const h=HIST.find(x=>x.year===String(yr)&&x.month===mi+1);if(h)html+=`<div style="background:var(--bg3);border:1px solid ${COL[yr]||'#555'};border-radius:5px;padding:5px 10px;font-size:11px;"><div style="color:${COL[yr]||'#555'};font-weight:700;font-size:9px;margin-bottom:2px;">${MS[mi+1]} ${yr} (μέσος/μέρα)</div><div style="font-family:var(--mono);font-weight:600;">${fmt(h.avg_day)}</div></div>`;});
-  html+='</div>';div.innerHTML=html;
+  const{mi}=gmi(ek());const mn=MONTHS_EL[mi];const cyr=parseInt(ek().split('_')[1]);
+  const SH=['ΙΑΝ','ΦΕΒ','ΜΑΡ','ΑΠΡ','ΜΑΙ','ΙΟΥ','ΙΟΛ','ΑΥΓ','ΣΕΠ','ΟΚΤ','ΝΟΕ','ΔΕΚ'];
+  function render(){
+    let html='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">';
+    [cyr-1,cyr-2].forEach(yr=>{
+      const k=mn+'_'+yr;
+      const rec=(D.days[k]||[]).find(r=>r.day===day);
+      const tot=rec?(rec.metrita+rec.pos):null;
+      const col=COL[yr]||'#555';
+      html+=`<div style="background:var(--bg3);border:1px solid ${col};border-radius:5px;padding:5px 10px;font-size:11px;">
+        <div style="color:${col};font-weight:700;font-size:9px;margin-bottom:2px;">${day} ${SH[mi]} ${yr}</div>
+        <div style="font-family:var(--mono);font-weight:600;">${tot!==null?fmt(tot):'—'}</div>
+      </div>`;
+    });
+    html+='</div>';div.innerHTML=html;
+  }
+  render();
+  // Φόρτωσε από Sheets αν δεν έχουμε
+  [cyr-1,cyr-2].forEach(yr=>{
+    const k=mn+'_'+yr;
+    if(!D.days[k]||D.days[k].length===0){
+      fetch(API+'?action=load&month='+k).then(r=>r.json()).then(j=>{
+        if(j.success&&j.exists&&j.data&&j.data.days){
+          D.days[k]=j.data.days[k]||[];
+          if(parseInt(document.getElementById('inp-day').value)===day)render();
+        }
+      }).catch(()=>{});
+    }
+  });
 }
 
 function addDay(){
