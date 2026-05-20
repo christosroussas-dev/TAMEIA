@@ -618,7 +618,6 @@ async function loadFromSheets(){
     const r=await fetch(API+'?action=load&month='+CM);const j=await r.json();
     if(j.success&&j.exists&&j.data){
       const d=j.data;
-      // Πλήρης αντικατάσταση για τον τρέχοντα μήνα
       if(d.days&&d.days[CM]) D.days[CM]=d.days[CM];
       if(d.trapEisp&&d.trapEisp[CM]) D.trapEisp[CM]=d.trapEisp[CM];
       if(d.trapPl&&d.trapPl[CM]) D.trapPl[CM]=d.trapPl[CM];
@@ -766,12 +765,15 @@ function onDaySelect(sel){
 function addDay(){
   const day=parseInt(document.getElementById('inp-day').value);
   if(!day){toast('⚠️ Επίλεξε ημέρα','err');return;}
-  const met=parseFloat(document.getElementById('inp-met').value);
-  const pos=parseFloat(document.getElementById('inp-pos').value);
-  const rep=parseFloat(document.getElementById('inp-rep').value);
-  if(isNaN(met)||met===0){toast('⚠️ Πέρασε Εισπράξεις/Μετρητά','err');return;}
-  if(isNaN(pos)||pos===0){toast('⚠️ Πέρασε POS','err');return;}
-  if(isNaN(rep)||rep===0){toast('⚠️ Πέρασε Report ERP','err');return;}
+  const metStr=document.getElementById('inp-met').value.trim();
+  const posStr=document.getElementById('inp-pos').value.trim();
+  const repStr=document.getElementById('inp-rep').value.trim();
+  if(metStr===''){toast('⚠️ Πέρασε Εισπράξεις/Μετρητά','err');return;}
+  if(posStr===''){toast('⚠️ Πέρασε POS','err');return;}
+  if(repStr===''){toast('⚠️ Πέρασε Report ERP','err');return;}
+  const met=parseFloat(metStr)||0;
+  const pos=parseFloat(posStr)||0;
+  const rep=parseFloat(repStr)||0;
   const{mi,y}=gmi(ek());const k=ek();ea(D.days,k);const ex=D.days[k].find(r=>r.day===day);
   if(ex){if(!confirm(`⚠️ Η ${day}η ${dn(y,mi,day)} έχει ήδη καταχωρηθεί!\nΕισπράξεις: ${fmt(ex.metrita)} | POS: ${fmt(ex.pos)}\n\nΑντικατάσταση;`))return;D.days[k]=D.days[k].filter(r=>r.day!==day);}
   D.days[k].push({day,dayName:dn(y,mi,day),metrita:met,pos,report:rep});D.days[k].sort((a,b)=>a.day-b.day);
