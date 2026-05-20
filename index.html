@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ΤΑΜΕΙΟ — ΑΦΟΙ ΡΟΥΣΣΑ v3</title>
+<title>ΤΑΜΕΙΟ — ΑΦΟΙ ΡΟΥΣΣΑ v4</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -173,7 +173,7 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
 <div id="loginScreen">
   <div class="login-box">
     <div class="login-logo">ΑΦΟΙ ΡΟΥΣΣΑ</div>
-    <div class="login-sub">ΛΙΟΣΙΑ · Σύστημα Ταμείου v3</div>
+    <div class="login-sub">ΛΙΟΣΙΑ · Σύστημα Ταμείου v4</div>
     <input class="login-inp" type="password" id="loginPin" placeholder="● ● ● ● ● ●" maxlength="10"
       onkeydown="if(event.key==='Enter'){doLogin();}" autocomplete="off"/>
     <button class="login-btn" onclick="doLogin()">ΕΙΣΟΔΟΣ</button>
@@ -188,7 +188,7 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
     <button onclick="doLogout()" style="background:none;border:1px solid var(--border2);color:var(--muted);padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer;font-weight:700;">⏻ ΕΞΟΔΟΣ</button>
   </div>
   <div class="mbadge" id="mbadge">ΜΑΙΟΣ 2026</div>
-  <div style="font-size:9px;color:var(--muted);padding:3px 8px;border:1px solid var(--border2);border-radius:4px;font-family:var(--mono);">v3</div>
+  <div style="font-size:9px;color:var(--muted);padding:3px 8px;border:1px solid var(--border2);border-radius:4px;font-family:var(--mono);">v4</div>
   <div class="hr">
     <select id="ysel" onchange="changeYear(this.value)" style="background:var(--bg3);border:1px solid var(--accent);color:var(--accent);padding:4px 8px;border-radius:4px;font-size:11px;font-family:var(--sans);font-weight:700;">
       <option value="2023">2023</option><option value="2024">2024</option>
@@ -544,7 +544,8 @@ const HIST=[{year:'2023',month:1,total:43961,avg_day:1911,work_days:23},{year:'2
 const API='https://script.google.com/macros/s/AKfycbynzjoV1XpNn80eqnm5Z7SIn2271gEVOn5HQHM1qE4-DoygIov1wIDsJfWfVKDrok3S/exec';
 let CM='ΜΑΙΟΣ_2026';
 let D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},epitages:[]};
-var appReady=false; // true μόνο μετά το πλήρες φόρτωμα
+var appReady=false;
+var currentRole=null;
 
 function applyRole(){
   var isAdmin=(currentRole==='ADMIN');
@@ -682,10 +683,15 @@ async function changeMonth(v){
   document.getElementById('mbadge').textContent=v.replace('_',' ');
   D.days[v]=D.days[v]||[];D.trapEisp[v]=D.trapEisp[v]||[];D.trapPl[v]=D.trapPl[v]||[];
   D.metrita[v]=D.metrita[v]||[];D.bank[v]=D.bank[v]||[];D.d15[v]=D.d15[v]||[];D.telos[v]=D.telos[v]||[];
+  appReady=false;
+  const btn=document.querySelector('.btn-add');
+  if(btn){btn.disabled=true;btn.textContent='Φόρτωση...';}
   renderAll();
   refreshActiveTab();
   if(D.epitages.length===0){await Promise.all([loadFromSheets(), loadAllEpitages()]);}
   else{await loadFromSheets();}
+  appReady=true;
+  if(btn){btn.disabled=false;btn.textContent='ΚΑΤΑΧΩΡΗΣΗ';}
   refreshActiveTab();
   autoInitNewMonth(v);
 }
@@ -1475,11 +1481,12 @@ async function initApp(){
   document.getElementById('inp-day').disabled=false;
   document.querySelector('.btn-add').disabled=false;
   document.querySelector('.btn-add').textContent='ΚΑΤΑΧΩΡΗΣΗ';
-  renderEpit();runRules();preloadAllMonths();
+  renderEpit();runRules();
+  setTimeout(()=>preloadAllMonths(), 3000); // αρχίζει μετά 3 δευτ. για να μην κολλάει το UI
 }
 
 // === LOGIN ===
-var _PA=atob('MjQ4MTAwMA==');var _PE=atob('MjQ4Mw==');var currentRole=null;
+var _PA=atob('MjQ4MTAwMA==');var _PE=atob('MjQ4Mw==');
 async function doLogin(){
   var pin=document.getElementById('loginPin').value.trim();var err=document.getElementById('loginErr');
   if(pin===_PA){currentRole='ADMIN';}else if(pin===_PE){currentRole='EMP';}
