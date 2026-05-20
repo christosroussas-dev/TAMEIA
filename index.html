@@ -424,6 +424,10 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
       <div class="fi"><label>Μήνας λήξης</label>
         <select id="ep-m"><option>ΙΑΝΟΥΑΡΙΟΣ</option><option>ΦΕΒΡΟΥΑΡΙΟΣ</option><option>ΜΑΡΤΙΟΣ</option><option>ΑΠΡΙΛΙΟΣ</option><option>ΜΑΙΟΣ</option><option>ΙΟΥΝΙΟΣ</option><option>ΙΟΥΛΙΟΣ</option><option>ΑΥΓΟΥΣΤΟΣ</option><option>ΣΕΠΤΕΜΒΡΙΟΣ</option><option>ΟΚΤΩΒΡΙΟΣ</option><option>ΝΟΕΜΒΡΙΟΣ</option><option>ΔΕΚΕΜΒΡΙΟΣ</option></select>
       </div>
+      <div class="fi"><label>Έτος λήξης</label>
+        <select id="ep-yr"><option>2025</option><option selected>2026</option><option>2027</option><option>2028</option></select>
+      </div>
+      </div>
       <div class="fi"><label>Ημ. λήξης</label><input type="date" id="ep-d"></div>
       <div class="fi"><label>Ημ. έκδοσης</label><input type="date" id="ep-ek"></div>
       <div class="fi"><label>Αρ. Επιταγής</label><input type="text" id="ep-n"></div>
@@ -1074,7 +1078,7 @@ function renderTel(){
 }
 
 // ===== ★ ΕΠΙΤΑΓΕΣ — 12ΜΗΝΟ ΗΜΕΡΟΛΟΓΙΟ =====
-function addEpit(){const m=document.getElementById('ep-m').value,d=document.getElementById('ep-d').value,ek2=document.getElementById('ep-ek').value,n=document.getElementById('ep-n').value.trim(),p=document.getElementById('ep-p').value.trim(),v=parseFloat(document.getElementById('ep-v').value)||0;if(!v||!p)return;D.epitages.push({month:m,date:d,ekdosi:ek2,num:n,prom:p,liosia:v});['ep-n','ep-v','ep-d','ep-ek','ep-p'].forEach(id=>document.getElementById(id).value='');renderEpit();saveToSheets();}
+function addEpit(){const m=document.getElementById('ep-m').value,yr=document.getElementById('ep-yr').value,d=document.getElementById('ep-d').value,ek2=document.getElementById('ep-ek').value,n=document.getElementById('ep-n').value.trim(),p=document.getElementById('ep-p').value.trim(),v=parseFloat(document.getElementById('ep-v').value)||0;if(!v||!p)return;D.epitages.push({month:m,file_year:yr,date:d,ekdosi:ek2,num:n,prom:p,liosia:v});['ep-n','ep-v','ep-d','ep-ek','ep-p'].forEach(id=>document.getElementById(id).value='');renderEpit();saveToSheets();}
 function delEpit(i){D.epitages.splice(i,1);renderEpit();saveToSheets();}
 let epYear='ΟΛΕΣ';
 
@@ -1122,7 +1126,7 @@ function renderEpit(){
   document.getElementById('epBody').innerHTML=rows.map((r,i)=>{
     const past=r.date&&r.date<todayStr,soon=r.date&&r.date>=todayStr&&new Date(r.date)<=in30;
     const st=past?'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(76,175,125,.15);color:var(--green)">✓ΕΞΟΦΛ.</span>':soon?'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(224,85,85,.15);color:var(--red)">⚠ΕΡΧΕΤΑΙ</span>':'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(100,100,100,.15);color:var(--muted)">◼ΜΕΛΛΟΝ</span>';
-    return`<tr><td>${r.month}</td><td style="font-family:var(--mono)">${r.date||'—'}</td><td style="font-family:var(--mono)">${r.ekdosi||'—'}</td><td style="font-family:var(--mono)">${r.num||'—'}</td><td>${r.prom}</td><td class="acc">${fmt(r.liosia)}</td><td>${st}</td><td><button class="btn-del" onclick="delEpit(${D.epitages.indexOf(r)})">✕</button></td></tr>`;
+    return`<tr><td>${r.month} ${r.file_year||''}</td><td style="font-family:var(--mono)">${r.date||'—'}</td><td style="font-family:var(--mono)">${r.ekdosi||'—'}</td><td style="font-family:var(--mono)">${r.num||'—'}</td><td>${r.prom}</td><td class="acc">${fmt(r.liosia)}</td><td>${st}</td><td><button class="btn-del" onclick="delEpit(${D.epitages.indexOf(r)})">✕</button></td></tr>`;
   }).join('')+(rows.length?`<tr class="tot"><td colspan="5">ΣΥΝΟΛΟ ΛΙΟΣΙΑ ${epYear==='ΟΛΕΣ'?'ΟΛΑ ΤΑ ΕΤΗ':epYear}</td><td class="acc">${fmt(tot)}</td><td></td><td></td></tr>`:'');
   renderMain();
 }
