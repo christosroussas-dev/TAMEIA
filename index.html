@@ -597,8 +597,20 @@ function calcYP(){
 // ===== SYNC =====
 async function saveToSheets(){
   toast('Αποθήκευση...','info');
-  try{const p=encodeURIComponent(JSON.stringify({action:'save',month:CM,data:D}));await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});setTimeout(()=>toast('Αποθηκεύτηκε ✓','ok'),2000);}
-  catch(e){toast('Αποτυχία','err');}
+  try{
+    // Αποθήκευση δεδομένων μήνα (χωρίς επιταγές)
+    const monthData={days:D.days,trapEisp:D.trapEisp,trapPl:D.trapPl,metrita:D.metrita,bank:D.bank,d15:D.d15,telos:D.telos};
+    const p=encodeURIComponent(JSON.stringify({action:'save',month:CM,data:monthData}));
+    await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
+    // Αποθήκευση επιταγών ανά έτος ξεχωριστά
+    const byYr={};
+    (D.epitages||[]).forEach(e=>{const yr=e.file_year||(e.date?e.date.substring(0,4):'2026');if(!byYr[yr])byYr[yr]=[];byYr[yr].push(e);});
+    await Promise.all(Object.entries(byYr).map(([yr,epit])=>{
+      const ep=encodeURIComponent(JSON.stringify({action:'save',month:'EPITAGES_'+yr,data:{epitages:epit}}));
+      return fetch(API+'?payload='+ep,{method:'GET',mode:'no-cors'});
+    }));
+    setTimeout(()=>toast('Αποθηκεύτηκε ✓','ok'),2000);
+  }catch(e){toast('Αποτυχία','err');}
 }
 async function loadFromSheets(){
   toast('Φόρτωση...','info');
@@ -606,8 +618,14 @@ async function loadFromSheets(){
     const r=await fetch(API+'?action=load&month='+CM);const j=await r.json();
     if(j.success&&j.exists&&j.data){
       const d=j.data;
-      ['days','trapEisp','trapPl','metrita','bank','d15','telos'].forEach(s=>{if(d[s])D[s]=Object.assign(D[s],d[s]);});
-      if(d.epitages&&d.epitages.length>0) D.epitages=d.epitages;
+      // Πλήρης αντικατάσταση για τον τρέχοντα μήνα
+      if(d.days&&d.days[CM]) D.days[CM]=d.days[CM];
+      if(d.trapEisp&&d.trapEisp[CM]) D.trapEisp[CM]=d.trapEisp[CM];
+      if(d.trapPl&&d.trapPl[CM]) D.trapPl[CM]=d.trapPl[CM];
+      if(d.metrita&&d.metrita[CM]) D.metrita[CM]=d.metrita[CM];
+      if(d.bank&&d.bank[CM]) D.bank[CM]=d.bank[CM];
+      if(d.d15&&d.d15[CM]) D.d15[CM]=d.d15[CM];
+      if(d.telos&&d.telos[CM]) D.telos[CM]=d.telos[CM];
       renderAll();toast('Φορτώθηκε ✓','ok');
     }else{toast('Νέος μήνας','info');}
   }catch(e){toast('Αποτυχία','err');}
@@ -615,7 +633,7 @@ async function loadFromSheets(){
 async function loadAllEpitages(){
   try{
     D.epitages=[];
-    const years=['2020','2021','2022','2023','2024','2025','2026','2027'];
+    const years=['2023','2024','2025','2026','2027'];
     const results=await Promise.all(years.map(yr=>fetch(API+'?action=load&month=EPITAGES_'+yr).then(r=>r.json()).catch(()=>null)));
     results.forEach(j=>{if(j&&j.success&&j.exists&&j.data&&j.data.epitages){j.data.epitages.forEach(e=>D.epitages.push(e));}});
     if(D.epitages.length>0){renderEpit();runRules();toast('Επιταγές: '+D.epitages.length+' ✓','ok');}
