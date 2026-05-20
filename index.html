@@ -645,7 +645,7 @@ async function loadAllEpitages(){
     const years=['2023','2024','2025','2026','2027'];
     const results=await Promise.all(years.map(yr=>fetch(API+'?action=load&month=EPITAGES_'+yr).then(r=>r.json()).catch(()=>null)));
     results.forEach(j=>{if(j&&j.success&&j.exists&&j.data&&j.data.epitages){j.data.epitages.forEach(e=>D.epitages.push(e));}});
-    if(D.epitages.length>0){renderEpit();runRules();toast('Επιταγές: '+D.epitages.length+' ✓','ok');}
+    if(D.epitages.length>0){renderEpit();toast('Επιταγές: '+D.epitages.length+' ✓','ok');}
   }catch(e){toast('Αποτυχία φόρτωσης επιταγών','err');}
 }
 
@@ -1476,14 +1476,13 @@ async function initApp(){
   document.querySelector('.btn-add').disabled=true;
   document.querySelector('.btn-add').textContent='Φόρτωση...';
   renderAll();
-  await loadFromSheets();
-  await loadAllEpitages();
+  await loadFromSheets();   // πρώτα ο μήνας
+  await loadAllEpitages();  // μετά οι επιταγές — σειριακά όχι παράλληλα
   appReady=true;
   document.getElementById('inp-day').disabled=false;
   document.querySelector('.btn-add').disabled=false;
   document.querySelector('.btn-add').textContent='ΚΑΤΑΧΩΡΗΣΗ';
-  renderEpit();runRules();
-  // preload αφαιρέθηκε — τα δεδομένα φορτώνουν on-demand μόνο όταν χρειάζονται
+  renderAll();renderEpit();runRules();
 }
 
 // === LOGIN ===
