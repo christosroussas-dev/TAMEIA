@@ -625,13 +625,25 @@ async function loadFromSheets(){
     const r=await fetch(API+'?action=load&month='+CM);const j=await r.json();
     if(j.success&&j.exists&&j.data){
       const d=j.data;
-      // Αντικατάσταση (όχι συγχώνευση) — αλλιώς τα διαγραμμένα επιστρέφουν
-      ['days','trapEisp','trapPl','metrita','bank','d15','telos'].forEach(s=>{
-        if(d[s]) D[s][CM]=d[s][CM]||[];
-      });
+      // Πλήρης αντικατάσταση — μηδενίζουμε πρώτα τον μήνα
+      D.days[CM]=[];D.trapEisp[CM]=[];D.trapPl[CM]=[];
+      D.metrita[CM]=[];D.bank[CM]=[];D.d15[CM]=[];D.telos[CM]=[];
+      // Μετά φορτώνουμε από Sheets
+      if(d.days&&d.days[CM]) D.days[CM]=d.days[CM];
+      if(d.trapEisp&&d.trapEisp[CM]) D.trapEisp[CM]=d.trapEisp[CM];
+      if(d.trapPl&&d.trapPl[CM]) D.trapPl[CM]=d.trapPl[CM];
+      if(d.metrita&&d.metrita[CM]) D.metrita[CM]=d.metrita[CM];
+      if(d.bank&&d.bank[CM]) D.bank[CM]=d.bank[CM];
+      if(d.d15&&d.d15[CM]) D.d15[CM]=d.d15[CM];
+      if(d.telos&&d.telos[CM]) D.telos[CM]=d.telos[CM];
       renderAll();toast('Φορτώθηκε ✓','ok');
-    }else{toast('Νέος μήνας','info');}
-  }catch(e){toast('Αποτυχία','err');}
+    }else{
+      // Νέος μήνας — μηδενισμός
+      D.days[CM]=[];D.trapEisp[CM]=[];D.trapPl[CM]=[];
+      D.metrita[CM]=[];D.bank[CM]=[];D.d15[CM]=[];D.telos[CM]=[];
+      renderAll();toast('Νέος μήνας','info');
+    }
+  }catch(e){toast('Αποτυχία φόρτωσης','err');}
 }
 async function loadAllEpitages(){
   try{
