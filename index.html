@@ -2,10 +2,9 @@
 <html lang="el">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ΤΑΜΕΙΟ — ΑΦΟΙ ΡΟΥΣΣΑ v3</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -425,9 +424,6 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
       <div class="fi"><label>Μήνας λήξης</label>
         <select id="ep-m"><option>ΙΑΝΟΥΑΡΙΟΣ</option><option>ΦΕΒΡΟΥΑΡΙΟΣ</option><option>ΜΑΡΤΙΟΣ</option><option>ΑΠΡΙΛΙΟΣ</option><option>ΜΑΙΟΣ</option><option>ΙΟΥΝΙΟΣ</option><option>ΙΟΥΛΙΟΣ</option><option>ΑΥΓΟΥΣΤΟΣ</option><option>ΣΕΠΤΕΜΒΡΙΟΣ</option><option>ΟΚΤΩΒΡΙΟΣ</option><option>ΝΟΕΜΒΡΙΟΣ</option><option>ΔΕΚΕΜΒΡΙΟΣ</option></select>
       </div>
-      <div class="fi"><label>Έτος λήξης</label>
-        <select id="ep-yr"><option>2025</option><option selected>2026</option><option>2027</option><option>2028</option></select>
-      </div>
       <div class="fi"><label>Ημ. λήξης</label><input type="date" id="ep-d"></div>
       <div class="fi"><label>Ημ. έκδοσης</label><input type="date" id="ep-ek"></div>
       <div class="fi"><label>Αρ. Επιταγής</label><input type="text" id="ep-n"></div>
@@ -544,7 +540,6 @@ const HIST=[{year:'2023',month:1,total:43961,avg_day:1911,work_days:23},{year:'2
 const API='https://script.google.com/macros/s/AKfycbynzjoV1XpNn80eqnm5Z7SIn2271gEVOn5HQHM1qE4-DoygIov1wIDsJfWfVKDrok3S/exec';
 let CM='ΜΑΙΟΣ_2026';
 let D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},epitages:[]};
-var currentRole=null; // δηλώνεται εδώ για να είναι διαθέσιμο παντού
 
 function applyRole(){
   var isAdmin=(currentRole==='ADMIN');
@@ -598,29 +593,7 @@ function calcYP(){
 // ===== SYNC =====
 async function saveToSheets(){
   toast('Αποθήκευση...','info');
-  try{
-    // Αποθήκευσε δεδομένα μήνα
-    const monthData={
-      days:D.days, trapEisp:D.trapEisp, trapPl:D.trapPl,
-      metrita:D.metrita, bank:D.bank, d15:D.d15, telos:D.telos
-    };
-    const p=encodeURIComponent(JSON.stringify({action:'save',month:CM,data:monthData}));
-    await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
-
-    // Αποθήκευσε επιταγές ανά έτος ξεχωριστά
-    const epitByYear={};
-    (D.epitages||[]).forEach(e=>{
-      const yr=e.file_year||(e.date?e.date.substring(0,4):'2026');
-      if(!epitByYear[yr]) epitByYear[yr]=[];
-      epitByYear[yr].push(e);
-    });
-    await Promise.all(Object.entries(epitByYear).map(([yr,epit])=>{
-      const ep=encodeURIComponent(JSON.stringify({action:'save',month:'EPITAGES_'+yr,data:{epitages:epit}}));
-      return fetch(API+'?payload='+ep,{method:'GET',mode:'no-cors'});
-    }));
-
-    setTimeout(()=>toast('Αποθηκεύτηκε ✓','ok'),2000);
-  }
+  try{const p=encodeURIComponent(JSON.stringify({action:'save',month:CM,data:D}));await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});setTimeout(()=>toast('Αποθηκεύτηκε ✓','ok'),2000);}
   catch(e){toast('Αποτυχία','err');}
 }
 async function loadFromSheets(){
@@ -629,38 +602,19 @@ async function loadFromSheets(){
     const r=await fetch(API+'?action=load&month='+CM);const j=await r.json();
     if(j.success&&j.exists&&j.data){
       const d=j.data;
-      // Πλήρης αντικατάσταση — μηδενίζουμε πρώτα τον μήνα
-      D.days[CM]=[];D.trapEisp[CM]=[];D.trapPl[CM]=[];
-      D.metrita[CM]=[];D.bank[CM]=[];D.d15[CM]=[];D.telos[CM]=[];
-      // Μετά φορτώνουμε από Sheets
-      if(d.days&&d.days[CM]) D.days[CM]=d.days[CM];
-      if(d.trapEisp&&d.trapEisp[CM]) D.trapEisp[CM]=d.trapEisp[CM];
-      if(d.trapPl&&d.trapPl[CM]) D.trapPl[CM]=d.trapPl[CM];
-      if(d.metrita&&d.metrita[CM]) D.metrita[CM]=d.metrita[CM];
-      if(d.bank&&d.bank[CM]) D.bank[CM]=d.bank[CM];
-      if(d.d15&&d.d15[CM]) D.d15[CM]=d.d15[CM];
-      if(d.telos&&d.telos[CM]) D.telos[CM]=d.telos[CM];
+      ['days','trapEisp','trapPl','metrita','bank','d15','telos'].forEach(s=>{if(d[s])D[s]=Object.assign(D[s],d[s]);});
+      if(d.epitages&&d.epitages.length>0) D.epitages=d.epitages;
       renderAll();toast('Φορτώθηκε ✓','ok');
-    }else{
-      // Νέος μήνας — μηδενισμός
-      D.days[CM]=[];D.trapEisp[CM]=[];D.trapPl[CM]=[];
-      D.metrita[CM]=[];D.bank[CM]=[];D.d15[CM]=[];D.telos[CM]=[];
-      renderAll();toast('Νέος μήνας','info');
-    }
-  }catch(e){toast('Αποτυχία φόρτωσης','err');}
+    }else{toast('Νέος μήνας','info');}
+  }catch(e){toast('Αποτυχία','err');}
 }
 async function loadAllEpitages(){
   try{
     D.epitages=[];
-    const years=['2023','2024','2025','2026','2027'];
+    const years=['2020','2021','2022','2023','2024','2025','2026','2027'];
     const results=await Promise.all(years.map(yr=>fetch(API+'?action=load&month=EPITAGES_'+yr).then(r=>r.json()).catch(()=>null)));
-    results.forEach(j=>{
-      if(j&&j.success&&j.exists&&j.data&&j.data.epitages){
-        j.data.epitages.forEach(e=>D.epitages.push(e));
-      }
-    });
+    results.forEach(j=>{if(j&&j.success&&j.exists&&j.data&&j.data.epitages){j.data.epitages.forEach(e=>D.epitages.push(e));}});
     if(D.epitages.length>0){renderEpit();runRules();toast('Επιταγές: '+D.epitages.length+' ✓','ok');}
-    else{toast('Δεν βρέθηκαν επιταγές','info');}
   }catch(e){toast('Αποτυχία φόρτωσης επιταγών','err');}
 }
 
@@ -738,77 +692,22 @@ function renderAll(){buildDD();renderMain();renderTrap();renderMet();renderBnk()
 // DAY DROPDOWN
 function buildDD(){
   const sel=document.getElementById('inp-day');
-  const{mi,y,days}=gmi(ek());
-  const used=(D.days[ek()]||[]).map(r=>r.day);
+  const{mi,y,days}=gmi(ek());const used=(D.days[ek()]||[]).map(r=>r.day);
   sel.innerHTML='<option value="">Επιλογή ημέρας...</option>';
-  for(let d=1;d<=days;d++){
-    const dname=dn(y,mi,d);
-    if(dname==='ΚΥΡΙΑΚΗ') continue;
-    if(used.includes(d)) continue; // καταχωρημένες ημέρες εξαφανίζονται
-    const o=document.createElement('option');
-    o.value=d; o.textContent=d+' '+dname;
-    sel.appendChild(o);
-  }
+  for(let d=1;d<=days;d++){const dname=dn(y,mi,d);if(dname==='ΚΥΡΙΑΚΗ')continue;const o=document.createElement('option');o.value=d;if(used.includes(d))continue;o.textContent=d+' '+dname;sel.appendChild(o);}
 }
+window.addEventListener('keydown',e=>{if(e.key==='Enter'&&['inp-met','inp-pos','inp-rep'].includes(document.activeElement?.id))addDay();});
 
 function onDaySelect(sel){
-  const day=parseInt(sel.value);
-  const div=document.getElementById('dayCompare');
+  const day=parseInt(sel.value);const div=document.getElementById('dayCompare');
   if(!day){div.innerHTML='';return;}
-  const{mi}=gmi(ek());
-  const mn=MONTHS_EL[mi];
-  const cyr=parseInt(ek().split('_')[1]);
-  const MN_SH=['ΙΑΝ','ΦΕΒ','ΜΑΡ','ΑΠΡ','ΜΑΙ','ΙΟΥ','ΙΟΛ','ΑΥΓ','ΣΕΠ','ΟΚΤ','ΝΟΕ','ΔΕΚ'];
-  function renderCompareBox(){
-    let html='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">';
-    [cyr-1,cyr-2].forEach(yr=>{
-      const k=mn+'_'+yr;
-      const dayData=(D.days[k]||[]).find(r=>r.day===day);
-      const tot=dayData!=null?(dayData.metrita+dayData.pos):null;
-      const col=COL[yr]||'#555';
-      html+=`<div style="background:var(--bg3);border:1px solid ${col};border-radius:5px;padding:5px 10px;font-size:11px;">
-        <div style="color:${col};font-weight:700;font-size:9px;margin-bottom:2px;">${day} ${MN_SH[mi]} ${yr}</div>
-        <div style="font-family:var(--mono);font-weight:600;">${tot!==null?fmt(tot):'—'}</div>
-      </div>`;
-    });
-    html+='</div>';div.innerHTML=html;
-  }
-  renderCompareBox();
-  [cyr-1,cyr-2].forEach(yr=>{
-    const k=mn+'_'+yr;
-    if(!D.days[k]||D.days[k].length===0){
-      fetch(API+'?action=load&month='+k).then(r=>r.json()).then(j=>{
-        if(j.success&&j.exists&&j.data&&j.data.days){
-          D.days[k]=j.data.days[k]||[];
-          if(parseInt(document.getElementById('inp-day').value)===day) renderCompareBox();
-        }
-      }).catch(()=>{});
-    }
-  });
+  const{mi}=gmi(ek());const cyr=parseInt(ek().split('_')[1]);
+  let html='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">';
+  [cyr-1,cyr-2].forEach(yr=>{const h=HIST.find(x=>x.year===String(yr)&&x.month===mi+1);if(h)html+=`<div style="background:var(--bg3);border:1px solid ${COL[yr]||'#555'};border-radius:5px;padding:5px 10px;font-size:11px;"><div style="color:${COL[yr]||'#555'};font-weight:700;font-size:9px;margin-bottom:2px;">${MS[mi+1]} ${yr} (μέσος/μέρα)</div><div style="font-family:var(--mono);font-weight:600;">${fmt(h.avg_day)}</div></div>`;});
+  html+='</div>';div.innerHTML=html;
 }
 
-window.addEventListener('keydown',e=>{
-  if(!currentRole) return;
-  const id=document.activeElement?.id;
-  if(e.key==='Enter'&&['inp-met','inp-pos','inp-rep'].includes(id)){addDay();return;}
-  if(e.key==='Enter'&&['met-d','met-a','met-v'].includes(id)){addMet();return;}
-  if(e.key==='Enter'&&['tei-d','tei-p','tei-v'].includes(id)){addTEisp();return;}
-  if(e.key==='Enter'&&['tpl-d','tpl-p','tpl-v'].includes(id)){addTPl();return;}
-  if(e.key==='Enter'&&['bnk-d','bnk-a','bnk-v'].includes(id)){addBnk();return;}
-  if(e.key==='Enter'&&['ep-m','ep-d','ep-ek','ep-n','ep-p','ep-v','ep-yr'].includes(id)){addEpit();return;}
-  if((e.key==='ArrowRight'||e.key==='ArrowDown')&&document.activeElement?.tagName==='INPUT'){
-    const inputs=Array.from(document.querySelectorAll('input:not([type=password]),select'));
-    const idx=inputs.indexOf(document.activeElement);
-    if(idx<inputs.length-1){e.preventDefault();inputs[idx+1].focus();}
-  }
-  if((e.key==='ArrowLeft'||e.key==='ArrowUp')&&document.activeElement?.tagName==='INPUT'){
-    const inputs=Array.from(document.querySelectorAll('input:not([type=password]),select'));
-    const idx=inputs.indexOf(document.activeElement);
-    if(idx>0){e.preventDefault();inputs[idx-1].focus();}
-  }
-});
-
-
+function addDay(){
   const day=parseInt(document.getElementById('inp-day').value);if(!day){toast('Επίλεξε ημέρα','err');return;}
   const met=parseFloat(document.getElementById('inp-met').value)||0;const pos=parseFloat(document.getElementById('inp-pos').value)||0;const rep=parseFloat(document.getElementById('inp-rep').value)||0;
   const{mi,y}=gmi(ek());const k=ek();ea(D.days,k);const ex=D.days[k].find(r=>r.day===day);
@@ -1166,19 +1065,7 @@ function renderTel(){
 }
 
 // ===== ★ ΕΠΙΤΑΓΕΣ — 12ΜΗΝΟ ΗΜΕΡΟΛΟΓΙΟ =====
-function addEpit(){
-  const m=document.getElementById('ep-m').value;
-  const yr=document.getElementById('ep-yr').value;
-  const d=document.getElementById('ep-d').value;
-  const ek2=document.getElementById('ep-ek').value;
-  const n=document.getElementById('ep-n').value.trim();
-  const p=document.getElementById('ep-p').value.trim();
-  const v=parseFloat(document.getElementById('ep-v').value)||0;
-  if(!v||!p)return;
-  D.epitages.push({month:m,file_year:yr,date:d,ekdosi:ek2,num:n,prom:p,liosia:v});
-  ['ep-n','ep-v','ep-d','ep-ek','ep-p'].forEach(id=>document.getElementById(id).value='');
-  renderEpit();saveToSheets();
-}
+function addEpit(){const m=document.getElementById('ep-m').value,d=document.getElementById('ep-d').value,ek2=document.getElementById('ep-ek').value,n=document.getElementById('ep-n').value.trim(),p=document.getElementById('ep-p').value.trim(),v=parseFloat(document.getElementById('ep-v').value)||0;if(!v||!p)return;D.epitages.push({month:m,date:d,ekdosi:ek2,num:n,prom:p,liosia:v});['ep-n','ep-v','ep-d','ep-ek','ep-p'].forEach(id=>document.getElementById(id).value='');renderEpit();saveToSheets();}
 function delEpit(i){D.epitages.splice(i,1);renderEpit();saveToSheets();}
 let epYear='ΟΛΕΣ';
 
@@ -1224,10 +1111,9 @@ function renderEpit(){
   document.getElementById('ep30').textContent=n30?fmt(n30):'—';
 
   document.getElementById('epBody').innerHTML=rows.map((r,i)=>{
-    const realIdx=D.epitages.indexOf(r);
     const past=r.date&&r.date<todayStr,soon=r.date&&r.date>=todayStr&&new Date(r.date)<=in30;
     const st=past?'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(76,175,125,.15);color:var(--green)">✓ΕΞΟΦΛ.</span>':soon?'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(224,85,85,.15);color:var(--red)">⚠ΕΡΧΕΤΑΙ</span>':'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(100,100,100,.15);color:var(--muted)">◼ΜΕΛΛΟΝ</span>';
-    return`<tr><td>${r.month} ${r.file_year||''}</td><td style="font-family:var(--mono)">${r.date||'—'}</td><td style="font-family:var(--mono)">${r.ekdosi||'—'}</td><td style="font-family:var(--mono)">${r.num||'—'}</td><td>${r.prom}</td><td class="acc">${fmt(r.liosia)}</td><td>${st}</td><td><button class="btn-del" onclick="delEpit(${realIdx})">✕</button></td></tr>`;
+    return`<tr><td>${r.month}</td><td style="font-family:var(--mono)">${r.date||'—'}</td><td style="font-family:var(--mono)">${r.ekdosi||'—'}</td><td style="font-family:var(--mono)">${r.num||'—'}</td><td>${r.prom}</td><td class="acc">${fmt(r.liosia)}</td><td>${st}</td><td><button class="btn-del" onclick="delEpit(${D.epitages.indexOf(r)})">✕</button></td></tr>`;
   }).join('')+(rows.length?`<tr class="tot"><td colspan="5">ΣΥΝΟΛΟ ΛΙΟΣΙΑ ${epYear==='ΟΛΕΣ'?'ΟΛΑ ΤΑ ΕΤΗ':epYear}</td><td class="acc">${fmt(tot)}</td><td></td><td></td></tr>`:'');
   renderMain();
 }
@@ -1493,7 +1379,7 @@ function exportCSV(){
   XLSX.utils.book_append_sheet(wb,ws6,'ΠΛΗΡΩΜΕΣ ΤΕΛΟΣ ΤΟΥ ΜΗΝΑ');
 
   // ΑΠΟΘΗΚΕΥΣΗ
-  XLSX.writeFile(wb,'ΤΑΜΕΙΟ_'+mn+'_'+yr+'.xlsx');
+  XLSX.writeFile(wb,'ΤΑΜΕΙΟ_'+mn+'_'+yr+'.xlsx',);
   toast('Excel εξήχθη ✓','ok');
 }
 
@@ -1505,7 +1391,7 @@ async function initApp(){
 }
 
 // === LOGIN ===
-var _PA=atob('MjQ4MTAwMA==');var _PE=atob('MjQ4Mw==');
+var _PA=atob('MjQ4MTAwMA==');var _PE=atob('MjQ4Mw==');var currentRole=null;
 async function doLogin(){
   var pin=document.getElementById('loginPin').value.trim();var err=document.getElementById('loginErr');
   if(pin===_PA){currentRole='ADMIN';}else if(pin===_PE){currentRole='EMP';}
