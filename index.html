@@ -1109,9 +1109,10 @@ function renderEpit(){
   document.getElementById('ep30').textContent=n30?fmt(n30):'—';
 
   document.getElementById('epBody').innerHTML=rows.map((r,i)=>{
+    const realIdx=D.epitages.indexOf(r);
     const past=r.date&&r.date<todayStr,soon=r.date&&r.date>=todayStr&&new Date(r.date)<=in30;
     const st=past?'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(76,175,125,.15);color:var(--green)">✓ΕΞΟΦΛ.</span>':soon?'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(224,85,85,.15);color:var(--red)">⚠ΕΡΧΕΤΑΙ</span>':'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(100,100,100,.15);color:var(--muted)">◼ΜΕΛΛΟΝ</span>';
-    return`<tr><td>${r.month}</td><td style="font-family:var(--mono)">${r.date||'—'}</td><td style="font-family:var(--mono)">${r.ekdosi||'—'}</td><td style="font-family:var(--mono)">${r.num||'—'}</td><td>${r.prom}</td><td class="acc">${fmt(r.liosia)}</td><td>${st}</td><td><button class="btn-del" onclick="delEpit(${i})">✕</button></td></tr>`;
+    return`<tr><td>${r.month}</td><td style="font-family:var(--mono)">${r.date||'—'}</td><td style="font-family:var(--mono)">${r.ekdosi||'—'}</td><td style="font-family:var(--mono)">${r.num||'—'}</td><td>${r.prom}</td><td class="acc">${fmt(r.liosia)}</td><td>${st}</td><td><button class="btn-del" onclick="delEpit(${realIdx})">✕</button></td></tr>`;
   }).join('')+(rows.length?`<tr class="tot"><td colspan="5">ΣΥΝΟΛΟ ΛΙΟΣΙΑ ${epYear==='ΟΛΕΣ'?'ΟΛΑ ΤΑ ΕΤΗ':epYear}</td><td class="acc">${fmt(tot)}</td><td></td><td></td></tr>`:'');
   renderMain();
 }
@@ -1377,7 +1378,7 @@ function exportCSV(){
   XLSX.utils.book_append_sheet(wb,ws6,'ΠΛΗΡΩΜΕΣ ΤΕΛΟΣ ΤΟΥ ΜΗΝΑ');
 
   // ΑΠΟΘΗΚΕΥΣΗ
-  XLSX.writeFile(wb,'ΤΑΜΕΙΟ_'+mn+'_'+yr+'.xlsx',{cellStyles:true,bookSST:false});
+  XLSX.writeFile(wb,'ΤΑΜΕΙΟ_'+mn+'_'+yr+'.xlsx');
   toast('Excel εξήχθη ✓','ok');
 }
 
