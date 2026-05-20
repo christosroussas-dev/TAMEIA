@@ -1499,14 +1499,27 @@ window.onload=function(){document.getElementById('loginPin').focus();};
 
 async function preloadAllMonths(){
   const years=['2023','2024','2025','2026','2027'];const toLoad=[];
-  years.forEach(yr=>{MONTHS_EL.forEach(mn=>{const k=mn+'_'+yr;if(!D.days[k]||D.days[k].length===0)toLoad.push(k);});});
+  years.forEach(yr=>{MONTHS_EL.forEach(mn=>{const k=mn+'_'+yr;
+    if(k===CM) return; // παράλειψε τον τρέχοντα μήνα — έχει ήδη φορτωθεί
+    if(!D.days[k]||D.days[k].length===0)toLoad.push(k);
+  });});
   for(let i=0;i<toLoad.length;i+=3){
     const batch=toLoad.slice(i,i+3);
     await Promise.all(batch.map(async k=>{
-      try{const r=await fetch(API+'?action=load&month='+k);const j=await r.json();if(j.success&&j.exists&&j.data){if(j.data.days)Object.assign(D.days,j.data.days);if(j.data.trapEisp)Object.assign(D.trapEisp,j.data.trapEisp);if(j.data.metrita)Object.assign(D.metrita,j.data.metrita);if(j.data.bank)Object.assign(D.bank,j.data.bank);if(j.data.d15)Object.assign(D.d15,j.data.d15);if(j.data.telos)Object.assign(D.telos,j.data.telos);}}catch(e){}
+      if(k===CM) return; // διπλός έλεγχος
+      try{
+        const r=await fetch(API+'?action=load&month='+k);const j=await r.json();
+        if(j.success&&j.exists&&j.data){
+          if(j.data.days) Object.assign(D.days,j.data.days);
+          if(j.data.trapEisp) Object.assign(D.trapEisp,j.data.trapEisp);
+          if(j.data.metrita) Object.assign(D.metrita,j.data.metrita);
+          if(j.data.bank) Object.assign(D.bank,j.data.bank);
+          if(j.data.d15) Object.assign(D.d15,j.data.d15);
+          if(j.data.telos) Object.assign(D.telos,j.data.telos);
+        }
+      }catch(e){}
     }));
   }
-  toast('Όλα τα δεδομένα φορτώθηκαν ✓','ok');
 }
 </script>
 
