@@ -774,11 +774,14 @@ function addDay(){
   const met=parseFloat(metStr)||0;
   const pos=parseFloat(posStr)||0;
   const rep=parseFloat(repStr)||0;
-  const{mi,y}=gmi(ek());const k=ek();ea(D.days,k);const ex=D.days[k].find(r=>r.day===day);
+  const{mi,y}=gmi(ek());const k=ek();ea(D.days,k);
+  const ex=D.days[k].find(r=>r.day===day);
   if(ex){if(!confirm(`⚠️ Η ${day}η ${dn(y,mi,day)} έχει ήδη καταχωρηθεί!\nΕισπράξεις: ${fmt(ex.metrita)} | POS: ${fmt(ex.pos)}\n\nΑντικατάσταση;`))return;D.days[k]=D.days[k].filter(r=>r.day!==day);}
-  D.days[k].push({day,dayName:dn(y,mi,day),metrita:met,pos,report:rep});D.days[k].sort((a,b)=>a.day-b.day);
+  D.days[k].push({day,dayName:dn(y,mi,day),metrita:met,pos,report:rep});
+  D.days[k].sort((a,b)=>a.day-b.day);
   ['inp-met','inp-pos','inp-rep'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('inp-day').value='';document.getElementById('dayCompare').innerHTML='';
+  document.getElementById('inp-day').value='';
+  document.getElementById('dayCompare').innerHTML='';
   renderAll();saveToSheets();
 }
 function closeDayPopup(){document.getElementById('dayPopup').style.display='none';}
@@ -1451,7 +1454,18 @@ async function initApp(){
   buildMonthSelect('2026');const now=new Date();const curMn=MONTHS_EL[now.getMonth()]+'_2026';
   document.getElementById('msel').value=curMn;CM=curMn;
   document.getElementById('mbadge').textContent=curMn.replace('_',' ');
-  renderAll();await Promise.all([loadAllEpitages(),loadFromSheets()]);renderEpit();runRules();preloadAllMonths();
+  // Απενεργοποίησε φόρμα μέχρι να φορτώσει
+  document.getElementById('inp-day').disabled=true;
+  document.querySelector('.btn-add').disabled=true;
+  document.querySelector('.btn-add').textContent='Φόρτωση...';
+  renderAll();
+  await loadFromSheets();
+  await loadAllEpitages();
+  // Ενεργοποίησε φόρμα
+  document.getElementById('inp-day').disabled=false;
+  document.querySelector('.btn-add').disabled=false;
+  document.querySelector('.btn-add').textContent='ΚΑΤΑΧΩΡΗΣΗ';
+  renderEpit();runRules();preloadAllMonths();
 }
 
 // === LOGIN ===
