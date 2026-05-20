@@ -1482,7 +1482,7 @@ async function initApp(){
   document.querySelector('.btn-add').disabled=false;
   document.querySelector('.btn-add').textContent='ΚΑΤΑΧΩΡΗΣΗ';
   renderEpit();runRules();
-  setTimeout(()=>preloadAllMonths(), 3000); // αρχίζει μετά 3 δευτ. για να μην κολλάει το UI
+  // preload αφαιρέθηκε — τα δεδομένα φορτώνουν on-demand μόνο όταν χρειάζονται
 }
 
 // === LOGIN ===
