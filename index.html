@@ -544,6 +544,7 @@ const HIST=[{year:'2023',month:1,total:43961,avg_day:1911,work_days:23},{year:'2
 const API='https://script.google.com/macros/s/AKfycbynzjoV1XpNn80eqnm5Z7SIn2271gEVOn5HQHM1qE4-DoygIov1wIDsJfWfVKDrok3S/exec';
 let CM='ΜΑΙΟΣ_2026';
 let D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},epitages:[]};
+var currentRole=null; // δηλώνεται εδώ για να είναι διαθέσιμο παντού
 
 function applyRole(){
   var isAdmin=(currentRole==='ADMIN');
@@ -1504,7 +1505,7 @@ async function initApp(){
 }
 
 // === LOGIN ===
-var _PA=atob('MjQ4MTAwMA==');var _PE=atob('MjQ4Mw==');var currentRole=null;
+var _PA=atob('MjQ4MTAwMA==');var _PE=atob('MjQ4Mw==');
 async function doLogin(){
   var pin=document.getElementById('loginPin').value.trim();var err=document.getElementById('loginErr');
   if(pin===_PA){currentRole='ADMIN';}else if(pin===_PE){currentRole='EMP';}
