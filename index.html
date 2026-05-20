@@ -625,7 +625,10 @@ async function loadFromSheets(){
     const r=await fetch(API+'?action=load&month='+CM);const j=await r.json();
     if(j.success&&j.exists&&j.data){
       const d=j.data;
-      ['days','trapEisp','trapPl','metrita','bank','d15','telos'].forEach(s=>{if(d[s])D[s]=Object.assign(D[s],d[s]);});
+      // Αντικατάσταση (όχι συγχώνευση) — αλλιώς τα διαγραμμένα επιστρέφουν
+      ['days','trapEisp','trapPl','metrita','bank','d15','telos'].forEach(s=>{
+        if(d[s]) D[s][CM]=d[s][CM]||[];
+      });
       renderAll();toast('Φορτώθηκε ✓','ok');
     }else{toast('Νέος μήνας','info');}
   }catch(e){toast('Αποτυχία','err');}
@@ -1444,7 +1447,7 @@ function exportCSV(){
   XLSX.utils.book_append_sheet(wb,ws6,'ΠΛΗΡΩΜΕΣ ΤΕΛΟΣ ΤΟΥ ΜΗΝΑ');
 
   // ΑΠΟΘΗΚΕΥΣΗ
-  XLSX.writeFile(wb,'ΤΑΜΕΙΟ_'+mn+'_'+yr+'.xlsx',{cellStyles:true,bookSST:false});
+  XLSX.writeFile(wb,'ΤΑΜΕΙΟ_'+mn+'_'+yr+'.xlsx');
   toast('Excel εξήχθη ✓','ok');
 }
 
