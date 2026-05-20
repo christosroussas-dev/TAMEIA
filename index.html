@@ -692,8 +692,9 @@ async function changeMonth(v){
   else{await loadFromSheets();}
   appReady=true;
   if(btn){btn.disabled=false;btn.textContent='ΚΑΤΑΧΩΡΗΣΗ';}
-  refreshActiveTab();
+  // autoInitNewMonth ΜΕΤΑ το load — έτσι ξέρει αν υπάρχουν δεδομένα
   autoInitNewMonth(v);
+  refreshActiveTab();
 }
 function refreshActiveTab(){
   const activePanel=document.querySelector('.panel.active');
@@ -1462,7 +1463,7 @@ function exportCSV(){
   XLSX.utils.book_append_sheet(wb,ws6,'ΠΛΗΡΩΜΕΣ ΤΕΛΟΣ ΤΟΥ ΜΗΝΑ');
 
   // ΑΠΟΘΗΚΕΥΣΗ
-  XLSX.writeFile(wb,'ΤΑΜΕΙΟ_'+mn+'_'+yr+'.xlsx',);
+  XLSX.writeFile(wb,'ΤΑΜΕΙΟ_'+mn+'_'+yr+'.xlsx');
   toast('Excel εξήχθη ✓','ok');
 }
 
