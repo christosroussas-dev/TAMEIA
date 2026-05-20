@@ -737,47 +737,61 @@ function renderAll(){buildDD();renderMain();renderTrap();renderMet();renderBnk()
 // DAY DROPDOWN
 function buildDD(){
   const sel=document.getElementById('inp-day');
-  const{mi,y,days}=gmi(ek());const used=(D.days[ek()]||[]).map(r=>r.day);
+  const{mi,y,days}=gmi(ek());
+  const used=(D.days[ek()]||[]).map(r=>r.day);
   sel.innerHTML='<option value="">Επιλογή ημέρας...</option>';
-  for(let d=1;d<=days;d++){const dname=dn(y,mi,d);if(dname==='ΚΥΡΙΑΚΗ')continue;const o=document.createElement('option');o.value=d;o.textContent=d+' '+dname+(used.includes(d)?' ✓':'');sel.appendChild(o);}
+  for(let d=1;d<=days;d++){
+    const dname=dn(y,mi,d);
+    if(dname==='ΚΥΡΙΑΚΗ') continue;
+    if(used.includes(d)) continue; // καταχωρημένες ημέρες εξαφανίζονται
+    const o=document.createElement('option');
+    o.value=d; o.textContent=d+' '+dname;
+    sel.appendChild(o);
+  }
 }
-window.addEventListener('keydown',e=>{
-  const id=document.activeElement?.id;
-  // ΤΑΜΕΙΟ — Enter για αποθήκευση ημέρας
-  if(e.key==='Enter'&&['inp-met','inp-pos','inp-rep'].includes(id)){addDay();return;}
-  // ΜΕΤΡΗΤΑ — Enter
-  if(e.key==='Enter'&&['met-d','met-a','met-v'].includes(id)){addMet();return;}
-  // ΤΡΑΠΕΖΑ εισπράξεις — Enter
-  if(e.key==='Enter'&&['tei-d','tei-p','tei-v'].includes(id)){addTEisp();return;}
-  // ΤΡΑΠΕΖΑ πληρωμές — Enter
-  if(e.key==='Enter'&&['tpl-d','tpl-p','tpl-v'].includes(id)){addTPl();return;}
-  // ΤΡΑΠΕΖΑ (πληρ.) — Enter
-  if(e.key==='Enter'&&['bnk-d','bnk-a','bnk-v'].includes(id)){addBnk();return;}
-  // ΕΠΙΤΑΓΕΣ — Enter
-  if(e.key==='Enter'&&['ep-m','ep-d','ep-ek','ep-n','ep-p','ep-v'].includes(id)){addEpit();return;}
-  // Tab navigation με βελάκια σε αριθμητικά πεδία
-  if((e.key==='ArrowRight'||e.key==='ArrowDown')&&document.activeElement?.tagName==='INPUT'){
-    const inputs=Array.from(document.querySelectorAll('input:not([type=password]),select'));
-    const idx=inputs.indexOf(document.activeElement);
-    if(idx<inputs.length-1){e.preventDefault();inputs[idx+1].focus();}
-  }
-  if((e.key==='ArrowLeft'||e.key==='ArrowUp')&&document.activeElement?.tagName==='INPUT'){
-    const inputs=Array.from(document.querySelectorAll('input:not([type=password]),select'));
-    const idx=inputs.indexOf(document.activeElement);
-    if(idx>0){e.preventDefault();inputs[idx-1].focus();}
-  }
-});
 
 function onDaySelect(sel){
-  const day=parseInt(sel.value);const div=document.getElementById('dayCompare');
+  const day=parseInt(sel.value);
+  const div=document.getElementById('dayCompare');
   if(!day){div.innerHTML='';return;}
-  const{mi}=gmi(ek());const cyr=parseInt(ek().split('_')[1]);
-  let html='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">';
-  [cyr-1,cyr-2].forEach(yr=>{const h=HIST.find(x=>x.year===String(yr)&&x.month===mi+1);if(h)html+=`<div style="background:var(--bg3);border:1px solid ${COL[yr]||'#555'};border-radius:5px;padding:5px 10px;font-size:11px;"><div style="color:${COL[yr]||'#555'};font-weight:700;font-size:9px;margin-bottom:2px;">${MS[mi+1]} ${yr} (μέσος/μέρα)</div><div style="font-family:var(--mono);font-weight:600;">${fmt(h.avg_day)}</div></div>`;});
-  html+='</div>';div.innerHTML=html;
+  const{mi}=gmi(ek());
+  const mn=MONTHS_EL[mi];
+  const cyr=parseInt(ek().split('_')[1]);
+  const MN_SH=['ΙΑΝ','ΦΕΒ','ΜΑΡ','ΑΠΡ','ΜΑΙ','ΙΟΥ','ΙΟΛ','ΑΥΓ','ΣΕΠ','ΟΚΤ','ΝΟΕ','ΔΕΚ'];
+
+  function renderCompareBox(){
+    let html='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">';
+    [cyr-1,cyr-2].forEach(yr=>{
+      const k=mn+'_'+yr;
+      const dayData=(D.days[k]||[]).find(r=>r.day===day);
+      const tot=dayData!=null?(dayData.metrita+dayData.pos):null;
+      const col=COL[yr]||'#555';
+      html+=`<div style="background:var(--bg3);border:1px solid ${col};border-radius:5px;padding:5px 10px;font-size:11px;">
+        <div style="color:${col};font-weight:700;font-size:9px;margin-bottom:2px;">${day} ${MN_SH[mi]} ${yr}</div>
+        <div style="font-family:var(--mono);font-weight:600;">${tot!==null?fmt(tot):'—'}</div>
+      </div>`;
+    });
+    html+='</div>';
+    div.innerHTML=html;
+  }
+
+  renderCompareBox();
+
+  // Φόρτωσε από Sheets αν δεν έχουμε δεδομένα
+  [cyr-1,cyr-2].forEach(yr=>{
+    const k=mn+'_'+yr;
+    if(!D.days[k]||D.days[k].length===0){
+      fetch(API+'?action=load&month='+k).then(r=>r.json()).then(j=>{
+        if(j.success&&j.exists&&j.data&&j.data.days){
+          D.days[k]=j.data.days[k]||[];
+          if(parseInt(document.getElementById('inp-day').value)===day) renderCompareBox();
+        }
+      }).catch(()=>{});
+    }
+  });
 }
 
-function addDay(){
+
   const day=parseInt(document.getElementById('inp-day').value);if(!day){toast('Επίλεξε ημέρα','err');return;}
   const met=parseFloat(document.getElementById('inp-met').value)||0;const pos=parseFloat(document.getElementById('inp-pos').value)||0;const rep=parseFloat(document.getElementById('inp-rep').value)||0;
   const{mi,y}=gmi(ek());const k=ek();ea(D.days,k);const ex=D.days[k].find(r=>r.day===day);
