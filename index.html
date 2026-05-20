@@ -696,7 +696,16 @@ function buildDD(){
   sel.innerHTML='<option value="">Επιλογή ημέρας...</option>';
   for(let d=1;d<=days;d++){const dname=dn(y,mi,d);if(dname==='ΚΥΡΙΑΚΗ')continue;const o=document.createElement('option');o.value=d;if(used.includes(d))continue;o.textContent=d+' '+dname;sel.appendChild(o);}
 }
-window.addEventListener('keydown',e=>{if(e.key==='Enter'&&['inp-met','inp-pos','inp-rep'].includes(document.activeElement?.id))addDay();});
+window.addEventListener('keydown',e=>{
+  if(!currentRole) return;
+  const id=document.activeElement?.id;
+  if(e.key==='Enter'&&['inp-met','inp-pos','inp-rep'].includes(id)){addDay();return;}
+  if(e.key==='Enter'&&['met-d','met-a','met-v'].includes(id)){addMet();return;}
+  if(e.key==='Enter'&&['tei-d','tei-p','tei-v'].includes(id)){addTEisp();return;}
+  if(e.key==='Enter'&&['tpl-d','tpl-p','tpl-v'].includes(id)){addTPl();return;}
+  if(e.key==='Enter'&&['bnk-d','bnk-a','bnk-v'].includes(id)){addBnk();return;}
+  if(e.key==='Enter'&&['ep-d','ep-ek','ep-n','ep-p','ep-v'].includes(id)){addEpit();return;}
+});
 
 function onDaySelect(sel){
   const day=parseInt(sel.value);const div=document.getElementById('dayCompare');
