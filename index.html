@@ -659,24 +659,18 @@ async function loadAllEpitages(){
     const curYr=String(new Date().getFullYear());
     const otherYears=['2023','2024','2025','2026','2027'].filter(y=>y!==curYr);
 
-    // 1. Φόρτωσε ΠΡΩΤΑ μόνο το τρέχον έτος
+    // 1. Φόρτωσε μόνο το τρέχον έτος — σύγχρονα
     D.epitages=[];
     try{
       const url=API+'?action=load&month='+encodeURIComponent('EPITAGES_'+curYr);
-      console.log('Loading epitages:', url);
       const r=await fetch(url);
       const j=await r.json();
-      console.log('Epitages response:', j.success, j.exists, j.data?.epitages?.length);
       if(j&&j.success&&j.exists&&j.data&&j.data.epitages){
         j.data.epitages.forEach(e=>D.epitages.push(e));
       }
-    }catch(e){console.error('Epitages load error:', e);}
+    }catch(e){}
 
-    // Εμφάνισε αμέσως
-    renderEpit();runRules();renderMain();
-    if(D.epitages.length>0) toast('Επιταγές '+curYr+': '+D.epitages.length+' ✓','ok');
-
-    // 2. Υπόλοιπα έτη στο παρασκήνιο
+    // 2. Υπόλοιπα έτη στο παρασκήνιο — μόνο για στατιστικά
     setTimeout(async()=>{
       for(const yr of otherYears){
         try{
@@ -688,7 +682,7 @@ async function loadAllEpitages(){
           }
         }catch(e){}
       }
-      renderEpit();
+      renderEpit(); // μόνο tab επιταγών — ΟΧΙ renderMain
     }, 3000);
 
   }catch(e){toast('Αποτυχία φόρτωσης επιταγών','err');}
