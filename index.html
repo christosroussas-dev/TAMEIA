@@ -640,7 +640,7 @@ async function saveToSheets(){
 async function loadFromSheets(){
   toast('Φόρτωση...','info');
   try{
-    const r=await fetch(API+'?action=load&month='+CM);const j=await r.json();
+    const r=await fetch(API+'?action=load&month='+encodeURIComponent(CM));const j=await r.json();
     if(j.success&&j.exists&&j.data){
       const d=j.data;
       if(d.days&&d.days[CM]) D.days[CM]=d.days[CM];
@@ -662,29 +662,31 @@ async function loadAllEpitages(){
     // 1. Φόρτωσε ΠΡΩΤΑ μόνο το τρέχον έτος
     D.epitages=[];
     try{
-      const r=await fetch(API+'?action=load&month=EPITAGES_'+curYr);
+      const url=API+'?action=load&month='+encodeURIComponent('EPITAGES_'+curYr);
+      const r=await fetch(url);
       const j=await r.json();
       if(j&&j.success&&j.exists&&j.data&&j.data.epitages){
         j.data.epitages.forEach(e=>D.epitages.push(e));
       }
     }catch(e){}
 
-    // Εμφάνισε αμέσως το σωστό υπόλοιπο
+    // Εμφάνισε αμέσως
     renderAll();renderEpit();runRules();
     if(D.epitages.length>0) toast('Επιταγές '+curYr+': '+D.epitages.length+' ✓','ok');
 
-    // 2. Φόρτωσε τα υπόλοιπα στο παρασκήνιο — ΔΕΝ μηδενίζει
+    // 2. Υπόλοιπα έτη στο παρασκήνιο
     setTimeout(async()=>{
       for(const yr of otherYears){
         try{
-          const r=await fetch(API+'?action=load&month=EPITAGES_'+yr);
+          const url=API+'?action=load&month='+encodeURIComponent('EPITAGES_'+yr);
+          const r=await fetch(url);
           const j=await r.json();
           if(j&&j.success&&j.exists&&j.data&&j.data.epitages){
-            j.data.epitages.forEach(e=>D.epitages.push(e)); // ΠΡΟΣΘΕΤΕΙ μόνο, δεν μηδενίζει
+            j.data.epitages.forEach(e=>D.epitages.push(e));
           }
         }catch(e){}
       }
-      renderEpit(); // ανανέωσε μόνο τις επιταγές
+      renderEpit();
     }, 3000);
 
   }catch(e){toast('Αποτυχία φόρτωσης επιταγών','err');}
@@ -1031,7 +1033,7 @@ function renderCompare(){
   // Αν δεν έχουμε δεδομένα πέρσι — φόρτωσε από Sheets αυτόματα
   const kPrev=mn+'_'+prevYr;
   if(!D.days[kPrev]||D.days[kPrev].length===0){
-    fetch(API+'?action=load&month='+kPrev).then(r=>r.json()).then(j=>{
+    fetch(API+'?action=load&month='+encodeURIComponent(kPrev)).then(r=>r.json()).then(j=>{
       if(j.success&&j.exists&&j.data){
         if(j.data.days&&j.data.days[kPrev]) D.days[kPrev]=j.data.days[kPrev];
         if(j.data.metrita&&j.data.metrita[kPrev]) D.metrita[kPrev]=j.data.metrita[kPrev];
