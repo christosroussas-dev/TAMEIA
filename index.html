@@ -604,7 +604,6 @@ function calcYP(){
 async function saveToSheets(){
   toast('Αποθήκευση...','info');
   try{
-    // Στέλνουμε ΜΟΝΟ τον τρέχοντα μήνα (όχι όλους)
     const monthData={
       days:{[CM]:D.days[CM]||[]},
       trapEisp:{[CM]:D.trapEisp[CM]||[]},
@@ -614,17 +613,21 @@ async function saveToSheets(){
       d15:{[CM]:D.d15[CM]||[]},
       telos:{[CM]:D.telos[CM]||[]}
     };
-    const p=encodeURIComponent(JSON.stringify({action:'save',month:CM,data:monthData}));
-    await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
-    // Αποθήκευση επιταγών ανά έτος ξεχωριστά
+    // POST με επιβεβαίωση (όχι no-cors)
+    const payload=JSON.stringify({action:'save',month:CM,data:monthData});
+    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:payload});
+    const j=await r.json();
+    if(!j.success) throw new Error('GAS error');
+
+    // Αποθήκευση επιταγών ανά έτος
     const byYr={};
     (D.epitages||[]).forEach(e=>{const yr=e.file_year||(e.date?e.date.substring(0,4):'2026');if(!byYr[yr])byYr[yr]=[];byYr[yr].push(e);});
     await Promise.all(Object.entries(byYr).map(([yr,epit])=>{
-      const ep=encodeURIComponent(JSON.stringify({action:'save',month:'EPITAGES_'+yr,data:{epitages:epit}}));
-      return fetch(API+'?payload='+ep,{method:'GET',mode:'no-cors'});
+      const ep=JSON.stringify({action:'save',month:'EPITAGES_'+yr,data:{epitages:epit}});
+      return fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:ep});
     }));
-    setTimeout(()=>toast('Αποθηκεύτηκε ✓','ok'),2000);
-  }catch(e){toast('Αποτυχία','err');}
+    toast('Αποθηκεύτηκε ✓','ok');
+  }catch(e){toast('❌ Αποτυχία αποθήκευσης!','err');}
 }
 async function loadFromSheets(){
   toast('Φόρτωση...','info');
