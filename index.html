@@ -462,6 +462,7 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
     <div id="st-tab-overview" onclick="showStatTab('overview')" style="padding:8px 16px;font-size:10px;font-weight:700;cursor:pointer;color:var(--accent);border-bottom:2px solid var(--accent);letter-spacing:.05em;">📈 ΙΣΤΟΡΙΚΟ</div>
     <div id="st-tab-cashflow" onclick="showStatTab('cashflow')" style="padding:8px 16px;font-size:10px;font-weight:700;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;letter-spacing:.05em;">🔮 CASH FLOW</div>
     <div id="st-tab-compare" onclick="showStatTab('compare')" style="padding:8px 16px;font-size:10px;font-weight:700;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;letter-spacing:.05em;">📅 ΜΗΝΑΣ vs ΠΕΡΣΙ</div>
+    <div id="st-tab-analysis" onclick="showStatTab('analysis')" style="padding:8px 16px;font-size:10px;font-weight:700;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;letter-spacing:.05em;">📊 ΑΝΑΛΥΣΗ ΕΤΩΝ</div>
   </div>
 
   <!-- ΙΣΤΟΡΙΚΟ -->
@@ -522,6 +523,9 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
     <div class="sh" style="margin-top:12px;"><div class="st">Μέσος/Εργάσιμη Ημέρα</div></div>
     <div class="kpis" id="cmp-kpis"></div>
   </div>
+
+  <!-- ΑΝΑΛΥΣΗ ΕΤΩΝ -->
+  <div id="st-panel-analysis" style="display:none;"></div>
 </div>
 
 <!-- ΕΙΔΟΠΟΙΗΣΕΙΣ -->
@@ -651,7 +655,7 @@ async function loadAllEpitages(){
 
 // ===== TABS =====
 function showStatTab(id){
-  ['overview','cashflow','compare'].forEach(s=>{
+  ['overview','cashflow','compare','analysis'].forEach(s=>{
     const p=document.getElementById('st-panel-'+s);
     const t=document.getElementById('st-tab-'+s);
     if(p) p.style.display=s===id?'block':'none';
@@ -660,6 +664,7 @@ function showStatTab(id){
   if(id==='cashflow') renderCashFlow();
   if(id==='compare') renderCompare();
   if(id==='overview') renderStats();
+  if(id==='analysis') renderAnalysis();
 }
 function showTab(id,el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -1204,6 +1209,186 @@ function renderEpit(){
 }
 
 // ΣΤΑΤΙΣΤΙΚΑ
+// ===== ★ ΑΝΑΛΥΣΗ ΕΤΩΝ =====
+let anaYears=['2024','2025','2026']; // επιλεγμένα έτη
+
+function toggleAnaYear(yr){
+  if(anaYears.includes(yr)) anaYears=anaYears.filter(y=>y!==yr);
+  else anaYears.push(yr);
+  if(anaYears.length===0) anaYears=[yr]; // τουλάχιστον 1
+  renderAnalysis();
+}
+
+function renderAnalysis(){
+  const panel=document.getElementById('st-panel-analysis');
+  const allYears=['2023','2024','2025','2026'];
+  const availYears=allYears.filter(yr=>HIST.some(x=>x.year===yr&&x.total>0));
+  const curYear=String(new Date().getFullYear());
+  const curMonth=new Date().getMonth()+1;
+
+  // Πρόσθεσε τρέχοντα μήνα από πραγματικά δεδομένα (D.days)
+  const curKey=MONTHS_EL[curMonth-1]+'_'+curYear;
+  const curDays=D.days[curKey]||[];
+  const curTot=curDays.reduce((s,r)=>s+(r.metrita||0)+(r.pos||0),0);
+  const curPOS=curDays.reduce((s,r)=>s+(r.pos||0),0);
+  const curNet=Math.round(curTot-curPOS*0.013);
+  const curWd=curDays.filter(r=>r.dayName!=='ΚΥΡΙΑΚΗ'&&(r.metrita+r.pos)>0).length;
+  const curAvg=curWd>0?Math.round(curNet/curWd):0;
+  // Αντικατέστησε ή πρόσθεσε τον τρέχοντα μήνα στο HIST για το γράφημα
+  const liveHIST=[...HIST.filter(h=>!(h.year===curYear&&h.month===curMonth))];
+  if(curNet>0) liveHIST.push({year:curYear,month:curMonth,total:curNet,avg_day:curAvg,work_days:curWd,live:true});
+
+  // ── Toggle Buttons ──
+  let html=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
+    <span style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.06em;">ΕΠΙΛΟΓΗ ΕΤΩΝ:</span>`;
+  availYears.forEach(yr=>{
+    const active=anaYears.includes(yr);
+    const col=COL[yr]||'#888';
+    html+=`<button onclick="toggleAnaYear('${yr}')" style="
+      padding:6px 16px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;
+      letter-spacing:.06em;transition:all .15s;
+      background:${active?col:'transparent'};
+      color:${active?'#fff':col};
+      border:2px solid ${col};
+      box-shadow:${active?`0 0 12px ${col}88`:'none'};
+    ">${yr}</button>`;
+  });
+  html+=`</div>`;
+
+  const selYears=anaYears.sort();
+
+  // ── KPIs (μόνο από επιλεγμένα έτη) ──
+  const selHIST=liveHIST.filter(h=>selYears.includes(h.year));
+  if(selHIST.length===0){panel.innerHTML=html+'<div style="color:var(--muted);padding:20px;">Επίλεξε τουλάχιστον ένα έτος.</div>';return;}
+  const bestMonth=selHIST.reduce((a,b)=>a.total>b.total?a:b);
+  const worstMonth=selHIST.reduce((a,b)=>a.total<b.total?a:b);
+  const allAvg=Math.round(selHIST.reduce((s,h)=>s+h.avg_day,0)/selHIST.length);
+  const bestCol=COL[bestMonth.year]||'var(--green)';
+  const worstCol=COL[worstMonth.year]||'var(--red)';
+
+  html+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;">
+    <div style="background:var(--bg3);border:1px solid ${bestCol};border-radius:8px;padding:14px;text-align:center;">
+      <div style="font-size:9px;color:${bestCol};font-weight:700;letter-spacing:.08em;margin-bottom:6px;">🏆 ΚΑΛΥΤΕΡΟΣ ΜΗΝΑΣ</div>
+      <div style="font-size:18px;font-weight:700;font-family:var(--mono);">${fmt(bestMonth.total)}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:4px;">${MS[bestMonth.month]} ${bestMonth.year}</div>
+    </div>
+    <div style="background:var(--bg3);border:1px solid ${worstCol};border-radius:8px;padding:14px;text-align:center;">
+      <div style="font-size:9px;color:${worstCol};font-weight:700;letter-spacing:.08em;margin-bottom:6px;">📉 ΧΕΙΡΟΤΕΡΟΣ ΜΗΝΑΣ</div>
+      <div style="font-size:18px;font-weight:700;font-family:var(--mono);">${fmt(worstMonth.total)}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:4px;">${MS[worstMonth.month]} ${worstMonth.year}</div>
+    </div>
+    <div style="background:var(--bg3);border:1px solid var(--accent);border-radius:8px;padding:14px;text-align:center;">
+      <div style="font-size:9px;color:var(--accent);font-weight:700;letter-spacing:.08em;margin-bottom:6px;">📊 ΜΕΣΟΣ/ΕΡΓΑΣΙΜΗ</div>
+      <div style="font-size:18px;font-weight:700;font-family:var(--mono);">${fmt(allAvg)}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:4px;">${selYears.join(' · ')}</div>
+    </div>
+  </div>`;
+
+  const maxVal=Math.max(...selHIST.map(h=>h.total),1);
+  html+=`<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:16px;margin-bottom:18px;">
+    <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:14px;">📈 ΤΖΙΡΟΣ ΑΝΑ ΜΗΝΑ</div>`;
+
+  for(let m=1;m<=12;m++){
+    const hasAny=selYears.some(yr=>liveHIST.find(x=>x.year===yr&&x.month===m));
+    if(!hasAny) continue;
+    const isCurMon=curYear==='2026'&&m===curMonth;
+    html+=`<div style="margin-bottom:10px;">
+      <div style="font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.06em;margin-bottom:4px;">${MS[m]}${isCurMon?' 🔴 ΤΡΕΧΩΝ':''}</div>`;
+    selYears.forEach(yr=>{
+      const h=liveHIST.find(x=>x.year===yr&&x.month===m);
+      const col=COL[yr]||'#888';
+      const isFuture=yr===curYear&&m>curMonth;
+      if(isFuture||!h){
+        html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+          <div style="width:36px;font-size:9px;font-weight:700;color:${col};text-align:right;flex-shrink:0;">${yr}</div>
+          <div style="flex:1;height:16px;background:var(--border);border-radius:3px;opacity:0.3;"></div>
+          <div style="width:70px;font-size:9px;color:var(--muted);text-align:right;">—</div>
+        </div>`;
+        return;
+      }
+      const pct=Math.max(2,(h.total/maxVal)*100);
+      const isLive=h.live;
+      html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+        <div style="width:36px;font-size:9px;font-weight:700;color:${col};text-align:right;flex-shrink:0;">${yr}</div>
+        <div style="flex:1;height:18px;background:var(--border);border-radius:3px;overflow:hidden;">
+          <div style="width:${pct}%;height:100%;background:${col};border-radius:3px;${isLive?'opacity:0.7;background:repeating-linear-gradient(45deg,'+col+','+col+' 4px,transparent 4px,transparent 8px);':''}">
+          </div>
+        </div>
+        <div style="width:80px;font-size:10px;font-weight:700;font-family:var(--mono);color:${col};text-align:right;flex-shrink:0;">${fmt(h.total)}${isLive?'<span style="font-size:7px;color:var(--muted);"> μερικός</span>':''}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+  html+=`</div>`;
+
+  // ── Πίνακας ──
+  html+=`<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;overflow:hidden;">
+    <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;padding:12px 16px;border-bottom:1px solid var(--border2);">📋 ΑΝΑΛΥΤΙΚΟΣ ΠΙΝΑΚΑΣ</div>
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="background:var(--bg2);">
+          <th style="padding:8px 12px;font-size:10px;text-align:left;color:var(--muted);">ΜΗΝΑΣ</th>`;
+  selYears.forEach(yr=>html+=`<th style="padding:8px;font-size:10px;text-align:right;color:${COL[yr]};border-left:1px solid var(--border);">${yr}<br><span style="font-size:8px;color:var(--muted);">τζίρος · μέσος/μέρα</span></th>`);
+  if(selYears.length>=2) html+=`<th style="padding:8px 12px;font-size:10px;text-align:right;color:var(--muted);">ΤΑΣH</th>`;
+  html+=`</tr></thead><tbody>`;
+
+  for(let m=1;m<=12;m++){
+    const isCur=curYear==='2026'&&m===curMonth;
+    html+=`<tr style="border-top:1px solid var(--border);${isCur?'background:rgba(204,85,119,0.08);':''}">`;
+    html+=`<td style="padding:7px 12px;font-size:10px;font-weight:700;">${MS[m]}${isCur?' ◀':''}</td>`;
+
+    const vals=selYears.map(yr=>liveHIST.find(x=>x.year===yr&&x.month===m));
+    selYears.forEach((yr,i)=>{
+      const h=vals[i];
+      const isFuture=yr===curYear&&m>curMonth;
+      if(!h||isFuture){html+=`<td style="padding:7px 8px;text-align:right;color:var(--muted);border-left:1px solid var(--border);font-size:10px;">—</td>`;return;}
+      // % vs προηγούμενο επιλεγμένο έτος
+      const prevH=i>0?vals[i-1]:null;
+      let badge='';
+      if(prevH){
+        const diff=((h.total-prevH.total)/prevH.total)*100;
+        badge=`<span style="font-size:8px;color:${diff>=0?'var(--green)':'var(--red)'};">${diff>=0?'▲':'▼'}${Math.abs(diff).toFixed(0)}%</span>`;
+      }
+      html+=`<td style="padding:7px 8px;text-align:right;border-left:1px solid var(--border);">
+        <div style="font-size:11px;font-weight:700;font-family:var(--mono);color:${COL[yr]};">${fmt(h.total)}</div>
+        <div style="font-size:9px;color:var(--muted);">${fmt(h.avg_day)}/μέρα ${badge}</div>
+      </td>`;
+    });
+
+    // Τάση: πρώτο vs τελευταίο επιλεγμένο έτος
+    if(selYears.length>=2){
+      const first=vals[0],last=vals[selYears.length-1];
+      let trend='<td style="padding:7px;text-align:center;font-size:14px;color:var(--muted);">—</td>';
+      if(first&&last&&!isCur){
+        const d=last.total-first.total;
+        trend=`<td style="padding:7px;text-align:center;font-size:14px;">${d>=0?'📈':'📉'}</td>`;
+      }
+      html+=trend;
+    }
+    html+=`</tr>`;
+  }
+
+  // Σύνολα
+  html+=`<tr style="border-top:2px solid var(--border2);background:var(--bg2);">
+    <td style="padding:10px 12px;font-size:10px;font-weight:700;color:var(--accent);">ΣΥΝΟΛΟ</td>`;
+  selYears.forEach(yr=>{
+    const tot=liveHIST.filter(h=>h.year===yr).reduce((s,h)=>s+h.total,0);
+    const cnt=liveHIST.filter(h=>h.year===yr).length;
+    const prevYr=selYears[selYears.indexOf(yr)-1];
+    const prevTot=prevYr?liveHIST.filter(h=>h.year===prevYr).reduce((s,h)=>s+h.total,0):0;
+    let badge='';
+    if(prevTot){const d=((tot-prevTot)/prevTot)*100;badge=`<span style="font-size:9px;color:${d>=0?'var(--green)':'var(--red)'};">${d>=0?'▲':'▼'}${Math.abs(d).toFixed(1)}%</span>`;}
+    html+=`<td style="padding:10px 8px;text-align:right;border-left:1px solid var(--border);">
+      <div style="font-size:13px;font-weight:700;font-family:var(--mono);color:${COL[yr]};">${fmt(tot)}</div>
+      <div style="font-size:9px;color:var(--muted);">${cnt} μήνες ${badge}</div>
+    </td>`;
+  });
+  if(selYears.length>=2) html+=`<td></td>`;
+  html+=`</tr></tbody></table></div>`;
+
+  panel.innerHTML=html;
+}
+
 function renderStats(){
   const curYear=String(new Date().getFullYear());const curMonth=new Date().getMonth()+1;
   const allYears=['2023','2024','2025','2026','2027'];
