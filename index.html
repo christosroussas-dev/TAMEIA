@@ -648,6 +648,7 @@ async function loadFromSheets(){
       if(d.bank&&d.bank[CM]) D.bank[CM]=d.bank[CM];
       if(d.d15&&d.d15[CM]) D.d15[CM]=d.d15[CM];
       if(d.telos&&d.telos[CM]) D.telos[CM]=d.telos[CM];
+      // ΜΗΝ αγγίζεις D.epitages — φορτώνονται ξεχωριστά από EPITAGES_YYYY
       renderAll();toast('Φορτώθηκε ✓','ok');
     }else{toast('Νέος μήνας','info');}
   }catch(e){toast('Αποτυχία','err');}
@@ -714,8 +715,8 @@ async function changeMonth(v){
   if(btn){btn.disabled=true;btn.textContent='Φόρτωση...';}
   renderAll();
   refreshActiveTab();
-  // Παράλληλα φόρτωση — γρηγορότερο
-  await Promise.all([loadFromSheets(), loadAllEpitages()]);
+  // Φόρτωσε μόνο τα δεδομένα του μήνα — ΟΧΙ τις επιταγές (ήδη στη μνήμη)
+  await loadFromSheets();
   appReady=true;
   if(btn){btn.disabled=false;btn.textContent='ΚΑΤΑΧΩΡΗΣΗ';}
   // autoInitNewMonth ΜΕΤΑ το load — έτσι ξέρει αν υπάρχουν δεδομένα
