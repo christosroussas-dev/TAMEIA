@@ -829,6 +829,7 @@ function renderMain(){
     const dname=dn(y,mi,d);const r=rows.find(x=>x.day===d);const sun=dname==='ΚΥΡΙΑΚΗ';
     const met=r?r.metrita:0,pos=r?r.pos:0,rep=r?r.report:null,tot=sun?0:(met+pos),diff=rep!=null?tot-rep:null;
     if(!sun&&tot>0){tMet+=met;tPos+=pos;tAll+=tot;if(rep)tRep+=rep;wd++;}
+    else if(sun&&r&&(r.metrita||r.pos)){tMet+=r.metrita||0;tPos+=r.pos||0;tAll+=(r.metrita||0)+(r.pos||0);} // Κυριακές μετράνε στο σύνολο
     let st='';if(!sun&&r){const t=TGT[mi+1];if(t){if(tot<t.danger*0.7)st='<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(224,85,85,.15);color:var(--red)">⬇ΧΑΜΗΛΟ</span>';else if(tot<t.warn*0.85)st='<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(224,184,75,.12);color:var(--yellow)">◼ΜΕΤΡΙΟ</span>';else st='<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(76,175,125,.12);color:var(--green)">✓ΟΚ</span>';}}
     const tr=document.createElement('tr');tr.style.cursor=(!sun&&r)?'pointer':'default';if(!sun&&r)tr.onclick=()=>showDayPopup(d,dname,mi,y);
     tr.innerHTML=`<td>${d}</td><td class="${sun?'sun':''}">${dname}</td><td class="num">${sun?'—':fmt(met)}</td><td class="num">${sun?'—':fmt(pos)}</td><td class="${sun?'num':tot>0?'pos':'num'}">${sun?'ΚΛΕΙΣΤΟ':fmt(tot)}</td><td class="num">${rep!=null?fmt(rep):'—'}</td><td class="${diff===null?'num':diff>=0?'pos':'neg'}">${diff===null?'—':fmt(diff)}</td><td>${st}</td><td>${!sun&&r?`<button class="btn-del" onclick="event.stopPropagation();delDay(${d})">✕</button>`:''}</td>`;
@@ -1205,7 +1206,11 @@ function renderEpit(){
 // ΣΤΑΤΙΣΤΙΚΑ
 function renderStats(){
   const curYear=String(new Date().getFullYear());const curMonth=new Date().getMonth()+1;
-  const yt={};['2023','2024','2025','2026','2027'].forEach(yr=>{
+  const allYears=['2023','2024','2025','2026','2027'];
+  // Εμφάνισε μόνο έτη με πραγματικά δεδομένα στο HIST
+  const activeYears=allYears.filter(yr=>HIST.some(x=>x.year===yr&&x.total>0));
+  if(!activeYears.includes(curYear)) activeYears.push(curYear);
+  const yt={};activeYears.forEach(yr=>{
     const months=HIST.filter(r=>r.year===yr);
     if(yr===curYear){
       // HIST έχει μόνο ολοκληρωμένους μήνες — χρήση απευθείας χωρίς εξάρτηση από D.days
@@ -1218,7 +1223,7 @@ function renderStats(){
     }
     else{yt[yr]=months.reduce((s,r)=>s+r.total,0);yt[yr+'_months']=months.length;yt[yr+'_label']='';}
   });
-  document.getElementById('statsKpis').innerHTML=['2023','2024','2025','2026','2027'].map(yr=>{
+  document.getElementById('statsKpis').innerHTML=activeYears.map(yr=>{
     const tot=yt[yr];const label=yt[yr+'_label']||'';const prevYr=String(parseInt(yr)-1);let d=null;
     if(yt[prevYr]){
       if(yr===curYear){
@@ -1236,7 +1241,7 @@ function renderStats(){
   const chart=document.getElementById('histChart');chart.innerHTML='';const maxV=Math.max(...HIST.map(r=>r.total));
   [1,2,3,4,5,6,7,8,9,10,11,12].forEach(m=>{
     const grp=document.createElement('div');grp.style.cssText='flex:1;display:flex;gap:1px;align-items:flex-end;position:relative;';
-    ['2023','2024','2025','2026','2027'].forEach(yr=>{const r=HIST.find(x=>x.year===yr&&x.month===m);if(!r)return;const h=Math.max(2,(r.total/maxV)*120);const b=document.createElement('div');b.style.cssText=`flex:1;height:${h}px;background:${COL[yr]};border-radius:2px 2px 0 0;opacity:.85;min-width:3px;`;b.title=`${yr} ${MS[m]}: ${fmt(r.total)}`;grp.appendChild(b);});
+    activeYears.forEach(yr=>{const r=HIST.find(x=>x.year===yr&&x.month===m);if(!r)return;const h=Math.max(2,(r.total/maxV)*120);const b=document.createElement('div');b.style.cssText=`flex:1;height:${h}px;background:${COL[yr]};border-radius:2px 2px 0 0;opacity:.85;min-width:3px;`;b.title=`${yr} ${MS[m]}: ${fmt(r.total)}`;grp.appendChild(b);});
     const ml=document.createElement('div');ml.style.cssText='position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--muted);font-family:var(--mono);';ml.textContent=MS[m];grp.appendChild(ml);chart.appendChild(grp);
   });
   const sorted=[...HIST].sort((a,b)=>b.year!==a.year?b.year.localeCompare(a.year):b.month-a.month);
