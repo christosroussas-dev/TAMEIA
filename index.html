@@ -619,12 +619,18 @@ async function saveToSheets(){
       const p=encodeURIComponent(JSON.stringify({action:'save_section',month:CM,section:s.section,data:s.data}));
       if(p.length<8000) await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
     }
-    // Επιταγές ανά έτος
+    // Επιταγές ανά έτος — POST για μεγάλα δεδομένα
     const byYr={};
     (D.epitages||[]).forEach(e=>{const yr=e.file_year||(e.date?e.date.substring(0,4):'2026');if(!byYr[yr])byYr[yr]=[];byYr[yr].push(e);});
     for(const [yr,epit] of Object.entries(byYr)){
-      const ep=encodeURIComponent(JSON.stringify({action:'save_section',month:'EPITAGES_'+yr,section:'epitages',data:epit}));
-      await fetch(API+'?payload='+ep,{method:'GET',mode:'no-cors'});
+      const body=JSON.stringify({action:'save_section',month:'EPITAGES_'+yr,section:'epitages',data:epit});
+      const ep=encodeURIComponent(body);
+      if(ep.length<7000){
+        await fetch(API+'?payload='+ep,{method:'GET',mode:'no-cors'});
+      } else {
+        // POST για μεγάλα payload
+        await fetch(API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:body});
+      }
     }
     toast('Αποθηκεύτηκε ✓','ok');
   }catch(e){toast('Αποτυχία!','err');}
@@ -1200,7 +1206,15 @@ function renderTel(){
 }
 
 // ===== ★ ΕΠΙΤΑΓΕΣ — 12ΜΗΝΟ ΗΜΕΡΟΛΟΓΙΟ =====
-function addEpit(){const m=document.getElementById('ep-m').value,yr=document.getElementById('ep-yr').value,d=document.getElementById('ep-d').value,ek2=document.getElementById('ep-ek').value,n=document.getElementById('ep-n').value.trim(),p=document.getElementById('ep-p').value.trim(),v=parseFloat(document.getElementById('ep-v').value)||0;if(!v||!p)return;D.epitages.push({month:m,file_year:yr,date:d,ekdosi:ek2,num:n,prom:p,liosia:v});['ep-n','ep-v','ep-d','ep-ek','ep-p'].forEach(id=>document.getElementById(id).value='');renderEpit();saveToSheets();}
+async function addEpit(){
+  const m=document.getElementById('ep-m').value,yr=document.getElementById('ep-yr').value,d=document.getElementById('ep-d').value,ek2=document.getElementById('ep-ek').value,n=document.getElementById('ep-n').value.trim(),p=document.getElementById('ep-p').value.trim(),v=parseFloat(document.getElementById('ep-v').value)||0;
+  if(!v||!p)return;
+  // Βεβαιώσου ότι έχουμε όλες τις επιταγές πριν προσθέσουμε
+  if(D.epitages.length===0) await loadAllEpitages();
+  D.epitages.push({month:m,file_year:yr,date:d,ekdosi:ek2,num:n,prom:p,liosia:v});
+  ['ep-n','ep-v','ep-d','ep-ek','ep-p'].forEach(id=>document.getElementById(id).value='');
+  renderEpit();saveToSheets();
+}
 function delEpit(i){D.epitages.splice(i,1);renderEpit();saveToSheets();}
 let epYear='ΟΛΕΣ';
 
