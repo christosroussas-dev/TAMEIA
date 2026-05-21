@@ -1158,10 +1158,23 @@ function renderBnk(){const k=ek();const rows=D.bank[k]||[];const tot=rows.reduce
 function addD5(){
   const c=document.getElementById('d5-c').value.trim(),p=document.getElementById('d5-p').value,i=document.getElementById('d5-i').value.trim();
   const s=parseFloat(document.getElementById('d5-s').value)||0,l=parseFloat(document.getElementById('d5-l').value)||0,ko=parseFloat(document.getElementById('d5-k').value)||0;
-  if(!l&&!s)return;const k=ek();ea(D.d15,k);D.d15[k].push({cod:c,prom:p,iban:i,synolo:s,liosia:l,loutraki:ko});
-  ['d5-c','d5-i','d5-s','d5-l','d5-k'].forEach(id=>document.getElementById(id).value='');renderD5();saveToSheets("d15");
+  if(!l&&!s)return;const k=ek();ea(D.d15,k);
+  const item={cod:c,prom:p,iban:i,synolo:s,liosia:l,loutraki:ko};
+  D.d15[k].push(item);
+  ['d5-c','d5-i','d5-s','d5-l','d5-k'].forEach(id=>document.getElementById(id).value='');renderD5();
+  // add_item — στέλνει μόνο 1 εγγραφή
+  const p2=encodeURIComponent(JSON.stringify({action:'add_item',month:CM,section:'d15',item}));
+  fetch(API+'?payload='+p2,{method:'GET',mode:'no-cors'});
+  toast('Αποθηκεύτηκε ✓','ok');
 }
-function delD5(i){const k=ek();D.d15[k].splice(i,1);renderD5();saveToSheets("d15");}
+function delD5(idx){
+  const k=ek();
+  D.d15[k].splice(idx,1);renderD5();
+  // del_item — στέλνει μόνο index
+  const p=encodeURIComponent(JSON.stringify({action:'del_item',month:CM,section:'d15',index:idx}));
+  fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
+  toast('Διαγράφηκε ✓','ok');
+}
 function renderD5(){
   const k=ek();const rows=D.d15[k]||[];const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);
   document.getElementById('d5Tot').textContent=fmt(tot);document.getElementById('d5Cnt').textContent=rows.length;
@@ -1172,10 +1185,21 @@ function renderD5(){
 function addTel(){
   const kt=document.getElementById('tel-k').value,c=document.getElementById('tel-c').value.trim(),i=document.getElementById('tel-i').value.trim(),n=document.getElementById('tel-n').value.trim();
   const s=parseFloat(document.getElementById('tel-s').value)||0,l=parseFloat(document.getElementById('tel-l').value)||0,ko=parseFloat(document.getElementById('tel-k2').value)||0;
-  if(!n||(!l&&!s))return;const k=ek();ea(D.telos,k);D.telos[k].push({kat:kt,cod:c,iban:i,name:n,synolo:s,liosia:l,loutraki:ko});
-  ['tel-c','tel-i','tel-n','tel-s','tel-l','tel-k2'].forEach(id=>document.getElementById(id).value='');renderTel();saveToSheets("telos");
+  if(!n||(!l&&!s))return;const k=ek();ea(D.telos,k);
+  const item={kat:kt,cod:c,iban:i,name:n,synolo:s,liosia:l,loutraki:ko};
+  D.telos[k].push(item);
+  ['tel-c','tel-i','tel-n','tel-s','tel-l','tel-k2'].forEach(id=>document.getElementById(id).value='');renderTel();
+  const p=encodeURIComponent(JSON.stringify({action:'add_item',month:CM,section:'telos',item}));
+  fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
+  toast('Αποθηκεύτηκε ✓','ok');
 }
-function delTel(i){const k=ek();D.telos[k].splice(i,1);renderTel();saveToSheets("telos");}
+function delTel(idx){
+  const k=ek();
+  D.telos[k].splice(idx,1);renderTel();
+  const p=encodeURIComponent(JSON.stringify({action:'del_item',month:CM,section:'telos',index:idx}));
+  fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
+  toast('Διαγράφηκε ✓','ok');
+}
 function renderTel(){
   const k=ek();const rows=D.telos[k]||[];const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);
   document.getElementById('telTot').textContent=fmt(tot);document.getElementById('telCnt').textContent=rows.length;
