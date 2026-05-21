@@ -657,10 +657,36 @@ async function loadFromSheets(){
 async function loadAllEpitages(){
   try{
     D.epitages=[];
-    const years=['2023','2024','2025','2026','2027'];
-    const results=await Promise.all(years.map(yr=>fetch(API+'?action=load&month=EPITAGES_'+yr).then(r=>r.json()).catch(()=>null)));
-    results.forEach(j=>{if(j&&j.success&&j.exists&&j.data&&j.data.epitages){j.data.epitages.forEach(e=>D.epitages.push(e));}});
-    if(D.epitages.length>0){renderEpit();toast('Επιταγές: '+D.epitages.length+' ✓','ok');}
+    const curYr=String(new Date().getFullYear());
+    const otherYears=['2023','2024','2025','2026','2027'].filter(y=>y!==curYr);
+
+    // 1. Φόρτωσε ΠΡΩΤΑ το τρέχον έτος — γρήγορα
+    try{
+      const r=await fetch(API+'?action=load&month=EPITAGES_'+curYr);
+      const j=await r.json();
+      if(j&&j.success&&j.exists&&j.data&&j.data.epitages){
+        j.data.epitages.forEach(e=>D.epitages.push(e));
+      }
+    }catch(e){}
+
+    // Εμφάνισε αμέσως με τα δεδομένα του τρέχοντος έτους
+    renderEpit();runRules();renderMain();
+    if(D.epitages.length>0) toast('Επιταγές '+curYr+': '+D.epitages.length+' ✓','ok');
+
+    // 2. Φόρτωσε τα υπόλοιπα έτη στο παρασκήνιο
+    setTimeout(async()=>{
+      for(const yr of otherYears){
+        try{
+          const r=await fetch(API+'?action=load&month=EPITAGES_'+yr);
+          const j=await r.json();
+          if(j&&j.success&&j.exists&&j.data&&j.data.epitages){
+            j.data.epitages.forEach(e=>D.epitages.push(e));
+          }
+        }catch(e){}
+      }
+      renderEpit();
+    }, 2000); // 2 δευτερόλεπτα μετά
+
   }catch(e){toast('Αποτυχία φόρτωσης επιταγών','err');}
 }
 
