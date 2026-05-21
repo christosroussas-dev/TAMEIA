@@ -604,7 +604,7 @@ function calcYP(){
 async function saveToSheets(){
   toast('Αποθήκευση...','info');
   try{
-    // Αποθηκεύει κάθε section — GET μόνο
+    // Αποθηκεύει ΜΟΝΟ τα sections του μήνα — ΟΧΙ επιταγές
     const saves=[
       {section:'days',data:{[CM]:D.days[CM]||[]}},
       {section:'trapEisp',data:{[CM]:D.trapEisp[CM]||[]}},
@@ -618,14 +618,9 @@ async function saveToSheets(){
       const p=encodeURIComponent(JSON.stringify({action:'save_section',month:CM,section:s.section,data:s.data}));
       if(p.length<8000) await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
     }
-    // Επιταγές ανά έτος — GET μόνο (no-cors αλλά δουλεύει)
-    const byYr={};
-    (D.epitages||[]).forEach(e=>{const yr=e.file_year||(e.date?e.date.substring(0,4):'2026');if(!byYr[yr])byYr[yr]=[];byYr[yr].push(e);});
-    for(const [yr,epit] of Object.entries(byYr)){
-      const body=JSON.stringify({action:'save_section',month:'EPITAGES_'+yr,section:'epitages',data:epit});
-      const ep=encodeURIComponent(body);
-      await fetch(API+'?payload='+ep,{method:'GET',mode:'no-cors'});
-    }
+    toast('Αποθηκεύτηκε ✓','ok');
+  }catch(e){toast('Αποτυχία!','err');}
+}
     toast('Αποθηκεύτηκε ✓','ok');
   }catch(e){toast('Αποτυχία!','err');}
 }
@@ -1192,9 +1187,19 @@ function addEpit(){
   if(!v||!p)return;
   D.epitages.push({month:m,file_year:yr,date:d,ekdosi:ek2,num:n,prom:p,liosia:v});
   ['ep-n','ep-v','ep-d','ep-ek','ep-p'].forEach(id=>document.getElementById(id).value='');
-  renderEpit();saveToSheets();
+  renderEpit();saveEpitages();
 }
-function delEpit(i){D.epitages.splice(i,1);renderEpit();saveToSheets();}
+function delEpit(i){D.epitages.splice(i,1);renderEpit();saveEpitages();}
+function saveEpitages(){
+  // Αποθηκεύει ΜΟΝΟ τις επιταγές — ξεχωριστά από το saveToSheets
+  const byYr={};
+  (D.epitages||[]).forEach(e=>{const yr=e.file_year||(e.date?e.date.substring(0,4):'2026');if(!byYr[yr])byYr[yr]=[];byYr[yr].push(e);});
+  for(const [yr,epit] of Object.entries(byYr)){
+    const p=encodeURIComponent(JSON.stringify({action:'save_section',month:'EPITAGES_'+yr,section:'epitages',data:epit}));
+    fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
+  }
+  toast('Επιταγή αποθηκεύτηκε ✓','ok');
+}
 let epYear='ΟΛΕΣ';
 
 function renderEpit(){
