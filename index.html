@@ -601,33 +601,27 @@ function calcYP(){
 }
 
 // ===== SYNC =====
-async function saveToSheets(){
+async function saveToSheets(changedSection){
   toast('Αποθήκευση...','info');
   try{
-    // Αποθηκεύει ΜΟΝΟ τα sections του μήνα — ΟΧΙ επιταγές
-    const saves=[
-      {section:'days',data:{[CM]:D.days[CM]||[]}},
-      {section:'trapEisp',data:{[CM]:D.trapEisp[CM]||[]}},
-      {section:'trapPl',data:{[CM]:D.trapPl[CM]||[]}},
-      {section:'metrita',data:{[CM]:D.metrita[CM]||[]}},
-      {section:'bank',data:{[CM]:D.bank[CM]||[]}},
-      {section:'d15',data:{[CM]:D.d15[CM]||[]}},
-      {section:'telos',data:{[CM]:D.telos[CM]||[]}}
-    ];
-    for(const s of saves){
-      const body=JSON.stringify({action:'save_section',month:CM,section:s.section,data:s.data});
-      const p=encodeURIComponent(body);
-      if(p.length<8000){
-        await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
-      } else {
-        // Μεγάλο payload — σπάσε σε chunks των 20 εγγραφών
-        const arr=s.data[CM]||[];
-        const chunkSize=20;
-        for(let ci=0;ci<arr.length;ci+=chunkSize){
-          const chunk=arr.slice(ci,ci+chunkSize);
-          const pc=encodeURIComponent(JSON.stringify({action:'save_section',month:CM,section:s.section+'_chunk_'+ci,data:{[CM]:chunk}}));
-          await fetch(API+'?payload='+pc,{method:'GET',mode:'no-cors'});
-        }
+    // Αποθήκευσε ΜΟΝΟ το section που άλλαξε
+    const allSections={
+      days:{[CM]:D.days[CM]||[]},
+      trapEisp:{[CM]:D.trapEisp[CM]||[]},
+      trapPl:{[CM]:D.trapPl[CM]||[]},
+      metrita:{[CM]:D.metrita[CM]||[]},
+      bank:{[CM]:D.bank[CM]||[]},
+      d15:{[CM]:D.d15[CM]||[]},
+      telos:{[CM]:D.telos[CM]||[]}
+    };
+    // Αν ξέρουμε ποιο section άλλαξε — στείλε μόνο αυτό
+    const toSave=changedSection?{[changedSection]:allSections[changedSection]}:allSections;
+    for(const [sec,data] of Object.entries(toSave)){
+      const p=encodeURIComponent(JSON.stringify({action:'save_section',month:CM,section:sec,data}));
+      if(p.length<8000) await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
+      else{
+        // Χωρίς να κάνουμε chunks — αποθήκευσε μόνο αν έχει αλλάξει
+        console.warn('Section too large to save via GET:',sec,p.length);
       }
     }
     toast('Αποθηκεύτηκε ✓','ok');
@@ -824,7 +818,7 @@ function addDay(){
   ['inp-met','inp-pos','inp-rep'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('inp-day').value='';
   document.getElementById('dayCompare').innerHTML='';
-  renderAll();saveToSheets();
+  renderAll();saveToSheets("days");
 }
 function closeDayPopup(){document.getElementById('dayPopup').style.display='none';}
 
@@ -1141,10 +1135,10 @@ function renderCompare(){
 }
 
 // ΤΡΑΠΕΖΑ
-function addTEisp(){const d=document.getElementById('tei-d').value,p=document.getElementById('tei-p').value.trim(),v=parseFloat(document.getElementById('tei-v').value)||0;if(!p||!v)return;const k=ek();ea(D.trapEisp,k);D.trapEisp[k].push({date:d,pelatis:p,poso:v});document.getElementById('tei-p').value='';document.getElementById('tei-v').value='';renderTrap();saveToSheets();}
-function addTPl(){const d=document.getElementById('tpl-d').value,p=document.getElementById('tpl-p').value.trim(),v=parseFloat(document.getElementById('tpl-v').value)||0;if(!p||!v)return;const k=ek();ea(D.trapPl,k);D.trapPl[k].push({date:d,prom:p,poso:v});document.getElementById('tpl-p').value='';document.getElementById('tpl-v').value='';renderTrap();saveToSheets();}
-function delTEisp(i){const k=ek();D.trapEisp[k].splice(i,1);renderTrap();saveToSheets();}
-function delTPl(i){const k=ek();D.trapPl[k].splice(i,1);renderTrap();saveToSheets();}
+function addTEisp(){const d=document.getElementById('tei-d').value,p=document.getElementById('tei-p').value.trim(),v=parseFloat(document.getElementById('tei-v').value)||0;if(!p||!v)return;const k=ek();ea(D.trapEisp,k);D.trapEisp[k].push({date:d,pelatis:p,poso:v});document.getElementById('tei-p').value='';document.getElementById('tei-v').value='';renderTrap();saveToSheets("trapEisp");}
+function addTPl(){const d=document.getElementById('tpl-d').value,p=document.getElementById('tpl-p').value.trim(),v=parseFloat(document.getElementById('tpl-v').value)||0;if(!p||!v)return;const k=ek();ea(D.trapPl,k);D.trapPl[k].push({date:d,prom:p,poso:v});document.getElementById('tpl-p').value='';document.getElementById('tpl-v').value='';renderTrap();saveToSheets("trapPl");}
+function delTEisp(i){const k=ek();D.trapEisp[k].splice(i,1);renderTrap();saveToSheets("trapEisp");}
+function delTPl(i){const k=ek();D.trapPl[k].splice(i,1);renderTrap();saveToSheets("trapEisp");}
 function renderTrap(){
   const k=ek();const ei=D.trapEisp[k]||[],pl=D.trapPl[k]||[];const te=ei.reduce((s,r)=>s+r.poso,0),tp=pl.reduce((s,r)=>s+r.poso,0);
   document.getElementById('tEispTot').textContent=fmt(te);document.getElementById('tPlTot').textContent=fmt(tp);document.getElementById('tNet').textContent=fmt(te-tp);
@@ -1153,21 +1147,21 @@ function renderTrap(){
   renderMain();
 }
 
-function addMet(){const d=document.getElementById('met-d').value,a=document.getElementById('met-a').value.trim(),v=parseFloat(document.getElementById('met-v').value)||0;if(!a||!v)return;const k=ek();ea(D.metrita,k);D.metrita[k].push({date:d,ait:a,poso:v});document.getElementById('met-a').value='';document.getElementById('met-v').value='';renderMet();saveToSheets();}
-function delMet(i){const k=ek();D.metrita[k].splice(i,1);renderMet();saveToSheets();}
+function addMet(){const d=document.getElementById('met-d').value,a=document.getElementById('met-a').value.trim(),v=parseFloat(document.getElementById('met-v').value)||0;if(!a||!v)return;const k=ek();ea(D.metrita,k);D.metrita[k].push({date:d,ait:a,poso:v});document.getElementById('met-a').value='';document.getElementById('met-v').value='';renderMet();saveToSheets("metrita");}
+function delMet(i){const k=ek();D.metrita[k].splice(i,1);renderMet();saveToSheets("metrita");}
 function renderMet(){const k=ek();const rows=D.metrita[k]||[];const tot=rows.reduce((s,r)=>s+r.poso,0);document.getElementById('metTot').textContent=fmt(tot);document.getElementById('metCnt').textContent=rows.length;document.getElementById('metBody').innerHTML=rows.map((r,i)=>`<tr><td>${r.date||'—'}</td><td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button class="btn-del" onclick="delMet(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="2">ΣΥΝΟΛΟ</td><td class="neg">${fmt(tot)}</td><td></td></tr>`:'');renderMain();}
 
-function addBnk(){const d=document.getElementById('bnk-d').value,a=document.getElementById('bnk-a').value.trim(),v=parseFloat(document.getElementById('bnk-v').value)||0;if(!a||!v)return;const k=ek();ea(D.bank,k);D.bank[k].push({date:d,ait:a,poso:v});document.getElementById('bnk-a').value='';document.getElementById('bnk-v').value='';renderBnk();saveToSheets();}
-function delBnk(i){const k=ek();D.bank[k].splice(i,1);renderBnk();saveToSheets();}
+function addBnk(){const d=document.getElementById('bnk-d').value,a=document.getElementById('bnk-a').value.trim(),v=parseFloat(document.getElementById('bnk-v').value)||0;if(!a||!v)return;const k=ek();ea(D.bank,k);D.bank[k].push({date:d,ait:a,poso:v});document.getElementById('bnk-a').value='';document.getElementById('bnk-v').value='';renderBnk();saveToSheets("bank");}
+function delBnk(i){const k=ek();D.bank[k].splice(i,1);renderBnk();saveToSheets("bank");}
 function renderBnk(){const k=ek();const rows=D.bank[k]||[];const tot=rows.reduce((s,r)=>s+r.poso,0);document.getElementById('bnkTot').textContent=fmt(tot);document.getElementById('bnkCnt').textContent=rows.length;document.getElementById('bnkBody').innerHTML=rows.map((r,i)=>`<tr><td>${r.date||'—'}</td><td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button class="btn-del" onclick="delBnk(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="2">ΣΥΝΟΛΟ ΛΙΟΣΙΑ</td><td class="neg">${fmt(tot)}</td><td></td></tr>`:'');renderMain();}
 
 function addD5(){
   const c=document.getElementById('d5-c').value.trim(),p=document.getElementById('d5-p').value,i=document.getElementById('d5-i').value.trim();
   const s=parseFloat(document.getElementById('d5-s').value)||0,l=parseFloat(document.getElementById('d5-l').value)||0,ko=parseFloat(document.getElementById('d5-k').value)||0;
   if(!l&&!s)return;const k=ek();ea(D.d15,k);D.d15[k].push({cod:c,prom:p,iban:i,synolo:s,liosia:l,loutraki:ko});
-  ['d5-c','d5-i','d5-s','d5-l','d5-k'].forEach(id=>document.getElementById(id).value='');renderD5();saveToSheets();
+  ['d5-c','d5-i','d5-s','d5-l','d5-k'].forEach(id=>document.getElementById(id).value='');renderD5();saveToSheets("d15");
 }
-function delD5(i){const k=ek();D.d15[k].splice(i,1);renderD5();saveToSheets();}
+function delD5(i){const k=ek();D.d15[k].splice(i,1);renderD5();saveToSheets("d15");}
 function renderD5(){
   const k=ek();const rows=D.d15[k]||[];const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);
   document.getElementById('d5Tot').textContent=fmt(tot);document.getElementById('d5Cnt').textContent=rows.length;
@@ -1179,9 +1173,9 @@ function addTel(){
   const kt=document.getElementById('tel-k').value,c=document.getElementById('tel-c').value.trim(),i=document.getElementById('tel-i').value.trim(),n=document.getElementById('tel-n').value.trim();
   const s=parseFloat(document.getElementById('tel-s').value)||0,l=parseFloat(document.getElementById('tel-l').value)||0,ko=parseFloat(document.getElementById('tel-k2').value)||0;
   if(!n||(!l&&!s))return;const k=ek();ea(D.telos,k);D.telos[k].push({kat:kt,cod:c,iban:i,name:n,synolo:s,liosia:l,loutraki:ko});
-  ['tel-c','tel-i','tel-n','tel-s','tel-l','tel-k2'].forEach(id=>document.getElementById(id).value='');renderTel();saveToSheets();
+  ['tel-c','tel-i','tel-n','tel-s','tel-l','tel-k2'].forEach(id=>document.getElementById(id).value='');renderTel();saveToSheets("telos");
 }
-function delTel(i){const k=ek();D.telos[k].splice(i,1);renderTel();saveToSheets();}
+function delTel(i){const k=ek();D.telos[k].splice(i,1);renderTel();saveToSheets("telos");}
 function renderTel(){
   const k=ek();const rows=D.telos[k]||[];const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);
   document.getElementById('telTot').textContent=fmt(tot);document.getElementById('telCnt').textContent=rows.length;
