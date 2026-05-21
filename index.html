@@ -670,21 +670,7 @@ async function loadAllEpitages(){
     // Μηδένισε ΜΟΝΟ αφού έχουμε τα δεδομένα — αποφεύγει race condition
     D.epitages=curEp;
 
-    // 2. Υπόλοιπα έτη στο παρασκήνιο — μόνο για στατιστικά
-    setTimeout(async()=>{
-      for(const yr of otherYears){
-        try{
-          const url=API+'?action=load&month='+encodeURIComponent('EPITAGES_'+yr);
-          const r=await fetch(url);
-          const j=await r.json();
-          if(j&&j.success&&j.exists&&j.data&&j.data.epitages){
-            j.data.epitages.forEach(e=>D.epitages.push(e));
-          }
-        }catch(e){}
-      }
-      renderEpit(); // μόνο tab επιταγών — ΟΧΙ renderMain
-    }, 3000);
-
+    // Υπόλοιπα έτη φορτώνουν μόνο όταν χρειάζονται (στατιστικά)
   }catch(e){toast('Αποτυχία φόρτωσης επιταγών','err');}
 }
 
