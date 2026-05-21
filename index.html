@@ -620,8 +620,14 @@ async function saveToSheets(){
       if(p.length<8000){
         await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
       } else {
-        // Μεγάλο payload — χρησιμοποίησε POST
-        await fetch(API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body});
+        // Μεγάλο payload — σπάσε σε chunks των 20 εγγραφών
+        const arr=s.data[CM]||[];
+        const chunkSize=20;
+        for(let ci=0;ci<arr.length;ci+=chunkSize){
+          const chunk=arr.slice(ci,ci+chunkSize);
+          const pc=encodeURIComponent(JSON.stringify({action:'save_section',month:CM,section:s.section+'_chunk_'+ci,data:{[CM]:chunk}}));
+          await fetch(API+'?payload='+pc,{method:'GET',mode:'no-cors'});
+        }
       }
     }
     toast('Αποθηκεύτηκε ✓','ok');
