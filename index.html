@@ -605,30 +605,34 @@ function calcYP(){
 async function saveToSheets(){
   toast('Αποθήκευση...','info');
   try{
-    // Στέλνω κάθε section ξεχωριστά για να μην υπερβώ το URL limit
-    const sections={
-      days:{[CM]:D.days[CM]||[]},
-      trapEisp:{[CM]:D.trapEisp[CM]||[]},
-      trapPl:{[CM]:D.trapPl[CM]||[]},
-      metrita:{[CM]:D.metrita[CM]||[]},
-      bank:{[CM]:D.bank[CM]||[]},
-      d15:{[CM]:D.d15[CM]||[]},
-      telos:{[CM]:D.telos[CM]||[]}
+    // Πρώτα φόρτωσε existing για να μη χαθούν d15/telos/bank/metrita
+    let ex={};
+    try{
+      const rx=await fetch(API+'?action=load&month='+encodeURIComponent(CM));
+      const jx=await rx.json();
+      if(jx.success&&jx.exists&&jx.data) ex=jx.data;
+    }catch(e){}
+    // Συγχώνευσε — χρησιμοποίησε existing αν το D είναι κενό
+    function pick(key){const cur=D[key][CM];return(cur&&cur.length>0)?cur:(ex[key]?.[CM]||[]);}
+    const monthData={
+      days:{[CM]:D.days[CM]||ex.days?.[CM]||[]},
+      trapEisp:{[CM]:pick('trapEisp')},
+      trapPl:{[CM]:pick('trapPl')},
+      metrita:{[CM]:pick('metrita')},
+      bank:{[CM]:pick('bank')},
+      d15:{[CM]:pick('d15')},
+      telos:{[CM]:pick('telos')}
     };
-    // Ελέγχω μέγεθος — αν μεγάλο στέλνω χωρισμένα
-    const fullData=JSON.stringify({action:'save',month:CM,data:sections});
-    if(fullData.length<6000){
-      // Μικρό — 1 αίτημα
-      const p=encodeURIComponent(fullData);
+    const fullData=JSON.stringify({action:'save',month:CM,data:monthData});
+    const p=encodeURIComponent(fullData);
+    if(p.length<7000){
       await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
     } else {
-      // Μεγάλο — 2 αιτήματα (ημέρες χωριστά + υπόλοιπα)
-      const p1=encodeURIComponent(JSON.stringify({action:'save',month:CM,data:{days:sections.days,trapEisp:sections.trapEisp,trapPl:sections.trapPl}}));
-      const p2=encodeURIComponent(JSON.stringify({action:'save_partial',month:CM,data:{metrita:sections.metrita,bank:sections.bank,d15:sections.d15,telos:sections.telos}}));
+      const p1=encodeURIComponent(JSON.stringify({action:'save',month:CM,data:{days:monthData.days,trapEisp:monthData.trapEisp,trapPl:monthData.trapPl,metrita:monthData.metrita}}));
+      const p2=encodeURIComponent(JSON.stringify({action:'save',month:CM,data:{bank:monthData.bank,d15:monthData.d15,telos:monthData.telos}}));
       await fetch(API+'?payload='+p1,{method:'GET',mode:'no-cors'});
       await fetch(API+'?payload='+p2,{method:'GET',mode:'no-cors'});
     }
-    // Επιταγές ανά έτος
     const byYr={};
     (D.epitages||[]).forEach(e=>{const yr=e.file_year||(e.date?e.date.substring(0,4):'2026');if(!byYr[yr])byYr[yr]=[];byYr[yr].push(e);});
     await Promise.all(Object.entries(byYr).map(([yr,epit])=>{
@@ -636,7 +640,7 @@ async function saveToSheets(){
       return fetch(API+'?payload='+ep,{method:'GET',mode:'no-cors'});
     }));
     toast('Αποθηκεύτηκε ✓','ok');
-  }catch(e){toast('❌ Αποτυχία!','err');}
+  }catch(e){toast('Αποτυχία!','err');}
 }
 async function loadFromSheets(){
   toast('Φόρτωση...','info');
