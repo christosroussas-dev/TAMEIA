@@ -651,16 +651,18 @@ async function loadAllEpitages(){
     const curYr=String(new Date().getFullYear());
     const otherYears=['2023','2024','2025','2026','2027'].filter(y=>y!==curYr);
 
-    // 1. Φόρτωσε μόνο το τρέχον έτος — σύγχρονα
-    D.epitages=[];
+    // 1. Φόρτωσε τρέχον έτος από Sheets — αντικαθιστά το D.epitages
+    let curEp=[];
     try{
       const url=API+'?action=load&month='+encodeURIComponent('EPITAGES_'+curYr);
       const r=await fetch(url);
       const j=await r.json();
       if(j&&j.success&&j.exists&&j.data&&j.data.epitages){
-        j.data.epitages.forEach(e=>D.epitages.push(e));
+        curEp=j.data.epitages;
       }
     }catch(e){}
+    // Μηδένισε ΜΟΝΟ αφού έχουμε τα δεδομένα — αποφεύγει race condition
+    D.epitages=curEp;
 
     // 2. Υπόλοιπα έτη στο παρασκήνιο — μόνο για στατιστικά
     setTimeout(async()=>{
@@ -720,7 +722,7 @@ async function changeMonth(v){
   if(btn){btn.disabled=true;btn.textContent='Φόρτωση...';}
   renderAll();
   refreshActiveTab();
-  // Παράλληλα — γρηγορότερο
+  // Παράλληλα φόρτωση — γρηγορότερο
   await Promise.all([loadFromSheets(), loadAllEpitages()]);
   appReady=true;
   if(btn){btn.disabled=false;btn.textContent='ΚΑΤΑΧΩΡΗΣΗ';}
