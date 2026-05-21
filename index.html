@@ -663,15 +663,17 @@ async function loadAllEpitages(){
     D.epitages=[];
     try{
       const url=API+'?action=load&month='+encodeURIComponent('EPITAGES_'+curYr);
+      console.log('Loading epitages:', url);
       const r=await fetch(url);
       const j=await r.json();
+      console.log('Epitages response:', j.success, j.exists, j.data?.epitages?.length);
       if(j&&j.success&&j.exists&&j.data&&j.data.epitages){
         j.data.epitages.forEach(e=>D.epitages.push(e));
       }
-    }catch(e){}
+    }catch(e){console.error('Epitages load error:', e);}
 
     // Εμφάνισε αμέσως
-    renderAll();renderEpit();runRules();
+    renderEpit();runRules();renderMain();
     if(D.epitages.length>0) toast('Επιταγές '+curYr+': '+D.epitages.length+' ✓','ok');
 
     // 2. Υπόλοιπα έτη στο παρασκήνιο
