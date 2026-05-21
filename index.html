@@ -1195,13 +1195,27 @@ function renderTel(){
 async function addEpit(){
   const m=document.getElementById('ep-m').value,yr=document.getElementById('ep-yr').value,d=document.getElementById('ep-d').value,ek2=document.getElementById('ep-ek').value,n=document.getElementById('ep-n').value.trim(),p=document.getElementById('ep-p').value.trim(),v=parseFloat(document.getElementById('ep-v').value)||0;
   if(!v||!p)return;
-  // Βεβαιώσου ότι έχουμε όλες τις επιταγές πριν προσθέσουμε
-  if(D.epitages.length===0) await loadAllEpitages();
+  // Φόρτωσε πάντα από Sheets πριν προσθέσεις — εγγυάται ότι έχεις ΟΛΑ
+  try{
+    const url=API+'?action=load&month='+encodeURIComponent('EPITAGES_'+yr);
+    const r=await fetch(url); const j=await r.json();
+    if(j&&j.success&&j.exists&&j.data&&j.data.epitages) D.epitages=j.data.epitages;
+  }catch(e){}
+  // Πρόσθεσε νέα
   D.epitages.push({month:m,file_year:yr,date:d,ekdosi:ek2,num:n,prom:p,liosia:v});
   ['ep-n','ep-v','ep-d','ep-ek','ep-p'].forEach(id=>document.getElementById(id).value='');
   renderEpit();saveToSheets();
 }
-function delEpit(i){D.epitages.splice(i,1);renderEpit();saveToSheets();}
+async function delEpit(i){
+  // Φόρτωσε από Sheets για να έχεις το σωστό index
+  const yr=D.epitages[i]?.file_year||String(new Date().getFullYear());
+  try{
+    const url=API+'?action=load&month='+encodeURIComponent('EPITAGES_'+yr);
+    const r=await fetch(url); const j=await r.json();
+    if(j&&j.success&&j.exists&&j.data&&j.data.epitages) D.epitages=j.data.epitages;
+  }catch(e){}
+  D.epitages.splice(i,1);renderEpit();saveToSheets();
+}
 let epYear='ΟΛΕΣ';
 
 function renderEpit(){
