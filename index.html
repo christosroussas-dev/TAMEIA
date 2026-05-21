@@ -991,6 +991,22 @@ function renderCompare(){
   const k=ek();const{mi,y}=gmi(k);const mn=k.split('_')[0];const yr=String(y);const prevYr=String(y-1);
   document.getElementById('cmp-title').textContent=`${mn} ${yr} vs ${mn} ${prevYr}`;
 
+  // Αν δεν έχουμε δεδομένα πέρσι — φόρτωσε από Sheets αυτόματα
+  const kPrev=mn+'_'+prevYr;
+  if(!D.days[kPrev]||D.days[kPrev].length===0){
+    fetch(API+'?action=load&month='+kPrev).then(r=>r.json()).then(j=>{
+      if(j.success&&j.exists&&j.data){
+        if(j.data.days&&j.data.days[kPrev]) D.days[kPrev]=j.data.days[kPrev];
+        if(j.data.metrita&&j.data.metrita[kPrev]) D.metrita[kPrev]=j.data.metrita[kPrev];
+        if(j.data.bank&&j.data.bank[kPrev]) D.bank[kPrev]=j.data.bank[kPrev];
+        if(j.data.d15&&j.data.d15[kPrev]) D.d15[kPrev]=j.data.d15[kPrev];
+        if(j.data.telos&&j.data.telos[kPrev]) D.telos[kPrev]=j.data.telos[kPrev];
+        if(j.data.trapEisp&&j.data.trapEisp[kPrev]) D.trapEisp[kPrev]=j.data.trapEisp[kPrev];
+        renderCompare(); // ξανακάνε render με τα νέα δεδομένα
+      }
+    }).catch(()=>{});
+  }
+
   // Δεδομένα τρέχοντος μήνα
   const rows=D.days[k]||[];const tAll=rows.reduce((s,r)=>s+(r.metrita||0)+(r.pos||0),0);
   const totalPOS=rows.reduce((s,r)=>s+(r.pos||0),0);const kratiseis=Math.round(totalPOS*0.013*100)/100;
@@ -1049,7 +1065,7 @@ function renderCompare(){
     <div class="comp-row"><span class="comp-label">Εργάσιμες</span><span style="font-family:var(--mono)">${prevWD||'—'}</span></div>
     <div class="comp-row"><span class="comp-label">Επιταγές ΛΙΟΣΙΑ</span><span style="font-family:var(--mono);color:var(--red)">${fmt(pEpitPrev)}</span></div>
     <div class="comp-row"><span class="comp-label">Πληρωμές ΛΙΟΣΙΑ</span><span style="font-family:var(--mono);color:var(--red)">${fmt(allPPrev)}</span></div>
-    ${prevYpData?`<div class="comp-row" style="font-weight:600;"><span>Υπόλοιπο</span><span style="font-family:var(--mono);color:${prevYpCalc>=0?'var(--green)':'var(--red)'}">${(prevYpCalc>=0?'+':'')+fmt(prevYpCalc)}</span></div>`:'<div style="font-size:10px;color:var(--muted);margin-top:8px;">Πάτα ↓ ΦΟΡΤ. για πλήρη σύγκριση πληρωμών</div>'}`;
+    ${prevYpData?`<div class="comp-row" style="font-weight:600;"><span>Υπόλοιπο</span><span style="font-family:var(--mono);color:${prevYpCalc>=0?'var(--green)':'var(--red)'}">${(prevYpCalc>=0?'+':'')+fmt(prevYpCalc)}</span></div>`:'<div style="font-size:10px;color:var(--muted);margin-top:8px;">⏳ Φόρτωση δεδομένων...</div>'}`;
 
   // Delta area
   const dColor=diffTjiros===null?'var(--muted)':diffTjiros>=0?'var(--green)':'var(--red)';
