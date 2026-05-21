@@ -704,8 +704,8 @@ async function changeMonth(v){
   if(btn){btn.disabled=true;btn.textContent='Φόρτωση...';}
   renderAll();
   refreshActiveTab();
-  if(D.epitages.length===0){await Promise.all([loadFromSheets(), loadAllEpitages()]);}
-  else{await loadFromSheets();}
+  await loadFromSheets();
+  await loadAllEpitages();  // πάντα σειριακά — όχι παράλληλα
   appReady=true;
   if(btn){btn.disabled=false;btn.textContent='ΚΑΤΑΧΩΡΗΣΗ';}
   // autoInitNewMonth ΜΕΤΑ το load — έτσι ξέρει αν υπάρχουν δεδομένα
