@@ -604,7 +604,7 @@ function calcYP(){
 async function saveToSheets(){
   toast('Αποθήκευση...','info');
   try{
-    // Αποθηκεύει ΜΟΝΟ το section που χρειάζεται — δεν αγγίζει τα άλλα
+    // Αποθηκεύει κάθε section — POST με GET fallback
     const saves=[
       {section:'days',data:{[CM]:D.days[CM]||[]}},
       {section:'trapEisp',data:{[CM]:D.trapEisp[CM]||[]}},
@@ -614,22 +614,30 @@ async function saveToSheets(){
       {section:'d15',data:{[CM]:D.d15[CM]||[]}},
       {section:'telos',data:{[CM]:D.telos[CM]||[]}}
     ];
-    // Φίλτρο — στείλε μόνο τα sections που έχουν δεδομένα ή που άλλαξαν
     for(const s of saves){
-      const p=encodeURIComponent(JSON.stringify({action:'save_section',month:CM,section:s.section,data:s.data}));
-      if(p.length<8000) await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
+      const body=JSON.stringify({action:'save_section',month:CM,section:s.section,data:s.data});
+      try{
+        const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body});
+        const rj=await res.json();
+        if(!rj.success) throw new Error('fail');
+      }catch(e){
+        const p=encodeURIComponent(body);
+        if(p.length<8000) await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
+      }
     }
-    // Επιταγές ανά έτος — POST για μεγάλα δεδομένα
+    // Επιταγές ανά έτος — πάντα POST με επιβεβαίωση
     const byYr={};
     (D.epitages||[]).forEach(e=>{const yr=e.file_year||(e.date?e.date.substring(0,4):'2026');if(!byYr[yr])byYr[yr]=[];byYr[yr].push(e);});
     for(const [yr,epit] of Object.entries(byYr)){
       const body=JSON.stringify({action:'save_section',month:'EPITAGES_'+yr,section:'epitages',data:epit});
-      const ep=encodeURIComponent(body);
-      if(ep.length<7000){
+      try{
+        const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body});
+        const rj=await res.json();
+        if(!rj.success) throw new Error('fail');
+      }catch(e){
+        // Fallback σε GET
+        const ep=encodeURIComponent(body);
         await fetch(API+'?payload='+ep,{method:'GET',mode:'no-cors'});
-      } else {
-        // POST για μεγάλα payload
-        await fetch(API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:body});
       }
     }
     toast('Αποθηκεύτηκε ✓','ok');
