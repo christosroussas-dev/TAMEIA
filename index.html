@@ -1026,7 +1026,7 @@ function renderCompare(){
   const prevTjiros=hPrev?hPrev.total:null;const prevAvg=hPrev?hPrev.avg_day:null;const prevWD=hPrev?hPrev.work_days:null;
 
   // Δεδομένα πέρσι από D (αν φορτωμένα)
-  const kPrev=mn+'_'+prevYr;
+  // kPrev already declared above+'_'+prevYr;
   const rowsPrev=D.days[kPrev]||[];
   const pMetPrev=(D.metrita[kPrev]||[]).reduce((s,r)=>s+r.poso,0);
   const pBnkPrev=(D.bank[kPrev]||[]).reduce((s,r)=>s+r.poso,0);
