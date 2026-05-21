@@ -615,8 +615,14 @@ async function saveToSheets(){
       {section:'telos',data:{[CM]:D.telos[CM]||[]}}
     ];
     for(const s of saves){
-      const p=encodeURIComponent(JSON.stringify({action:'save_section',month:CM,section:s.section,data:s.data}));
-      if(p.length<8000) await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
+      const body=JSON.stringify({action:'save_section',month:CM,section:s.section,data:s.data});
+      const p=encodeURIComponent(body);
+      if(p.length<8000){
+        await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
+      } else {
+        // Μεγάλο payload — χρησιμοποίησε POST
+        await fetch(API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body});
+      }
     }
     toast('Αποθηκεύτηκε ✓','ok');
   }catch(e){toast('Αποτυχία!','err');}
@@ -1188,13 +1194,13 @@ function addEpit(){
 }
 function delEpit(i){D.epitages.splice(i,1);renderEpit();saveEpitages();}
 function saveEpitages(){
-  // Αποθηκεύει ΜΟΝΟ τις επιταγές — ξεχωριστά από το saveToSheets
   const byYr={};
   (D.epitages||[]).forEach(e=>{const yr=e.file_year||(e.date?e.date.substring(0,4):'2026');if(!byYr[yr])byYr[yr]=[];byYr[yr].push(e);});
   for(const [yr,epit] of Object.entries(byYr)){
     const p=encodeURIComponent(JSON.stringify({action:'save_section',month:'EPITAGES_'+yr,section:'epitages',data:epit}));
     fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
   }
+  renderEpit();renderMain();runRules();
   toast('Επιταγή αποθηκεύτηκε ✓','ok');
 }
 let epYear='ΟΛΕΣ';
