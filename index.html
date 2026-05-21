@@ -1730,7 +1730,9 @@ async function initApp(){
   document.getElementById('inp-day').disabled=false;
   document.querySelector('.btn-add').disabled=false;
   document.querySelector('.btn-add').textContent='ΚΑΤΑΧΩΡΗΣΗ';
+  console.log('About to renderAll with epitages:', D.epitages.length);
   renderAll();renderEpit();runRules();
+  console.log('renderAll done');
 }
 
 // === LOGIN ===
