@@ -629,7 +629,7 @@ async function saveToSheets(){
       await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
     } else {
       const p1=encodeURIComponent(JSON.stringify({action:'save',month:CM,data:{days:monthData.days,trapEisp:monthData.trapEisp,trapPl:monthData.trapPl,metrita:monthData.metrita}}));
-      const p2=encodeURIComponent(JSON.stringify({action:'save',month:CM,data:{bank:monthData.bank,d15:monthData.d15,telos:monthData.telos}}));
+      const p2=encodeURIComponent(JSON.stringify({action:'save_merge',month:CM,data:{bank:monthData.bank,d15:monthData.d15,telos:monthData.telos}}));
       await fetch(API+'?payload='+p1,{method:'GET',mode:'no-cors'});
       await fetch(API+'?payload='+p2,{method:'GET',mode:'no-cors'});
     }
