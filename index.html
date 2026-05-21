@@ -1717,8 +1717,12 @@ async function initApp(){
   document.querySelector('.btn-add').disabled=true;
   document.querySelector('.btn-add').textContent='Φόρτωση...';
   renderAll();
-  await loadFromSheets();   // πρώτα ο μήνας
-  await loadAllEpitages();  // μετά οι επιταγές — σειριακά όχι παράλληλα
+  console.log('Starting loadFromSheets...');
+  await loadFromSheets();
+  console.log('loadFromSheets done, D.epitages.length=', D.epitages.length);
+  console.log('Starting loadAllEpitages...');
+  await loadAllEpitages();
+  console.log('loadAllEpitages done, D.epitages.length=', D.epitages.length);
   appReady=true;
   document.getElementById('inp-day').disabled=false;
   document.querySelector('.btn-add').disabled=false;
