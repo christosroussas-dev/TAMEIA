@@ -604,7 +604,8 @@ function calcYP(){
 async function saveToSheets(){
   toast('Αποθήκευση...','info');
   try{
-    const monthData={
+    // Στέλνω κάθε section ξεχωριστά για να μην υπερβώ το URL limit
+    const sections={
       days:{[CM]:D.days[CM]||[]},
       trapEisp:{[CM]:D.trapEisp[CM]||[]},
       trapPl:{[CM]:D.trapPl[CM]||[]},
@@ -613,21 +614,28 @@ async function saveToSheets(){
       d15:{[CM]:D.d15[CM]||[]},
       telos:{[CM]:D.telos[CM]||[]}
     };
-    // POST με επιβεβαίωση (όχι no-cors)
-    const payload=JSON.stringify({action:'save',month:CM,data:monthData});
-    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:payload});
-    const j=await r.json();
-    if(!j.success) throw new Error('GAS error');
-
-    // Αποθήκευση επιταγών ανά έτος
+    // Ελέγχω μέγεθος — αν μεγάλο στέλνω χωρισμένα
+    const fullData=JSON.stringify({action:'save',month:CM,data:sections});
+    if(fullData.length<6000){
+      // Μικρό — 1 αίτημα
+      const p=encodeURIComponent(fullData);
+      await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
+    } else {
+      // Μεγάλο — 2 αιτήματα (ημέρες χωριστά + υπόλοιπα)
+      const p1=encodeURIComponent(JSON.stringify({action:'save',month:CM,data:{days:sections.days,trapEisp:sections.trapEisp,trapPl:sections.trapPl}}));
+      const p2=encodeURIComponent(JSON.stringify({action:'save_partial',month:CM,data:{metrita:sections.metrita,bank:sections.bank,d15:sections.d15,telos:sections.telos}}));
+      await fetch(API+'?payload='+p1,{method:'GET',mode:'no-cors'});
+      await fetch(API+'?payload='+p2,{method:'GET',mode:'no-cors'});
+    }
+    // Επιταγές ανά έτος
     const byYr={};
     (D.epitages||[]).forEach(e=>{const yr=e.file_year||(e.date?e.date.substring(0,4):'2026');if(!byYr[yr])byYr[yr]=[];byYr[yr].push(e);});
     await Promise.all(Object.entries(byYr).map(([yr,epit])=>{
-      const ep=JSON.stringify({action:'save',month:'EPITAGES_'+yr,data:{epitages:epit}});
-      return fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:ep});
+      const ep=encodeURIComponent(JSON.stringify({action:'save',month:'EPITAGES_'+yr,data:{epitages:epit}}));
+      return fetch(API+'?payload='+ep,{method:'GET',mode:'no-cors'});
     }));
     toast('Αποθηκεύτηκε ✓','ok');
-  }catch(e){toast('❌ Αποτυχία αποθήκευσης!','err');}
+  }catch(e){toast('❌ Αποτυχία!','err');}
 }
 async function loadFromSheets(){
   toast('Φόρτωση...','info');
