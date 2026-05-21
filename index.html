@@ -597,6 +597,7 @@ function calcYP(){
   const d15=(D.d15[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
   const tel=(D.telos[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
   const epit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(e.liosia||0),0);
+  console.log('calcYP: eisp=',eisp,'tEisp=',tEisp,'met=',met,'bnk=',bnk,'d15=',d15,'tel=',tel,'epit=',epit,'result=',eisp+tEisp-met-bnk-d15-tel-epit);
   return eisp+tEisp-met-bnk-d15-tel-epit;
 }
 
