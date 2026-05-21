@@ -1723,6 +1723,9 @@ async function initApp(){
   console.log('Starting loadAllEpitages...');
   await loadAllEpitages();
   console.log('loadAllEpitages done, D.epitages.length=', D.epitages.length);
+  const mn2=CM.split('_')[0],yr2=CM.split('_')[1];
+  const ep2=(D.epitages||[]).filter(e=>e.month===mn2&&(e.file_year===yr2||(e.date&&e.date.startsWith(yr2))));
+  console.log('CM=',CM,'mn=',mn2,'yr=',yr2,'epitages found=',ep2.length, ep2.map(e=>e.month+' '+e.file_year+' '+e.liosia));
   appReady=true;
   document.getElementById('inp-day').disabled=false;
   document.querySelector('.btn-add').disabled=false;
