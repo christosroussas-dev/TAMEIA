@@ -616,14 +616,14 @@ async function saveToSheets(changedSection){
     };
     // Αν ξέρουμε ποιο section άλλαξε — στείλε μόνο αυτό
     const toSave=changedSection?{[changedSection]:allSections[changedSection]}:allSections;
-    for(const [sec,data] of Object.entries(toSave)){
+    // ΠΑΡΑΛΛΗΛΑ requests — από 7×300ms σειριακά → ~400ms συνολικά
+    const reqs=Object.entries(toSave).map(([sec,data])=>{
       const p=encodeURIComponent(JSON.stringify({action:'save_section',month:CM,section:sec,data}));
-      if(p.length<8000) await fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
-      else{
-        // Χωρίς να κάνουμε chunks — αποθήκευσε μόνο αν έχει αλλάξει
-        console.warn('Section too large to save via GET:',sec,p.length);
-      }
-    }
+      if(p.length<8000) return fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
+      console.warn('Section too large to save via GET:',sec,p.length);
+      return null;
+    }).filter(Boolean);
+    await Promise.all(reqs);
     toast('Αποθηκεύτηκε ✓','ok');
   }catch(e){toast('Αποτυχία!','err');}
 }
@@ -705,14 +705,17 @@ async function changeMonth(v){
   appReady=false;
   const btn=document.querySelector('.btn-add');
   if(btn){btn.disabled=true;btn.textContent='Φόρτωση...';}
-  renderAll();
-  refreshActiveTab();
   // Φόρτωσε μόνο τα δεδομένα του μήνα — ΟΧΙ τις επιταγές (ήδη στη μνήμη)
+  // (loadFromSheets κάνει renderAll εσωτερικά αν exists)
   await loadFromSheets();
   appReady=true;
   if(btn){btn.disabled=false;btn.textContent='ΚΑΤΑΧΩΡΗΣΗ';}
   // autoInitNewMonth ΜΕΤΑ το load — έτσι ξέρει αν υπάρχουν δεδομένα
+  // (κάνει renderAll από μέσα του μόνο αν προσθέσει RLED)
   autoInitNewMonth(v);
+  // Τελικό render: για την περίπτωση που δεν έγινε από τα παραπάνω
+  // (π.χ. μήνας υπάρχει χωρίς δεδομένα — load επιστρέφει "Νέος μήνας" χωρίς render)
+  renderAll();
   refreshActiveTab();
 }
 function refreshActiveTab(){
@@ -741,7 +744,7 @@ function autoInitNewMonth(v){
   const epTot=monthEp.reduce((s,e)=>s+(e.liosia||0),0);
   renderAll();
   if(epTot>0){toast('RLED 2.000€ + Επιταγές '+fmt(epTot),'info');}else{toast('Προστέθηκε: RLED 2.000€','info');}
-  saveToSheets();
+  saveToSheets("bank");
 }
 function renderAll(){buildDD();renderMain();renderTrap();renderMet();renderBnk();renderD5();renderTel();renderEpit();runRules();document.getElementById('mbadge').textContent=CM.replace('_',' ');}
 
@@ -836,7 +839,7 @@ async function showDayPopup(day,dname,mi,currentYear){
   document.getElementById('popupContent').innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr style="border-bottom:1px solid var(--border2);"><th style="padding:6px 12px;text-align:left;font-size:10px;color:var(--muted);">ΕΤΟΣ</th><th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">ΜΕΤΡΗΤΑ</th><th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">POS</th><th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">ΣΥΝΟΛΟ</th><th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">vs ΤΩΡΑ</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-function delDay(d){const k=ek();D.days[k]=(D.days[k]||[]).filter(r=>r.day!==parseInt(d));renderAll();saveToSheets();}
+function delDay(d){const k=ek();D.days[k]=(D.days[k]||[]).filter(r=>r.day!==parseInt(d));renderAll();saveToSheets("days");}
 
 // RENDER MAIN
 function renderMain(){
@@ -1135,25 +1138,24 @@ function renderCompare(){
 }
 
 // ΤΡΑΠΕΖΑ
-function addTEisp(){const d=document.getElementById('tei-d').value,p=document.getElementById('tei-p').value.trim(),v=parseFloat(document.getElementById('tei-v').value)||0;if(!p||!v)return;const k=ek();ea(D.trapEisp,k);D.trapEisp[k].push({date:d,pelatis:p,poso:v});document.getElementById('tei-p').value='';document.getElementById('tei-v').value='';renderTrap();saveToSheets("trapEisp");}
-function addTPl(){const d=document.getElementById('tpl-d').value,p=document.getElementById('tpl-p').value.trim(),v=parseFloat(document.getElementById('tpl-v').value)||0;if(!p||!v)return;const k=ek();ea(D.trapPl,k);D.trapPl[k].push({date:d,prom:p,poso:v});document.getElementById('tpl-p').value='';document.getElementById('tpl-v').value='';renderTrap();saveToSheets("trapPl");}
-function delTEisp(i){const k=ek();D.trapEisp[k].splice(i,1);renderTrap();saveToSheets("trapEisp");}
-function delTPl(i){const k=ek();D.trapPl[k].splice(i,1);renderTrap();saveToSheets("trapEisp");}
+function addTEisp(){const d=document.getElementById('tei-d').value,p=document.getElementById('tei-p').value.trim(),v=parseFloat(document.getElementById('tei-v').value)||0;if(!p||!v)return;const k=ek();ea(D.trapEisp,k);D.trapEisp[k].push({date:d,pelatis:p,poso:v});document.getElementById('tei-p').value='';document.getElementById('tei-v').value='';renderTrap();renderMain();saveToSheets("trapEisp");}
+function addTPl(){const d=document.getElementById('tpl-d').value,p=document.getElementById('tpl-p').value.trim(),v=parseFloat(document.getElementById('tpl-v').value)||0;if(!p||!v)return;const k=ek();ea(D.trapPl,k);D.trapPl[k].push({date:d,prom:p,poso:v});document.getElementById('tpl-p').value='';document.getElementById('tpl-v').value='';renderTrap();renderMain();saveToSheets("trapPl");}
+function delTEisp(i){const k=ek();D.trapEisp[k].splice(i,1);renderTrap();renderMain();saveToSheets("trapEisp");}
+function delTPl(i){const k=ek();D.trapPl[k].splice(i,1);renderTrap();renderMain();saveToSheets("trapPl");}
 function renderTrap(){
   const k=ek();const ei=D.trapEisp[k]||[],pl=D.trapPl[k]||[];const te=ei.reduce((s,r)=>s+r.poso,0),tp=pl.reduce((s,r)=>s+r.poso,0);
   document.getElementById('tEispTot').textContent=fmt(te);document.getElementById('tPlTot').textContent=fmt(tp);document.getElementById('tNet').textContent=fmt(te-tp);
   document.getElementById('tEispBody').innerHTML=ei.map((r,i)=>`<tr><td>${r.date||'—'}</td><td>${r.pelatis}</td><td class="pos">${fmt(r.poso)}</td><td><button class="btn-del" onclick="delTEisp(${i})">✕</button></td></tr>`).join('')+(ei.length?`<tr class="tot"><td colspan="2">ΣΥΝΟΛΟ</td><td class="pos">${fmt(te)}</td><td></td></tr>`:'');
   document.getElementById('tPlBody').innerHTML=pl.map((r,i)=>`<tr><td>${r.date||'—'}</td><td>${r.prom}</td><td class="neg">${fmt(r.poso)}</td><td><button class="btn-del" onclick="delTPl(${i})">✕</button></td></tr>`).join('')+(pl.length?`<tr class="tot"><td colspan="2">ΣΥΝΟΛΟ</td><td class="neg">${fmt(tp)}</td><td></td></tr>`:'');
-  renderMain();
 }
 
-function addMet(){const d=document.getElementById('met-d').value,a=document.getElementById('met-a').value.trim(),v=parseFloat(document.getElementById('met-v').value)||0;if(!a||!v)return;const k=ek();ea(D.metrita,k);D.metrita[k].push({date:d,ait:a,poso:v});document.getElementById('met-a').value='';document.getElementById('met-v').value='';renderMet();saveToSheets("metrita");}
-function delMet(i){const k=ek();D.metrita[k].splice(i,1);renderMet();saveToSheets("metrita");}
-function renderMet(){const k=ek();const rows=D.metrita[k]||[];const tot=rows.reduce((s,r)=>s+r.poso,0);document.getElementById('metTot').textContent=fmt(tot);document.getElementById('metCnt').textContent=rows.length;document.getElementById('metBody').innerHTML=rows.map((r,i)=>`<tr><td>${r.date||'—'}</td><td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button class="btn-del" onclick="delMet(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="2">ΣΥΝΟΛΟ</td><td class="neg">${fmt(tot)}</td><td></td></tr>`:'');renderMain();}
+function addMet(){const d=document.getElementById('met-d').value,a=document.getElementById('met-a').value.trim(),v=parseFloat(document.getElementById('met-v').value)||0;if(!a||!v)return;const k=ek();ea(D.metrita,k);D.metrita[k].push({date:d,ait:a,poso:v});document.getElementById('met-a').value='';document.getElementById('met-v').value='';renderMet();renderMain();saveToSheets("metrita");}
+function delMet(i){const k=ek();D.metrita[k].splice(i,1);renderMet();renderMain();saveToSheets("metrita");}
+function renderMet(){const k=ek();const rows=D.metrita[k]||[];const tot=rows.reduce((s,r)=>s+r.poso,0);document.getElementById('metTot').textContent=fmt(tot);document.getElementById('metCnt').textContent=rows.length;document.getElementById('metBody').innerHTML=rows.map((r,i)=>`<tr><td>${r.date||'—'}</td><td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button class="btn-del" onclick="delMet(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="2">ΣΥΝΟΛΟ</td><td class="neg">${fmt(tot)}</td><td></td></tr>`:'');}
 
-function addBnk(){const d=document.getElementById('bnk-d').value,a=document.getElementById('bnk-a').value.trim(),v=parseFloat(document.getElementById('bnk-v').value)||0;if(!a||!v)return;const k=ek();ea(D.bank,k);D.bank[k].push({date:d,ait:a,poso:v});document.getElementById('bnk-a').value='';document.getElementById('bnk-v').value='';renderBnk();saveToSheets("bank");}
-function delBnk(i){const k=ek();D.bank[k].splice(i,1);renderBnk();saveToSheets("bank");}
-function renderBnk(){const k=ek();const rows=D.bank[k]||[];const tot=rows.reduce((s,r)=>s+r.poso,0);document.getElementById('bnkTot').textContent=fmt(tot);document.getElementById('bnkCnt').textContent=rows.length;document.getElementById('bnkBody').innerHTML=rows.map((r,i)=>`<tr><td>${r.date||'—'}</td><td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button class="btn-del" onclick="delBnk(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="2">ΣΥΝΟΛΟ ΛΙΟΣΙΑ</td><td class="neg">${fmt(tot)}</td><td></td></tr>`:'');renderMain();}
+function addBnk(){const d=document.getElementById('bnk-d').value,a=document.getElementById('bnk-a').value.trim(),v=parseFloat(document.getElementById('bnk-v').value)||0;if(!a||!v)return;const k=ek();ea(D.bank,k);D.bank[k].push({date:d,ait:a,poso:v});document.getElementById('bnk-a').value='';document.getElementById('bnk-v').value='';renderBnk();renderMain();saveToSheets("bank");}
+function delBnk(i){const k=ek();D.bank[k].splice(i,1);renderBnk();renderMain();saveToSheets("bank");}
+function renderBnk(){const k=ek();const rows=D.bank[k]||[];const tot=rows.reduce((s,r)=>s+r.poso,0);document.getElementById('bnkTot').textContent=fmt(tot);document.getElementById('bnkCnt').textContent=rows.length;document.getElementById('bnkBody').innerHTML=rows.map((r,i)=>`<tr><td>${r.date||'—'}</td><td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button class="btn-del" onclick="delBnk(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="2">ΣΥΝΟΛΟ ΛΙΟΣΙΑ</td><td class="neg">${fmt(tot)}</td><td></td></tr>`:'');}
 
 function addD5(){
   const c=document.getElementById('d5-c').value.trim(),p=document.getElementById('d5-p').value,i=document.getElementById('d5-i').value.trim();
@@ -1161,7 +1163,7 @@ function addD5(){
   if(!l&&!s)return;const k=ek();ea(D.d15,k);
   const item={cod:c,prom:p,iban:i,synolo:s,liosia:l,loutraki:ko};
   D.d15[k].push(item);
-  ['d5-c','d5-i','d5-s','d5-l','d5-k'].forEach(id=>document.getElementById(id).value='');renderD5();
+  ['d5-c','d5-i','d5-s','d5-l','d5-k'].forEach(id=>document.getElementById(id).value='');renderD5();renderMain();
   // add_item — στέλνει μόνο 1 εγγραφή
   const p2=encodeURIComponent(JSON.stringify({action:'add_item',month:CM,section:'d15',item}));
   fetch(API+'?payload='+p2,{method:'GET',mode:'no-cors'});
@@ -1169,7 +1171,7 @@ function addD5(){
 }
 function delD5(idx){
   const k=ek();
-  D.d15[k].splice(idx,1);renderD5();
+  D.d15[k].splice(idx,1);renderD5();renderMain();
   // del_item — στέλνει μόνο index
   const p=encodeURIComponent(JSON.stringify({action:'del_item',month:CM,section:'d15',index:idx}));
   fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
@@ -1179,7 +1181,6 @@ function renderD5(){
   const k=ek();const rows=D.d15[k]||[];const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);
   document.getElementById('d5Tot').textContent=fmt(tot);document.getElementById('d5Cnt').textContent=rows.length;
   document.getElementById('d5Body').innerHTML=rows.map((r,i)=>`<tr><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td>${r.prom}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td class="num">${r.synolo?fmt(r.synolo):'—'}</td><td class="acc">${fmt(r.liosia)}</td><td class="num" style="color:var(--muted)">${r.loutraki?fmt(r.loutraki):'—'}</td><td><button class="btn-del" onclick="delD5(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="4">ΣΥΝΟΛΟ ΛΙΟΣΙΑ</td><td class="acc">${fmt(tot)}</td><td></td><td></td></tr>`:'');
-  renderMain();
 }
 
 function addTel(){
@@ -1188,14 +1189,14 @@ function addTel(){
   if(!n||(!l&&!s))return;const k=ek();ea(D.telos,k);
   const item={kat:kt,cod:c,iban:i,name:n,synolo:s,liosia:l,loutraki:ko};
   D.telos[k].push(item);
-  ['tel-c','tel-i','tel-n','tel-s','tel-l','tel-k2'].forEach(id=>document.getElementById(id).value='');renderTel();
+  ['tel-c','tel-i','tel-n','tel-s','tel-l','tel-k2'].forEach(id=>document.getElementById(id).value='');renderTel();renderMain();
   const p=encodeURIComponent(JSON.stringify({action:'add_item',month:CM,section:'telos',item}));
   fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
   toast('Αποθηκεύτηκε ✓','ok');
 }
 function delTel(idx){
   const k=ek();
-  D.telos[k].splice(idx,1);renderTel();
+  D.telos[k].splice(idx,1);renderTel();renderMain();
   const p=encodeURIComponent(JSON.stringify({action:'del_item',month:CM,section:'telos',index:idx}));
   fetch(API+'?payload='+p,{method:'GET',mode:'no-cors'});
   toast('Διαγράφηκε ✓','ok');
@@ -1205,7 +1206,6 @@ function renderTel(){
   document.getElementById('telTot').textContent=fmt(tot);document.getElementById('telCnt').textContent=rows.length;
   const kb=kt=>`<span style="font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(200,168,75,.12);color:var(--accent)">${kt}</span>`;
   document.getElementById('telBody').innerHTML=rows.map((r,i)=>`<tr><td>${kb(r.kat)}</td><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td>${r.name}</td><td class="num">${r.synolo?fmt(r.synolo):'—'}</td><td class="acc">${fmt(r.liosia)}</td><td class="num" style="color:var(--muted)">${r.loutraki?fmt(r.loutraki):'—'}</td><td><button class="btn-del" onclick="delTel(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="5">ΣΥΝΟΛΟ ΛΙΟΣΙΑ</td><td class="acc">${fmt(tot)}</td><td></td><td></td></tr>`:'');
-  renderMain();
 }
 
 // ===== ★ ΕΠΙΤΑΓΕΣ — 12ΜΗΝΟ ΗΜΕΡΟΛΟΓΙΟ =====
@@ -1275,7 +1275,6 @@ function renderEpit(){
     const st=past?'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(76,175,125,.15);color:var(--green)">✓ΕΞΟΦΛ.</span>':soon?'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(224,85,85,.15);color:var(--red)">⚠ΕΡΧΕΤΑΙ</span>':'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(100,100,100,.15);color:var(--muted)">◼ΜΕΛΛΟΝ</span>';
     return`<tr><td>${r.month} ${r.file_year||''}</td><td style="font-family:var(--mono)">${r.date||'—'}</td><td style="font-family:var(--mono)">${r.ekdosi||'—'}</td><td style="font-family:var(--mono)">${r.num||'—'}</td><td>${r.prom}</td><td class="acc">${fmt(r.liosia)}</td><td>${st}</td><td><button class="btn-del" onclick="delEpit(${D.epitages.indexOf(r)})">✕</button></td></tr>`;
   }).join('')+(rows.length?`<tr class="tot"><td colspan="5">ΣΥΝΟΛΟ ΛΙΟΣΙΑ ${epYear==='ΟΛΕΣ'?'ΟΛΑ ΤΑ ΕΤΗ':epYear}</td><td class="acc">${fmt(tot)}</td><td></td><td></td></tr>`:'');
-  renderMain();
 }
 
 // ΣΤΑΤΙΣΤΙΚΑ
