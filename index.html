@@ -332,9 +332,8 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
   </div>
   <div class="tw">
     <div class="tw-h">ΠΛΗΡΩΜΕΣ 15 ΤΟΥ ΜΗΝΑ</div>
-    <table><thead><tr><th>ΚΩΔ.</th><th>ΠΡΟΜΗΘΕΥΤΗΣ</th><th>ΑΡΙΘΜΟΣ ΛΟΓΑΡΙΑΣΜΟΥ</th><th>ΣΥΝΟΛΟ</th><th>ΛΙΟΣΙΑ</th><th>ΛΟΥΤΡΑΚΙ</th><th></th></tr></thead>
-    <tbody id="d5Body"></tbody></table>
-    <div style="padding:10px 12px;">
+    <div style="padding:10px 12px;border-bottom:1px solid var(--border2)">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:6px">➕ Προσθήκη νέας πληρωμής</div>
       <div style="display:grid;grid-template-columns:80px 2fr 2fr 1fr 1fr 1fr auto;gap:6px;align-items:end;">
         <div class="fi"><label>Κωδ.</label><input type="text" id="d5-c" placeholder="ΚΩΔ"></div>
         <div class="fi"><label>Προμηθευτής</label>
@@ -357,6 +356,8 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
         <div class="fi"><label>&nbsp;</label><button class="btn-add" style="margin:0;padding:7px 10px" onclick="addD5()">+</button></div>
       </div>
     </div>
+    <table><thead><tr><th>ΚΩΔ.</th><th>ΠΡΟΜΗΘΕΥΤΗΣ</th><th>ΑΡΙΘΜΟΣ ΛΟΓΑΡΙΑΣΜΟΥ</th><th>ΣΥΝΟΛΟ</th><th>ΛΙΟΣΙΑ</th><th>ΛΟΥΤΡΑΚΙ</th><th></th></tr></thead>
+    <tbody id="d5Body"></tbody></table>
   </div>
 </div>
 
@@ -368,9 +369,8 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
   </div>
   <div class="tw">
     <div class="tw-h">ΠΛΗΡΩΜΕΣ ΤΕΛΟΣ ΤΟΥ ΜΗΝΑ</div>
-    <table><thead><tr><th>ΚΑΤ.</th><th>ΚΩΔ.</th><th>ΑΡΙΘΜΟΣ ΛΟΓΑΡΙΑΣΜΟΥ</th><th>ΠΡΟΜΗΘΕΥΤΗΣ</th><th>ΣΥΝΟΛΟ</th><th>ΛΙΟΣΙΑ</th><th>ΛΟΥΤΡΑΚΙ</th><th></th></tr></thead>
-    <tbody id="telBody"></tbody></table>
-    <div style="padding:10px 12px;">
+    <div style="padding:10px 12px;border-bottom:1px solid var(--border2)">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:6px">➕ Προσθήκη νέας πληρωμής</div>
       <div style="display:grid;grid-template-columns:1fr 80px 2fr 2fr 1fr 1fr 1fr auto;gap:6px;align-items:end;">
         <div class="fi"><label>Κατηγορία</label>
           <select id="tel-k"><option>ΜΙΣΘΟΣ</option><option>ΑΠΔ</option><option>ΦΠΑ</option><option>ΦΜΥ</option><option>ΤΕΚΑ</option><option>ΛΟΓΙΣΤΗΣ</option><option>ΕΦΟΡΙΑ</option><option>ΔΩΡΟ</option><option>ΑΛΛΟ</option></select>
@@ -384,6 +384,8 @@ tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--borde
         <div class="fi"><label>&nbsp;</label><button class="btn-add" style="margin:0;padding:7px 10px" onclick="addTel()">+</button></div>
       </div>
     </div>
+    <table><thead><tr><th>ΚΑΤ.</th><th>ΚΩΔ.</th><th>ΑΡΙΘΜΟΣ ΛΟΓΑΡΙΑΣΜΟΥ</th><th>ΠΡΟΜΗΘΕΥΤΗΣ</th><th>ΣΥΝΟΛΟ</th><th>ΛΙΟΣΙΑ</th><th>ΛΟΥΤΡΑΚΙ</th><th></th></tr></thead>
+    <tbody id="telBody"></tbody></table>
   </div>
 </div>
 
