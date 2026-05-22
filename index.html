@@ -994,9 +994,26 @@ async function loadAllEpitages(){
     }catch(e){}
     // Μηδένισε ΜΟΝΟ αφού έχουμε τα δεδομένα — αποφεύγει race condition
     D.epitages=curEp;
-
-    // Υπόλοιπα έτη φορτώνουν μόνο όταν χρειάζονται (στατιστικά)
+    _epYearsLoaded.clear();_epYearsLoaded.add(curYr);  // markάρισμα τρέχοντος έτους
+    // Υπόλοιπα έτη φορτώνουν on-demand (ensureEpitagesYear) όταν αλλάζει μήνας/σύγκριση
   }catch(e){toast('Αποτυχία φόρτωσης επιταγών','err');}
+  finally{Prog.done();}
+}
+// Φόρτωσε τις επιταγές ενός έτους αν λείπουν (merge χωρίς διπλά).
+// Κρίσιμο: αλλιώς σε παλιότερο μήνα το ΥΠΟΛΟΙΠΟ βγαίνει λάθος (δεν αφαιρεί επιταγές).
+async function ensureEpitagesYear(yr){
+  yr=String(yr);
+  if(_epYearsLoaded.has(yr))return;
+  _epYearsLoaded.add(yr);              // mark πριν το fetch (απόφυγε διπλά παράλληλα)
+  Prog.start();
+  try{
+    const r=await fetch(API+'?action=load&month='+encodeURIComponent('EPITAGES_'+yr),{redirect:'follow'});
+    const j=await r.json();
+    if(j&&j.success&&j.exists&&j.data&&j.data.epitages){
+      const seen=new Set((D.epitages||[]).map(e=>e.num+'|'+e.prom+'|'+e.liosia+'|'+(e.date||'')));
+      j.data.epitages.forEach(e=>{const id=e.num+'|'+e.prom+'|'+e.liosia+'|'+(e.date||'');if(!seen.has(id))D.epitages.push(e);});
+    }
+  }catch(e){_epYearsLoaded.delete(yr);}  // ξεμαρκάρισμα για retry σε αποτυχία
   finally{Prog.done();}
 }
 
@@ -1056,8 +1073,9 @@ async function changeMonth(v){
   appReady=false;
   const btn=document.querySelector('.btn-add');
   if(btn){btn.disabled=true;btn.textContent='Φόρτωση...';}
-  // Φόρτωσε μόνο τα δεδομένα του μήνα — ΟΧΙ τις επιταγές (ήδη στη μνήμη)
-  // (loadFromSheets κάνει renderAll εσωτερικά αν exists)
+  // Φόρτωσε ΠΡΩΤΑ τις επιταγές του ΕΤΟΥΣ (αν λείπουν), μετά τα δεδομένα του μήνα
+  // Κρίσιμο: σε παλιότερο έτος, χωρίς αυτό το ΥΠΟΛΟΙΠΟ βγαίνει λάθος (δεν αφαιρεί επιταγές)
+  await ensureEpitagesYear(v.split('_')[1]);
   await loadFromSheets();
   appReady=true;
   if(btn){btn.disabled=false;btn.textContent='ΚΑΤΑΧΩΡΗΣΗ';}
