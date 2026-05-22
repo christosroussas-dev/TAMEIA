@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ΤΑΜΕΙΟ — ΑΦΟΙ ΡΟΥΣΣΑ v5</title>
+<title>ΤΑΜΕΙΟ — ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε. v6</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -244,6 +244,12 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 .sidebar-logo .rr{font-family:var(--mono);font-size:30px;font-weight:700;line-height:1;background:linear-gradient(135deg,#f4dd95,var(--gold2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 .sidebar-logo .name{font-size:12px;font-weight:700;letter-spacing:.06em;margin-top:5px;background:linear-gradient(135deg,#f4dd95,var(--gold2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 .sidebar-logo .sub{font-size:9px;color:var(--muted);letter-spacing:.22em;margin-top:2px;}
+.sb-logo-img{width:92px;height:92px;display:block;margin:0 auto 4px;object-fit:contain;filter:drop-shadow(0 4px 14px rgba(0,0,0,.5));}
+.login-logo-img{width:140px;height:140px;display:block;margin:0 auto 12px;object-fit:contain;filter:drop-shadow(0 8px 26px rgba(0,0,0,.55));animation:logoIn .6s var(--ease);}
+@keyframes logoIn{from{opacity:0;transform:scale(.85);}to{opacity:1;transform:scale(1);}}
+/* TOP PROGRESS BAR (live φόρτωση) */
+#topProgress{position:fixed;top:0;left:0;height:3px;width:0;z-index:100000;background:linear-gradient(90deg,var(--accent),var(--purple));box-shadow:0 0 12px var(--accent),0 0 4px var(--accent);opacity:0;border-radius:0 3px 3px 0;transition:width .3s var(--ease),opacity .35s;}
+#topProgress.active{opacity:1;}
 .sidebar-nav{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:3px;}
 .nav-sep{height:1px;background:var(--border);margin:8px 6px;}
 .nav-item{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:10px;color:var(--muted);font-size:11.5px;font-weight:600;letter-spacing:.02em;cursor:pointer;transition:background .15s var(--ease),color .15s,box-shadow .15s;position:relative;white-space:nowrap;}
@@ -268,7 +274,8 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 .tb-icon .ind{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:8px;font-weight:700;border-radius:10px;min-width:15px;height:15px;display:flex;align-items:center;justify-content:center;padding:0 3px;box-shadow:0 0 8px rgba(224,85,85,.6);}
 .tb-profile{display:flex;align-items:center;gap:9px;padding:5px 12px 5px 6px;border-radius:30px;background:var(--bg3);border:1px solid var(--border2);cursor:pointer;transition:border-color .15s;}
 .tb-profile:hover{border-color:var(--accent);}
-.tb-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;}
+.tb-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0;}
+.tb-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
 .hamburger{display:none;width:38px;height:38px;align-items:center;justify-content:center;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);cursor:pointer;font-size:18px;color:var(--text);}
 #sidebarScrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:250;}
 @media(max-width:900px){
@@ -373,8 +380,10 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
+<div id="topProgress"></div>
 <div id="loginScreen">
   <div class="login-box">
+    <img src="logo.png" alt="ΤΑΜΕΙΑ ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε." class="login-logo-img" onerror="this.style.display='none';">
     <div class="login-logo">ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε.</div>
     <div class="login-sub">ΛΙΟΣΙΑ · Σύστημα Ταμείου v6</div>
     <input class="login-inp" type="password" id="loginPin" placeholder="● ● ● ● ● ●" maxlength="10"
@@ -389,8 +398,8 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
   <!-- ═══ SIDEBAR ═══ -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <div class="crown">♛ ♛ ♛</div>
-      <div class="rr">RR</div>
+      <img src="logo.png" alt="ΤΑΜΕΙΑ ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε." class="sb-logo-img" onerror="this.style.display='none';document.getElementById('sbLogoFb').style.display='block';">
+      <div class="rr" id="sbLogoFb" style="display:none;">RR</div>
       <div class="name">ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε.</div>
       <div class="sub">ΤΑΜΕΙΟ · ΛΙΟΣΙΑ</div>
     </div>
@@ -785,6 +794,7 @@ let CM='ΜΑΙΟΣ_2026';
 let D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},epitages:[]};
 var appReady=false;
 var currentRole=null;
+var _epYearsLoaded=new Set();  // έτη επιταγών που έχουν φορτωθεί (για στατιστικά/συγκρίσεις)
 
 // ===== DIRTY-STATE TRACKING (μη αποθηκευμένες αλλαγές) =====
 var dirty=false;var _savedTimer=null;
@@ -814,6 +824,27 @@ window.addEventListener('beforeunload',function(e){
 // Επιβεβαίωση πριν από διαγραφή — κεντρικό helper
 function confirmDel(msg){return confirm('🗑️ '+(msg||'Διαγραφή εγγραφής;')+'\n\nΕίσαι σίγουρος;');}
 
+// ===== TOP PROGRESS BAR (live ένδειξη φόρτωσης) =====
+var Prog=(function(){
+  var v=0,timer=null,active=0;
+  function el(){return document.getElementById('topProgress');}
+  function set(p){v=p;var e=el();if(e)e.style.width=p+'%';}
+  function start(){
+    active++;var e=el();if(!e)return;
+    if(active>1)return;            // ήδη τρέχει — μέτρησε μόνο
+    e.classList.add('active');set(8);
+    clearInterval(timer);
+    timer=setInterval(function(){ if(v<90) set(v+Math.max(0.5,(90-v)*0.07)); },220);
+  }
+  function done(){
+    active=Math.max(0,active-1);
+    if(active>0)return;            // υπάρχουν ακόμα εκκρεμείς εργασίες
+    clearInterval(timer);set(100);
+    setTimeout(function(){var e=el();if(e){e.classList.remove('active');setTimeout(function(){set(0);},350);}},250);
+  }
+  return{start:start,done:done};
+})();
+
 var _roleWatchdog=null;
 function applyRole(){
   var isAdmin=(currentRole==='ADMIN');
@@ -821,7 +852,11 @@ function applyRole(){
   var label=document.getElementById('userLabel');
   if(label){label.textContent=roleTxt;label.style.background=isAdmin?'rgba(77,159,255,.18)':'rgba(76,175,125,.15)';label.style.color=isAdmin?'var(--accent)':'var(--green)';label.style.border=isAdmin?'1px solid rgba(77,159,255,.5)':'1px solid rgba(76,175,125,.5)';}
   var tbRole=document.getElementById('tbRole');if(tbRole)tbRole.textContent=roleTxt;
-  var tbAvatar=document.getElementById('tbAvatar');if(tbAvatar)tbAvatar.textContent=isAdmin?'A':'Ε';
+  var tbAvatar=document.getElementById('tbAvatar');
+  if(tbAvatar){
+    if(isAdmin){tbAvatar.innerHTML='<img src="admin.png" alt="ADMIN" onerror="this.parentNode.textContent=\'A\'">';}
+    else{tbAvatar.textContent='Ε';}
+  }
   // Sidebar nav-items
   document.querySelectorAll('.nav-item[data-tab]').forEach(function(ni){
     var tab=ni.getAttribute('data-tab');
@@ -877,7 +912,7 @@ function calcYP(){
 
 // ===== SYNC =====
 async function saveToSheets(changedSection){
-  markSaving();
+  markSaving();Prog.start();
   try{
     // Αποθήκευσε ΜΟΝΟ το section που άλλαξε
     const allSections={
@@ -902,9 +937,10 @@ async function saveToSheets(changedSection){
     markSaved();
     toast('Αποθηκεύτηκε ✓','ok');
   }catch(e){markDirty();toast('Σφάλμα αποθήκευσης!','err');}
+  finally{Prog.done();}
 }
 async function loadFromSheets(){
-  toast('Φόρτωση...','info');
+  toast('Φόρτωση...','info');Prog.start();
   try{
     const r=await fetch(API+'?action=load&month='+encodeURIComponent(CM));const j=await r.json();
     if(j.success&&j.exists&&j.data){
@@ -920,8 +956,10 @@ async function loadFromSheets(){
       renderAll();toast('Φορτώθηκε ✓','ok');
     }else{toast('Νέος μήνας','info');}
   }catch(e){toast('Αποτυχία','err');}
+  finally{Prog.done();}
 }
 async function loadAllEpitages(){
+  Prog.start();
   try{
     const curYr=String(new Date().getFullYear());
     const otherYears=['2023','2024','2025','2026','2027'].filter(y=>y!==curYr);
@@ -941,6 +979,7 @@ async function loadAllEpitages(){
 
     // Υπόλοιπα έτη φορτώνουν μόνο όταν χρειάζονται (στατιστικά)
   }catch(e){toast('Αποτυχία φόρτωσης επιταγών','err');}
+  finally{Prog.done();}
 }
 
 // ===== TABS =====
@@ -1473,20 +1512,31 @@ function renderCompare(){
   const k=ek();const{mi,y}=gmi(k);const mn=k.split('_')[0];const yr=String(y);const prevYr=String(y-1);
   document.getElementById('cmp-title').textContent=`${mn} ${yr} vs ${mn} ${prevYr}`;
 
-  // Αν δεν έχουμε δεδομένα πέρσι — φόρτωσε από Sheets αυτόματα
+  // Αν δεν έχουμε δεδομένα πέρσι — φόρτωσε από Sheets αυτόματα (sections + ΕΠΙΤΑΓΕΣ έτους)
   const kPrev=mn+'_'+prevYr;
-  if(!D.days[kPrev]||D.days[kPrev].length===0){
-    fetch(API+'?action=load&month='+encodeURIComponent(kPrev)).then(r=>r.json()).then(j=>{
-      if(j.success&&j.exists&&j.data){
-        if(j.data.days&&j.data.days[kPrev]) D.days[kPrev]=j.data.days[kPrev];
-        if(j.data.metrita&&j.data.metrita[kPrev]) D.metrita[kPrev]=j.data.metrita[kPrev];
-        if(j.data.bank&&j.data.bank[kPrev]) D.bank[kPrev]=j.data.bank[kPrev];
-        if(j.data.d15&&j.data.d15[kPrev]) D.d15[kPrev]=j.data.d15[kPrev];
-        if(j.data.telos&&j.data.telos[kPrev]) D.telos[kPrev]=j.data.telos[kPrev];
-        if(j.data.trapEisp&&j.data.trapEisp[kPrev]) D.trapEisp[kPrev]=j.data.trapEisp[kPrev];
-        renderCompare(); // ξανακάνε render με τα νέα δεδομένα
+  const needPrev=!D.days[kPrev]||D.days[kPrev].length===0;
+  const needPrevEp=!_epYearsLoaded.has(prevYr)&&!(D.epitages||[]).some(e=>e.file_year===prevYr||(e.date&&e.date.startsWith(prevYr)));
+  if(needPrev||needPrevEp){
+    const jobs=[];
+    if(needPrev)jobs.push(fetch(API+'?action=load&month='+encodeURIComponent(kPrev)).then(r=>r.json()).then(j=>{
+      if(j.success&&j.exists&&j.data){const dd=j.data;
+        if(dd.days&&dd.days[kPrev]) D.days[kPrev]=dd.days[kPrev];
+        if(dd.metrita&&dd.metrita[kPrev]) D.metrita[kPrev]=dd.metrita[kPrev];
+        if(dd.bank&&dd.bank[kPrev]) D.bank[kPrev]=dd.bank[kPrev];
+        if(dd.d15&&dd.d15[kPrev]) D.d15[kPrev]=dd.d15[kPrev];
+        if(dd.telos&&dd.telos[kPrev]) D.telos[kPrev]=dd.telos[kPrev];
+        if(dd.trapEisp&&dd.trapEisp[kPrev]) D.trapEisp[kPrev]=dd.trapEisp[kPrev];
       }
-    }).catch(()=>{});
+    }).catch(()=>{}));
+    if(needPrevEp)jobs.push(fetch(API+'?action=load&month='+encodeURIComponent('EPITAGES_'+prevYr)).then(r=>r.json()).then(j=>{
+      _epYearsLoaded.add(prevYr);
+      if(j&&j.success&&j.exists&&j.data&&j.data.epitages){
+        const seen=new Set((D.epitages||[]).map(e=>e.num+'|'+e.prom+'|'+e.liosia+'|'+(e.date||'')));
+        j.data.epitages.forEach(e=>{const id=e.num+'|'+e.prom+'|'+e.liosia+'|'+(e.date||'');if(!seen.has(id))D.epitages.push(e);});
+      }
+    }).catch(()=>{_epYearsLoaded.add(prevYr);}));
+    Promise.all(jobs).then(()=>renderCompare());
+    return; // περίμενε τα δεδομένα — απόφυγε εμφάνιση λανθασμένων (μερικών) τιμών
   }
 
   // Δεδομένα τρέχοντος μήνα
@@ -1503,12 +1553,11 @@ function renderCompare(){
   const wd=rows.filter(r=>r.dayName!=='ΚΥΡΙΑΚΗ'&&(r.metrita+r.pos)>0).length;
   const avgCur=wd?tAllNet/wd:0;
 
-  // Ιστορικά δεδομένα πέρσι
+  // Ιστορικά δεδομένα πέρσι (HIST → μέσος όρος/εργάσιμες)
   const hPrev=HIST.find(x=>x.year===prevYr&&x.month===mi+1);
-  const prevTjiros=hPrev?hPrev.total:null;const prevAvg=hPrev?hPrev.avg_day:null;const prevWD=hPrev?hPrev.work_days:null;
+  const prevAvg=hPrev?hPrev.avg_day:null;const prevWD=hPrev?hPrev.work_days:null;
 
-  // Δεδομένα πέρσι από D (αν φορτωμένα)
-  // kPrev already declared above+'_'+prevYr;
+  // Δεδομένα πέρσι από D (φορτωμένα από Sheets)
   const rowsPrev=D.days[kPrev]||[];
   const pMetPrev=(D.metrita[kPrev]||[]).reduce((s,r)=>s+r.poso,0);
   const pBnkPrev=(D.bank[kPrev]||[]).reduce((s,r)=>s+r.poso,0);
@@ -1518,8 +1567,16 @@ function renderCompare(){
   const pEpitPrev=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===prevYr||(e.date&&e.date.startsWith(prevYr)))).reduce((s,e)=>s+(e.liosia||0),0);
   const allPPrev=pMetPrev+pBnkPrev+pD5Prev+pTelPrev+pEpitPrev;
 
-  const diffTjiros=prevTjiros?tAllNet-prevTjiros:null;
-  const diffPct=diffTjiros&&prevTjiros?(diffTjiros/prevTjiros*100):null;
+  // ΚΑΘΑΡΕΣ εισπράξεις πέρσι (apples-to-apples): πραγματικά δεδομένα αν υπάρχουν, αλλιώς HIST (μικτό fallback)
+  const prevTjirosFull=rowsPrev.reduce((s,r)=>s+(r.metrita||0)+(r.pos||0),0);
+  const prevPOS=rowsPrev.reduce((s,r)=>s+(r.pos||0),0);const prevKrat=Math.round(prevPOS*0.013*100)/100;
+  const prevTjNet=prevTjirosFull-prevKrat;
+  const prevYpData=rowsPrev.length>0;
+  const prevNet=prevYpData?prevTjNet:(hPrev?hPrev.total:null);
+  const prevYpCalc=prevTjNet+pEispPrev-allPPrev;
+
+  const diffTjiros=prevNet!=null?tAllNet-prevNet:null;
+  const diffPct=(diffTjiros!=null&&prevNet)?(diffTjiros/prevNet*100):null;
 
   // Cards
   document.getElementById('cmp-cur').innerHTML=`
@@ -1533,16 +1590,10 @@ function renderCompare(){
     <div class="comp-row"><span class="comp-label">Επιταγές</span><span style="font-family:var(--mono);color:var(--red)">${fmt(pEpit)}</span></div>
     <div class="comp-row" style="font-weight:600;"><span>Υπόλοιπο</span><span style="font-family:var(--mono);color:${ypCur>=0?'var(--green)':'var(--red)'}">${(ypCur>=0?'+':'')+fmt(ypCur)}</span></div>`;
 
-  const prevYpData=rowsPrev.length>0;
-  const prevTjirosFull=rowsPrev.reduce((s,r)=>s+(r.metrita||0)+(r.pos||0),0);
-  const prevPOS=rowsPrev.reduce((s,r)=>s+(r.pos||0),0);const prevKrat=Math.round(prevPOS*0.013*100)/100;
-  const prevTjNet=prevTjirosFull-prevKrat;
-  const prevYpCalc=prevTjNet+pEispPrev-allPPrev;
-
   document.getElementById('cmp-prev').innerHTML=`
     <div class="comp-year-label" style="color:${COL[prevYr]||'var(--muted)'}">📅 ${mn} ${prevYr} (ΠΕΡΣΙΝΟ)</div>
-    <div class="comp-val" style="color:${COL[prevYr]||'var(--muted)'}">${prevTjiros?fmt(prevTjiros):'—'}</div>
-    <div style="font-size:10px;color:var(--muted);margin-bottom:8px;">Από HIST${prevYpData?' + Google Sheets':''}</div>
+    <div class="comp-val" style="color:${COL[prevYr]||'var(--muted)'}">${prevNet!=null?fmt(prevNet):'—'}</div>
+    <div style="font-size:10px;color:var(--muted);margin-bottom:8px;">${prevYpData?'Καθαρές · Google Sheets':'Από HIST (μικτό)'}</div>
     <div class="comp-row"><span class="comp-label">Μέσος/εργάσιμη</span><span style="font-family:var(--mono)">${prevAvg?fmt(prevAvg):'—'}</span></div>
     <div class="comp-row"><span class="comp-label">Εργάσιμες</span><span style="font-family:var(--mono)">${prevWD||'—'}</span></div>
     <div class="comp-row"><span class="comp-label">Επιταγές ΛΙΟΣΙΑ</span><span style="font-family:var(--mono);color:var(--red)">${fmt(pEpitPrev)}</span></div>
@@ -1575,7 +1626,7 @@ function renderCompare(){
 
   // Πίνακας
   const rows2=[
-    {cat:'Εισπράξεις (καθαρές)',cur:tAllNet,prev:prevTjiros},
+    {cat:'Εισπράξεις (καθαρές)',cur:tAllNet,prev:prevNet},
     {cat:'+ Εισπράξεις Εμβάσματος',cur:pEisp,prev:pEispPrev||0},
     {cat:'− Μετρητά',cur:pMet,prev:pMetPrev,neg:true},
     {cat:'− Πληρ.Τράπεζας',cur:pBnk,prev:pBnkPrev,neg:true},
