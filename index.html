@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ΤΑΜΕΙΟ — ΑΦΟΙ ΡΟΥΣΣΑ v4</title>
+<title>ΤΑΜΕΙΟ — ΑΦΟΙ ΡΟΥΣΣΑ v5</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -22,7 +22,7 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{
   background:var(--bg);
-  background-image:radial-gradient(1200px 600px at 85% -10%,rgba(212,175,90,.06),transparent 60%),radial-gradient(900px 500px at 0% 0%,rgba(85,153,221,.05),transparent 55%);
+  background-image:radial-gradient(1100px 620px at 88% -12%,rgba(212,175,90,.14),transparent 58%),radial-gradient(950px 560px at -5% 0%,rgba(85,153,221,.12),transparent 55%),linear-gradient(180deg,#0c1220,#080b13 60%);
   background-attachment:fixed;
   color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh;
   -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
@@ -55,7 +55,8 @@ body{
 .tabs{display:flex;background:rgba(17,23,38,.7);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--glass-border);padding:0 16px;overflow-x:auto;position:sticky;top:54px;z-index:99;scrollbar-width:none;}
 .tabs::-webkit-scrollbar{height:0;}
 .tab{padding:11px 15px;font-size:10px;font-weight:700;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;transition:color .18s var(--ease),border-color .18s var(--ease);letter-spacing:.05em;position:relative;}
-.tab:hover{color:var(--text);}.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab:hover{color:var(--text);background:rgba(255,255,255,.03);}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);background:linear-gradient(180deg,transparent,rgba(212,175,90,.08));text-shadow:0 0 12px rgba(212,175,90,.4);}
 .tab-badge{background:var(--red);color:#fff;font-size:9px;font-weight:700;border-radius:8px;padding:1px 5px;margin-left:4px;box-shadow:0 0 8px rgba(224,85,85,.5);}
 .content{padding:18px 20px;max-width:1140px;margin:0 auto;}
 .panel{display:none;}
@@ -68,31 +69,33 @@ body{
 .yp-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
 .yp-sub{font-size:10px;color:var(--muted);}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
-.kpi{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:12px 14px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .18s var(--ease),box-shadow .18s var(--ease),border-color .18s;}
-.kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--border2);}
-.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);}
-.kpi.ok::before{background:var(--green);}.kpi.warn::before{background:var(--yellow);}.kpi.danger::before{background:var(--red);}.kpi.info::before{background:var(--blue);}
+.kpi{background:linear-gradient(158deg,#1b2438,#141b2b);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:13px 15px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .18s var(--ease),box-shadow .18s var(--ease),border-color .18s;}
+.kpi:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--accent2);}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent);box-shadow:0 0 12px var(--accent);}
+.kpi.ok::before{background:var(--green);box-shadow:0 0 12px var(--green);}.kpi.warn::before{background:var(--yellow);box-shadow:0 0 12px var(--yellow);}.kpi.danger::before{background:var(--red);box-shadow:0 0 12px var(--red);}.kpi.info::before{background:var(--blue);box-shadow:0 0 12px var(--blue);}
 .kl{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
 .kv{font-family:var(--mono);font-size:18px;font-weight:600;letter-spacing:-.01em;}
 .kv.pos{color:var(--green);}.kv.neg{color:var(--red);}
 .ks{font-size:9px;color:var(--muted);margin-top:2px;}
-.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.st{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;margin-top:4px;}
+.st{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text);padding-left:10px;border-left:3px solid var(--accent);line-height:1.1;}
 .badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;background:rgba(212,175,90,.12);color:var(--accent);}
 .tw{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow-sm);transition:box-shadow .2s var(--ease);}
 .tw:hover{box-shadow:var(--shadow);}
-.tw-h{padding:10px 14px;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent);}
+.tw-h{padding:11px 14px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(212,175,90,.07),transparent);}
 table{width:100%;border-collapse:collapse;}
 th{font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:7px 10px;background:var(--bg3);border-bottom:1px solid var(--border);text-align:left;position:sticky;top:0;}
 td{padding:7px 10px;border-bottom:1px solid var(--border);font-size:12px;transition:background .12s;}
+tbody tr:nth-child(even) td{background:rgba(255,255,255,.018);}
 tr:last-child td{border-bottom:none;}
-tr:hover td{background:rgba(212,175,90,.04);}
+tr:hover td{background:rgba(212,175,90,.06);}
 td.num{font-family:var(--mono);text-align:right;}
 td.pos{color:var(--green);font-family:var(--mono);text-align:right;}
 td.neg{color:var(--red);font-family:var(--mono);text-align:right;}
 td.acc{color:var(--accent);font-family:var(--mono);text-align:right;}
 td.sun{color:var(--muted);font-style:italic;}
-tr.tot td{background:var(--bg3);font-weight:600;border-top:1px solid var(--border2);}
+tr.tot td{background:linear-gradient(180deg,rgba(212,175,90,.08),var(--bg3));font-weight:700;border-top:2px solid var(--accent2);}
+tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,90,.08),var(--bg3));}
 .fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;padding:10px 12px 4px;}
 .fi{display:flex;flex-direction:column;gap:3px;}
 .fi label{font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
@@ -968,7 +971,7 @@ function renderMain(){
   document.getElementById('totBadge').textContent=fmt(tAllNet);
   const card=document.getElementById('ypCard');
   document.getElementById('ypVal').textContent=(yp>=0?'+':'')+fmt(yp);document.getElementById('ypVal').style.color=yp>=0?'var(--green)':'var(--red)';
-  card.style.background=yp>=0?'rgba(76,175,125,.07)':'rgba(224,85,85,.07)';card.style.borderColor=yp>=0?'rgba(76,175,125,.4)':'rgba(224,85,85,.4)';
+  card.style.background=yp>=0?'linear-gradient(135deg,rgba(61,220,151,.20),rgba(76,175,125,.04) 55%)':'linear-gradient(135deg,rgba(255,93,108,.20),rgba(224,85,85,.04) 55%)';card.style.borderColor=yp>=0?'rgba(61,220,151,.55)':'rgba(255,93,108,.55)';card.style.boxShadow=yp>=0?'0 8px 32px rgba(61,220,151,.12)':'0 8px 32px rgba(255,93,108,.12)';
   document.getElementById('ypMonthLabel').textContent=CM.replace('_',' ');document.getElementById('ypMonthLabel').style.color=yp>=0?'var(--green)':'var(--red)';
   let ypIcon,ypGrade,ypGradeColor;
   if(yp>10000){ypIcon='🟢';ypGrade='ΕΞΑΙΡΕΤΙΚΟΣ';ypGradeColor='var(--green)';}else if(yp>0){ypIcon='💚';ypGrade='ΘΕΤΙΚΟΣ';ypGradeColor='var(--green)';}else if(yp>-5000){ypIcon='🟡';ypGrade='ΠΡΟΣΟΧΗ';ypGradeColor='var(--yellow)';}else if(yp>-15000){ypIcon='🔴';ypGrade='ΔΥΣΚΟΛΟΣ';ypGradeColor='var(--red)';}else{ypIcon='🚨';ypGrade='ΚΡΙΣΙΜΟΣ';ypGradeColor='var(--red)';}
