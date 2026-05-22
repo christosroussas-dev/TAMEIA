@@ -288,14 +288,33 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 }
 
 /* ===================== v6 DASHBOARD ===================== */
-.dash-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:16px;}
+/* HERO — ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ (το πιο σημαντικό) */
+.yp-hero{display:flex;align-items:center;justify-content:space-between;gap:24px;border-radius:18px;padding:22px 32px;margin-bottom:16px;border:1px solid;position:relative;overflow:hidden;box-shadow:var(--shadow);}
+.yp-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.05),transparent 45%);pointer-events:none;}
+.yp-hero.pos{background:linear-gradient(135deg,rgba(61,220,151,.22),rgba(76,175,125,.03) 60%);border-color:rgba(61,220,151,.5);}
+.yp-hero.neg{background:linear-gradient(135deg,rgba(255,93,108,.22),rgba(224,85,85,.03) 60%);border-color:rgba(255,93,108,.5);}
+.yp-hero.crit{animation:critGlow 2.4s var(--ease) infinite;}
+.yph-main{min-width:0;}
+.yph-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+.yph-val{font-family:var(--mono);font-size:clamp(40px,5.5vw,58px);font-weight:700;letter-spacing:-.02em;margin:4px 0;line-height:1;text-shadow:0 2px 24px currentColor;}
+.yp-hero.pos .yph-val{color:var(--green-2);}
+.yp-hero.neg .yph-val{color:var(--red-2);}
+.yph-sub{font-size:11px;color:var(--muted);}
+.yph-side{text-align:center;flex-shrink:0;}
+.yph-icon{font-size:48px;line-height:1;}
+.yph-grade{font-size:13px;font-weight:700;letter-spacing:.06em;margin-top:4px;}
+.yp-hero.pos .yph-grade{color:var(--green-2);}
+.yp-hero.neg .yph-grade{color:var(--red-2);}
+.yph-month{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);margin-top:6px;opacity:.85;}
+@media(max-width:640px){.yp-hero{flex-direction:column-reverse;text-align:center;gap:12px;padding:20px;}}
+.dash-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:14px;margin-bottom:16px;}
 .dk{background:linear-gradient(158deg,#13203a,#0e1828);border:1px solid var(--border2);border-radius:var(--radius);padding:16px 17px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .18s var(--ease),box-shadow .2s,border-color .2s;}
 .dk:hover{transform:translateY(-3px);box-shadow:var(--shadow);}
 .dk::after{content:'';position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;background:var(--dkc,var(--accent));opacity:.10;filter:blur(6px);}
 .dk-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
 .dk-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;background:color-mix(in srgb,var(--dkc,var(--accent)) 18%,transparent);border:1px solid color-mix(in srgb,var(--dkc,var(--accent)) 35%,transparent);}
 .dk-l{font-size:10px;font-weight:700;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;line-height:1.2;}
-.dk-v{font-family:var(--mono);font-size:25px;font-weight:700;letter-spacing:-.02em;color:#fff;}
+.dk-v{font-family:var(--mono);font-size:27px;font-weight:700;letter-spacing:-.02em;color:#fff;}
 .dk-v.neg{color:var(--red);}
 .dk-s{font-size:10px;color:var(--muted);margin-top:3px;}
 .dk-green{--dkc:var(--green-2);}.dk-blue{--dkc:var(--blue);}.dk-purple{--dkc:var(--purple);}.dk-orange{--dkc:var(--orange);}.dk-red{--dkc:var(--red-2);}.dk-accent{--dkc:var(--accent);}
@@ -450,7 +469,6 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
         </div>
       </div>
     </header>
-    <div id="alertsBar"><div class="alert-inner" id="alertsInner"></div></div>
 
 <main class="content">
 
@@ -1230,16 +1248,34 @@ function tbadge(d){if(d===null||d===undefined)return '';return d>=0?`<span class
 function renderDashboard(){
   const host=document.getElementById('tab-dashboard');if(!host)return;
   const m=dashMetrics();const k=ek();const mn=k.split('_')[0],yr=k.split('_')[1];
-  // ---- KPI CARDS ----
+  // ---- HERO: ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ (το πιο σημαντικό) ----
+  const yp=m.yp;let ypIcon,ypGrade;
+  if(yp>10000){ypIcon='🟢';ypGrade='ΕΞΑΙΡΕΤΙΚΟΣ';}
+  else if(yp>0){ypIcon='💚';ypGrade='ΘΕΤΙΚΟΣ';}
+  else if(yp>-5000){ypIcon='🟡';ypGrade='ΠΡΟΣΟΧΗ';}
+  else if(yp>-15000){ypIcon='🔴';ypGrade='ΔΥΣΚΟΛΟΣ';}
+  else{ypIcon='🚨';ypGrade='ΚΡΙΣΙΜΟΣ';}
+  const heroHtml=`<div class="yp-hero ${yp>=0?'pos':'neg'}${yp<=-15000?' crit':''}">
+    <div class="yph-main">
+      <div class="yph-label">🪙 ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ — ΛΙΟΣΙΑ</div>
+      <div class="yph-val">${(yp>=0?'+':'−')+fmt(Math.abs(yp))}</div>
+      <div class="yph-sub">Εισπράξεις + Εμβάσματα − Πληρωμές ΛΙΟΣΙΑ − Επιταγές</div>
+    </div>
+    <div class="yph-side">
+      <div class="yph-icon">${ypIcon}</div>
+      <div class="yph-grade">${ypGrade}</div>
+      <div class="yph-month">${CM.replace('_',' ')}</div>
+    </div>
+  </div>`;
+  // ---- KPI CARDS (5) ----
   const kpis=[
     {c:'green', ic:'💶', l:'Σύνολο Εισπράξεων', v:m.tAll, s:`${m.wd} εργάσιμες`, tr:m.dPrevYear},
     {c:'blue',  ic:'💵', l:'Μετρητά', v:m.tMet, s:'εισπράξεις μετρητών'},
     {c:'purple',ic:'💳', l:'POS (−1,3%)', v:m.tPos, s:`−${fmt(m.kratiseis)} κρατήσεις`},
     {c:'orange',ic:'🏦', l:'Εμβάσματα', v:m.pEisp, s:'εισπράξεις εμβάσματος'},
     {c:'red',   ic:'📤', l:'Πληρωμές ΛΙΟΣΙΑ', v:m.allP, s:'σύνολο μήνα'},
-    {c:'accent',ic:'🪙', l:'Υπόλοιπο για Μάζεμα', v:m.yp, s:m.yp>=0?'θετικό ✓':'αρνητικό — προσοχή', big:true},
   ];
-  const kpiHtml=kpis.map(x=>`<div class="dk dk-${x.c}${x.big?' dk-big':''}">
+  const kpiHtml=kpis.map(x=>`<div class="dk dk-${x.c}">
     <div class="dk-top"><div class="dk-ico">${x.ic}</div><div class="dk-l">${x.l}</div>${x.tr!=null?tbadge(x.tr):''}</div>
     <div class="dk-v ${x.v<0?'neg':''}">${(x.v<0?'−':'')+fmt(Math.abs(x.v))}</div>
     <div class="dk-s">${x.s}</div></div>`).join('');
@@ -1283,6 +1319,7 @@ function renderDashboard(){
   const now=new Date();const hh=String(now.getHours()).padStart(2,'0'),mm=String(now.getMinutes()).padStart(2,'0');
 
   host.innerHTML=`
+    ${heroHtml}
     <div class="dash-kpis">${kpiHtml}</div>
 
     <div class="dash-row r3">
@@ -2054,11 +2091,13 @@ function buildAlerts(){
 }
 function runRules(){
   const alerts=buildAlerts();
-  // ── alertsBar (πάνω) ──
   const imp=alerts.filter(a=>a.level==='red'||a.level==='yellow');
-  const bar=document.getElementById('alertsBar');
-  if(imp.length>0){bar.classList.add('has-alerts');document.getElementById('alertsInner').innerHTML=imp.map(a=>`<div class="alert-item ${a.level}"><span class="alert-icon">${a.icon}</span><span class="alert-msg"><strong>${a.name}:</strong> ${a.msg}</span><span class="alert-val">${a.val||''}</span></div>`).join('');}else{bar.classList.remove('has-alerts');}
-  document.getElementById('alertsTab').innerHTML='🔔 ΕΙΔΟΠΟΙΗΣΕΙΣ'+(imp.length?`<span class="tab-badge">${imp.length}</span>`:'');
+  // ── Καμπανάκι topbar (badge) ──
+  const bell=document.getElementById('bellInd');
+  if(bell){if(imp.length){bell.textContent=imp.length;bell.style.display='flex';}else{bell.style.display='none';}}
+  // ── Sidebar badge (διατηρώντας τη δομή nav-item) ──
+  const aTab=document.getElementById('alertsTab');
+  if(aTab)aTab.innerHTML='<span class="nico">🔔</span>ΕΙΔΟΠΟΙΗΣΕΙΣ'+(imp.length?`<span class="nav-badge">${imp.length}</span>`:'');
   // ── Control Center (καρτέλα) ──
   const nRed=alerts.filter(a=>a.level==='red').length,nYel=alerts.filter(a=>a.level==='yellow').length,nOk=alerts.filter(a=>a.level==='green').length;
   const order={red:0,yellow:1,blue:2,green:3};
