@@ -41,9 +41,10 @@ body{
 .alert-item.green{background:rgba(76,175,125,.10);border:1px solid rgba(76,175,125,.3);color:#6fdd9a;}
 .alert-item.blue{background:rgba(85,153,221,.10);border:1px solid rgba(85,153,221,.3);color:#88bbee;}
 .alert-icon{font-size:15px;flex-shrink:0;}.alert-msg{flex:1;}.alert-val{font-family:var(--mono);font-weight:600;margin-left:auto;white-space:nowrap;}
-.header{background:rgba(17,23,38,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--glass-border);padding:0 16px;height:54px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);}
-.logo{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.08em;transition:opacity .15s var(--ease);}
-.logo:hover{opacity:.7;}
+.header{background:rgba(14,19,32,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(212,175,90,.22);padding:0 16px;height:54px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 18px rgba(0,0,0,.5);}
+.header::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.5;}
+.logo{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.08em;transition:opacity .15s var(--ease);background:linear-gradient(135deg,#f0d68a,var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.logo:hover{opacity:.75;}
 .mbadge{font-family:var(--mono);font-size:11px;color:var(--muted);padding:3px 8px;border:1px solid var(--border2);border-radius:4px;}
 .hr{display:flex;align-items:center;gap:6px;margin-left:auto;}
 .hr select{background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:4px 8px;border-radius:4px;font-size:11px;font-family:var(--sans);}
@@ -65,7 +66,9 @@ body{
 .yp-card{border-radius:var(--radius);padding:20px 26px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;border:1px solid;position:relative;overflow:hidden;box-shadow:var(--shadow);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:transform .2s var(--ease),box-shadow .2s var(--ease);}
 .yp-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.04),transparent 45%);pointer-events:none;}
 .yp-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);}
-.yp-val{font-family:var(--mono);font-size:40px;font-weight:700;margin:4px 0;letter-spacing:-.02em;}
+.yp-card.crit{animation:critGlow 2.4s var(--ease) infinite;}
+@keyframes critGlow{0%,100%{box-shadow:0 8px 32px rgba(255,93,108,.10);}50%{box-shadow:0 8px 40px rgba(255,93,108,.32);}}
+.yp-val{font-family:var(--mono);font-size:42px;font-weight:700;margin:4px 0;letter-spacing:-.02em;text-shadow:0 2px 20px currentColor;}
 .yp-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
 .yp-sub{font-size:10px;color:var(--muted);}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
@@ -132,7 +135,8 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 
 /* === ΣΥΓΚΡΙΣΗ ΜΗΝΑ vs ΠΕΡΣΙ === */
 .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
-.comp-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;}
+.comp-card{background:linear-gradient(158deg,#1b2438,#141b2b);border:1px solid var(--border2);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-sm);transition:transform .18s var(--ease),box-shadow .2s;}
+.comp-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
 .comp-year-label{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
 .comp-val{font-family:var(--mono);font-size:22px;font-weight:700;}
 .comp-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;}
@@ -144,19 +148,21 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 
 /* === CASH FLOW TRACKER === */
 .cf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px;}
-.cf-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:13px 15px;position:relative;}
-.cf-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:8px 8px 0 0;}
-.cf-card.pos::before{background:var(--green);}
-.cf-card.neg::before{background:var(--red);}
-.cf-card.warn::before{background:var(--yellow);}
-.cf-card.info::before{background:var(--blue);}
+.cf-card{background:linear-gradient(158deg,#1b2438,#141b2b);border:1px solid var(--border2);border-radius:var(--radius);padding:14px 16px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .18s var(--ease),box-shadow .2s;}
+.cf-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+.cf-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0;}
+.cf-card.pos::before{background:var(--green);box-shadow:0 0 12px var(--green);}
+.cf-card.neg::before{background:var(--red);box-shadow:0 0 12px var(--red);}
+.cf-card.warn::before{background:var(--yellow);box-shadow:0 0 12px var(--yellow);}
+.cf-card.info::before{background:var(--blue);box-shadow:0 0 12px var(--blue);}
 .cf-label{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
 .cf-val{font-family:var(--mono);font-size:20px;font-weight:700;}
 .cf-sub{font-size:10px;color:var(--muted);margin-top:3px;}
 .cf-bar-wrap{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:8px;}
 .cf-bar{height:100%;border-radius:3px;transition:width .6s;}
 .scenario-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
-.sc-card{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:10px 12px;text-align:center;}
+.sc-card{background:linear-gradient(158deg,#1b2438,#141b2b);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px;text-align:center;box-shadow:var(--shadow-sm);transition:transform .18s var(--ease),box-shadow .2s;}
+.sc-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
 .sc-label{font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
 .sc-val{font-family:var(--mono);font-size:16px;font-weight:700;}
 .sc-card.weak .sc-val{color:var(--red);}
@@ -203,6 +209,28 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 #dirtyBadge.show{display:inline-flex;animation:panelIn .3s var(--ease);}
 #dirtyBadge .dot{width:6px;height:6px;border-radius:50%;background:var(--yellow);box-shadow:0 0 6px var(--yellow);}
 @media(max-width:640px){.kpis{grid-template-columns:1fr 1fr;}.cal-grid{grid-template-columns:repeat(4,1fr);}.comp-grid{grid-template-columns:1fr;}.ep-cal-12{grid-template-columns:repeat(4,1fr);}.scenario-grid{grid-template-columns:1fr;}}
+
+/* === CONTROL CENTER (ΕΙΔΟΠΟΙΗΣΕΙΣ) === */
+.cc-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.cc-stat{background:linear-gradient(158deg,#1b2438,#141b2b);border:1px solid var(--border2);border-radius:var(--radius);padding:14px;text-align:center;position:relative;overflow:hidden;opacity:.55;transition:opacity .2s,transform .18s var(--ease),box-shadow .2s;}
+.cc-stat.on{opacity:1;}
+.cc-stat.on:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+.cc-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c);box-shadow:0 0 12px var(--c);}
+.cc-stat .cc-n{font-family:var(--mono);font-size:30px;font-weight:700;color:var(--c);line-height:1;}
+.cc-stat .cc-l{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px;}
+.cc-list{display:flex;flex-direction:column;gap:9px;}
+.cc-card{display:flex;align-items:flex-start;gap:13px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--c);border-radius:var(--radius);padding:13px 16px;box-shadow:var(--shadow-sm);transition:transform .15s var(--ease),box-shadow .2s,border-color .2s;}
+.cc-card:hover{transform:translateX(3px);box-shadow:var(--shadow);}
+.cc-ico{font-size:22px;flex-shrink:0;line-height:1.1;}
+.cc-body{flex:1;min-width:0;}
+.cc-top{display:flex;align-items:center;gap:9px;margin-bottom:3px;flex-wrap:wrap;}
+.cc-name{font-size:12px;font-weight:700;color:var(--text);}
+.cc-tag{font-size:8px;font-weight:700;letter-spacing:.07em;padding:1px 7px;border-radius:20px;border:1px solid;}
+.cc-msg{font-size:11.5px;color:var(--muted);line-height:1.45;}
+.cc-action{font-size:11px;color:var(--text);margin-top:7px;padding:7px 10px;background:rgba(212,175,90,.08);border:1px solid rgba(212,175,90,.2);border-radius:var(--radius-sm);display:flex;gap:6px;align-items:flex-start;}
+.cc-action span{color:#e8d9b0;}
+.cc-val{font-family:var(--mono);font-size:15px;font-weight:700;flex-shrink:0;align-self:center;}
+@media(max-width:640px){.cc-summary{grid-template-columns:1fr 1fr 1fr;}.cc-val{font-size:13px;}}
 
 /* LOGIN */
 #loginScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg);background-image:radial-gradient(900px 500px at 50% -10%,rgba(212,175,90,.10),transparent 60%);z-index:99999;display:flex;align-items:center;justify-content:center;}
@@ -976,6 +1004,7 @@ function renderMain(){
   let ypIcon,ypGrade,ypGradeColor;
   if(yp>10000){ypIcon='🟢';ypGrade='ΕΞΑΙΡΕΤΙΚΟΣ';ypGradeColor='var(--green)';}else if(yp>0){ypIcon='💚';ypGrade='ΘΕΤΙΚΟΣ';ypGradeColor='var(--green)';}else if(yp>-5000){ypIcon='🟡';ypGrade='ΠΡΟΣΟΧΗ';ypGradeColor='var(--yellow)';}else if(yp>-15000){ypIcon='🔴';ypGrade='ΔΥΣΚΟΛΟΣ';ypGradeColor='var(--red)';}else{ypIcon='🚨';ypGrade='ΚΡΙΣΙΜΟΣ';ypGradeColor='var(--red)';}
   document.getElementById('ypIcon').textContent=ypIcon;document.getElementById('ypGrade').textContent=ypGrade;document.getElementById('ypGrade').style.color=ypGradeColor;
+  if(yp<=-15000)card.classList.add('crit');else card.classList.remove('crit'); // pulse μόνο σε κρίσιμη κατάσταση
   const pMet=(D.metrita[k]||[]).reduce((s,r)=>s+r.poso,0),pBnk=(D.bank[k]||[]).reduce((s,r)=>s+r.poso,0);
   const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(r.liosia||0),0),pTel=(D.telos[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
   const pEisp=(D.trapEisp[k]||[]).reduce((s,r)=>s+r.poso,0);
@@ -1610,26 +1639,59 @@ function renderStats(){
 
 // ΚΑΝΟΝΕΣ
 function runRules(){
-  const k=ek(),{mi}=gmi(k);const rows=D.days[k]||[];
+  const k=ek(),{mi,y,days:dim}=gmi(k);const rows=D.days[k]||[];
   const wd=rows.filter(r=>r.dayName!=='ΚΥΡΙΑΚΗ'&&(r.metrita+r.pos)>0).length;
   const tAll=rows.reduce((s,r)=>s+(r.metrita||0)+(r.pos||0),0);
   const totalPOS=(D.days[k]||[]).reduce((s,r)=>s+(r.pos||0),0);const kratiseis=Math.round(totalPOS*0.013*100)/100;const tAllNet=tAll-kratiseis;
   const avg=wd?tAllNet/wd:0,yp=calcYP(),t=TGT[mi+1]||{ok:1700,warn:1445,danger:1190};
+  let twd=0;for(let d=1;d<=dim;d++){if(dn(y,mi,d)!=='ΚΥΡΙΑΚΗ')twd++;}
   const today=new Date().toISOString().slice(0,10),in10=new Date();in10.setDate(in10.getDate()+10);const in30=new Date();in30.setDate(in30.getDate()+30);
   const ep10=(D.epitages||[]).filter(e=>e.date&&e.date>=today&&new Date(e.date)<=in10&&e.liosia>0).reduce((s,e)=>s+(e.liosia||0),0);
   const ep30=(D.epitages||[]).filter(e=>e.date&&e.date>=today&&new Date(e.date)<=in30&&e.liosia>0).reduce((s,e)=>s+(e.liosia||0),0);
+  // Διαφορά ERP — εντοπισμός ημερών με απόκλιση report
+  let erpSum=0,erpMax=0,erpMaxDay=0;
+  rows.forEach(r=>{if(r.dayName!=='ΚΥΡΙΑΚΗ'&&r.report!=null&&(r.metrita+r.pos)>0){const d=Math.abs((r.metrita+r.pos)-r.report);erpSum+=d;if(d>erpMax){erpMax=d;erpMaxDay=r.day;}}});
   const alerts=[];
-  if(wd>=3){if(avg<t.danger)alerts.push({level:'red',icon:'📊',name:'Μέσος Όρος/Μέρα',msg:`${fmt(avg)}/μέρα — ΚΑΤΩ από ελάχιστο (${fmt(t.danger)})`,val:fmt(avg)});else if(avg<t.warn)alerts.push({level:'yellow',icon:'📊',name:'Μέσος Όρος/Μέρα',msg:`${fmt(avg)}/μέρα — χαμηλότερα από κανονικό (${fmt(t.ok)})`,val:fmt(avg)});else alerts.push({level:'green',icon:'📊',name:'Μέσος Όρος/Μέρα',msg:`${fmt(avg)}/μέρα — εντός στόχου ✓`,val:fmt(avg)});}
-  if(wd>=5){if(yp<-5000)alerts.push({level:'red',icon:'💰',name:'Υπόλοιπο για Μάζεμα',msg:`${fmt(yp)} — αρνητικό >5.000€! Ανάγκη ρευστότητας`,val:fmt(yp)});else if(yp<0)alerts.push({level:'yellow',icon:'💰',name:'Υπόλοιπο για Μάζεμα',msg:`${fmt(yp)} — αρνητικό`,val:fmt(yp)});else alerts.push({level:'green',icon:'💰',name:'Υπόλοιπο για Μάζεμα',msg:`${fmt(yp)} — θετικό ✓`,val:fmt(yp)});}
-  if(ep10>15000)alerts.push({level:'red',icon:'📋',name:'Επιταγές 10 Ημερών',msg:`${fmt(ep10)} λήγουν σε 10 μέρες — ΜΕΓΑΛΗ πληρωμή!`,val:fmt(ep10)});
-  else if(ep10>3000)alerts.push({level:'yellow',icon:'📋',name:'Επιταγές 10 Ημερών',msg:`${fmt(ep10)} λήγουν σε 10 μέρες`,val:fmt(ep10)});
+  if(wd>=3){if(avg<t.danger)alerts.push({level:'red',icon:'📊',name:'Μέσος Όρος/Μέρα',msg:`${fmt(avg)}/μέρα — ΚΑΤΩ από το ελάχιστο (${fmt(t.danger)})`,val:fmt(avg),action:'Εστίασε σε πωλήσεις/προσφορές τις επόμενες μέρες για να ανέβει ο μέσος όρος.'});else if(avg<t.warn)alerts.push({level:'yellow',icon:'📊',name:'Μέσος Όρος/Μέρα',msg:`${fmt(avg)}/μέρα — χαμηλότερα από το κανονικό (${fmt(t.ok)})`,val:fmt(avg),action:'Παρακολούθησε αν θα ανακάμψει — ο στόχος είναι '+fmt(t.ok)+'/μέρα.'});else alerts.push({level:'green',icon:'📊',name:'Μέσος Όρος/Μέρα',msg:`${fmt(avg)}/μέρα — εντός στόχου ✓`,val:fmt(avg)});}
+  if(wd>=5){if(yp<-5000)alerts.push({level:'red',icon:'💰',name:'Υπόλοιπο για Μάζεμα',msg:`${fmt(yp)} — αρνητικό πάνω από 5.000€! Κίνδυνος ρευστότητας.`,val:fmt(yp),action:'Μετάθεσε μη-επείγουσες πληρωμές ή φρόντισε για κατάθεση/έμβασμα κάλυψης.'});else if(yp<0)alerts.push({level:'yellow',icon:'💰',name:'Υπόλοιπο για Μάζεμα',msg:`${fmt(yp)} — αρνητικό`,val:fmt(yp),action:'Έλεγξε ποιες πληρωμές ΛΙΟΣΙΑ μπορούν να περιμένουν.'});else alerts.push({level:'green',icon:'💰',name:'Υπόλοιπο για Μάζεμα',msg:`${fmt(yp)} — θετικό ✓`,val:fmt(yp)});}
+  // Στόχος μήνα σε κίνδυνο (projection βάσει τρέχοντος ρυθμού)
+  if(wd>=4){const proj=avg*twd;const tgtMonth=t.ok*twd;const pct=tgtMonth>0?proj/tgtMonth*100:0;
+    if(pct<70)alerts.push({level:'red',icon:'🎯',name:'Στόχος Μήνα',msg:`Με τον τρέχοντα ρυθμό ο μήνας κλείνει στο ${pct.toFixed(0)}% του στόχου (~${fmt(proj)} / ${fmt(tgtMonth)})`,val:pct.toFixed(0)+'%',action:'Χρειάζονται δυνατές μέρες για να καλυφθεί η απόκλιση από τον στόχο.'});
+    else if(pct<88)alerts.push({level:'yellow',icon:'🎯',name:'Στόχος Μήνα',msg:`Πρόβλεψη ${pct.toFixed(0)}% του μηνιαίου στόχου (~${fmt(proj)})`,val:pct.toFixed(0)+'%',action:'Λίγο πίσω από τον στόχο — διατήρησε τον ρυθμό.'});
+    else alerts.push({level:'green',icon:'🎯',name:'Στόχος Μήνα',msg:`Πρόβλεψη ${pct.toFixed(0)}% του στόχου — σε καλό δρόμο ✓`,val:pct.toFixed(0)+'%'});}
+  // Διαφορά ERP
+  if(erpMax>20)alerts.push({level:'yellow',icon:'⚖️',name:'Διαφορά με ERP',msg:`Η ${erpMaxDay}η έχει απόκλιση ${fmt(erpMax)} μεταξύ ταμείου & Report (σύνολο μήνα ${fmt(erpSum)})`,val:fmt(erpMax),action:`Έλεγξε ξανά τις καταχωρήσεις της ${erpMaxDay}ης ημέρας.`});
+  else if(erpSum>0)alerts.push({level:'green',icon:'⚖️',name:'Διαφορά με ERP',msg:`Συμφωνία ταμείου & ERP — μέγιστη απόκλιση ${fmt(erpMax)} ✓`,val:fmt(erpSum)});
+  if(ep10>15000)alerts.push({level:'red',icon:'📋',name:'Επιταγές 10 Ημερών',msg:`${fmt(ep10)} λήγουν σε 10 μέρες — ΜΕΓΑΛΗ πληρωμή!`,val:fmt(ep10),action:'Βεβαιώσου ότι θα υπάρχει επαρκής ρευστότητα στον λογαριασμό.'});
+  else if(ep10>3000)alerts.push({level:'yellow',icon:'📋',name:'Επιταγές 10 Ημερών',msg:`${fmt(ep10)} λήγουν σε 10 μέρες`,val:fmt(ep10),action:'Προγραμμάτισε την κάλυψη των επιταγών.'});
   else if(ep10>0)alerts.push({level:'blue',icon:'📋',name:'Επιταγές 10 Ημερών',msg:`${fmt(ep10)} λήγουν σε 10 μέρες`,val:fmt(ep10)});
-  if(ep30>20000)alerts.push({level:'yellow',icon:'📅',name:'Επιταγές 30 Ημερών',msg:`${fmt(ep30)} τις επόμενες 30 μέρες`,val:fmt(ep30)});
+  if(ep30>20000)alerts.push({level:'yellow',icon:'📅',name:'Επιταγές 30 Ημερών',msg:`${fmt(ep30)} τις επόμενες 30 μέρες`,val:fmt(ep30),action:'Σχεδίασε το cash flow του μήνα με βάση αυτές τις λήξεις.'});
+  // ── alertsBar (πάνω) ──
   const imp=alerts.filter(a=>a.level==='red'||a.level==='yellow');
   const bar=document.getElementById('alertsBar');
   if(imp.length>0){bar.classList.add('has-alerts');document.getElementById('alertsInner').innerHTML=imp.map(a=>`<div class="alert-item ${a.level}"><span class="alert-icon">${a.icon}</span><span class="alert-msg"><strong>${a.name}:</strong> ${a.msg}</span><span class="alert-val">${a.val||''}</span></div>`).join('');}else{bar.classList.remove('has-alerts');}
   document.getElementById('alertsTab').innerHTML='🔔 ΕΙΔΟΠΟΙΗΣΕΙΣ'+(imp.length?`<span class="tab-badge">${imp.length}</span>`:'');
-  document.getElementById('rulesPanel').innerHTML=alerts.map(a=>`<div class="tw" style="margin-bottom:7px;"><div style="padding:9px 13px;display:flex;align-items:center;gap:10px;"><span style="font-size:16px">${a.icon}</span><div style="flex:1;"><div style="font-size:11px;font-weight:600;margin-bottom:1px;">${a.name}</div><div style="font-size:11px;color:var(--muted)">${a.msg}</div></div><span class="sl ${a.level==='green'?'ok':a.level==='red'?'danger':'warn'}"></span></div></div>`).join('');
+  // ── Control Center (καρτέλα) ──
+  const nRed=alerts.filter(a=>a.level==='red').length,nYel=alerts.filter(a=>a.level==='yellow').length,nOk=alerts.filter(a=>a.level==='green').length;
+  const order={red:0,yellow:1,blue:2,green:3};
+  const sorted=[...alerts].sort((a,b)=>order[a.level]-order[b.level]);
+  const lc={red:'var(--red)',yellow:'var(--yellow)',blue:'var(--blue)',green:'var(--green)'};
+  const ln={red:'ΚΡΙΣΙΜΟ',yellow:'ΠΡΟΣΟΧΗ',blue:'ΠΛΗΡΟΦΟΡΙΑ',green:'ΟΚ'};
+  const head=`<div class="cc-summary">
+    <div class="cc-stat ${nRed?'on':''}" style="--c:var(--red)"><div class="cc-n">${nRed}</div><div class="cc-l">Κρίσιμα</div></div>
+    <div class="cc-stat ${nYel?'on':''}" style="--c:var(--yellow)"><div class="cc-n">${nYel}</div><div class="cc-l">Προσοχή</div></div>
+    <div class="cc-stat ${nOk?'on':''}" style="--c:var(--green)"><div class="cc-n">${nOk}</div><div class="cc-l">Εντάξει</div></div>
+  </div>`;
+  const cards=sorted.map(a=>`<div class="cc-card" style="--c:${lc[a.level]}">
+    <div class="cc-ico">${a.icon}</div>
+    <div class="cc-body">
+      <div class="cc-top"><span class="cc-name">${a.name}</span><span class="cc-tag" style="color:${lc[a.level]};border-color:${lc[a.level]}">${ln[a.level]}</span></div>
+      <div class="cc-msg">${a.msg}</div>
+      ${a.action?`<div class="cc-action">💡 <span>${a.action}</span></div>`:''}
+    </div>
+    ${a.val?`<div class="cc-val" style="color:${lc[a.level]}">${a.val}</div>`:''}
+  </div>`).join('');
+  document.getElementById('rulesPanel').innerHTML=head+'<div class="cc-list">'+cards+'</div>';
 }
 
 // EXPORT EXCEL — ακριβώς ίδιο οπτικά με το ΤΑΜΕΙΟ_[ΜΗΝΑΣ].xlsx
@@ -1653,6 +1715,8 @@ function exportCSV(){
   }
   function cn(v,bold,sz,color,bg,ha){return cs(v,bold,sz,color,bg,ha,'#,##0.00');}
   function ce(){return {v:'',t:'s',s:{}};}
+  // Μετατροπή ISO ημερομηνίας (2026-04-15) → ΗΗ/ΜΜ/ΕΕΕΕ για ευανάγνωστο Excel
+  function fdate(s){if(!s)return '';const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(s));return m?`${m[3]}/${m[2]}/${m[1]}`:String(s);}
 
   // Υπολογισμοί
   const tMet=rows.reduce((s,r)=>s+(r.metrita||0),0);
@@ -1762,7 +1826,7 @@ function exportCSV(){
   const maxR2=Math.max(tPl.length,tEi.length,1);
   for(let i=0;i<maxR2;i++){
     const p=tPl[i]||{},e=tEi[i]||{};
-    ws2data.push([cs(p.date||'',false,10),cs(p.prom||'',false,10),p.poso!=null?cn(p.poso,false,10):ce(),cs(e.date||'',false,10),cs(e.pelatis||'',false,10),e.poso!=null?cn(e.poso,false,10):ce()]);
+    ws2data.push([cs(fdate(p.date),false,10),cs(p.prom||'',false,10),p.poso!=null?cn(p.poso,false,10):ce(),cs(fdate(e.date),false,10),cs(e.pelatis||'',false,10),e.poso!=null?cn(e.poso,false,10):ce()]);
   }
   const totPl=tPl.reduce((s,r)=>s+(r.poso||0),0);
   ws2data.push([ce(),cs('σύνολα πληρωμών :',true,10),cn(totPl,true,10),ce(),cs('ΣΥΝΟΛΟ',true,10),cn(tEisp,true,10)]);
@@ -1774,7 +1838,7 @@ function exportCSV(){
   // ΦΥΛΛΟ 3: ΠΛΗΡΩΜΕΣ-ΜΕΤΡΗΤΑ
   // ═══════════════════════════════════════════════
   const ws3data=[[cs('ΗΜΕΡΟΜΗΝΙΑ',true,10,null,GREY,'center'),cs('ΠΛΗΡΩΜΕΣ ΜΕ ΜΕΤΡΗΤΑ  ',true,10,null,GREY,'center'),cs('ΠΟΣΟ',true,10,null,GREY,'center')]];
-  (D.metrita[k]||[]).forEach(r=>ws3data.push([cs(r.date||'',false,10),cs(r.ait||'',false,10),cn(r.poso,false,10)]));
+  (D.metrita[k]||[]).forEach(r=>ws3data.push([cs(fdate(r.date),false,10),cs(r.ait||'',false,10),cn(r.poso,false,10)]));
   ws3data.push([ce(),ce(),ce()]);
   ws3data.push([ce(),cs('                                      ΣΥΝΟΛΟ',true,10),cn(pMet,true,10)]);
   const ws3=XLSX.utils.aoa_to_sheet(ws3data);
@@ -1785,7 +1849,7 @@ function exportCSV(){
   // ΦΥΛΛΟ 4: ΠΛΗΡΩΜΕΣ-ΤΡΑΠΕΖΑ
   // ═══════════════════════════════════════════════
   const ws4data=[[cs('ΗΜΕΡΟΜΗΝΙΑ',true,10,null,GREY,'center'),cs('ΠΛΗΡΩΜΕΣ ΜΕΣΩ ΤΡΑΠΕΖΑΣ  ',true,10,null,GREY,'center'),cs('ΠΟΣΟ',true,10,null,GREY,'center')]];
-  (D.bank[k]||[]).forEach(r=>ws4data.push([cs(r.date||'',false,10),cs(r.ait||'',false,10),cn(r.poso,false,10)]));
+  (D.bank[k]||[]).forEach(r=>ws4data.push([cs(fdate(r.date),false,10),cs(r.ait||'',false,10),cn(r.poso,false,10)]));
   ws4data.push([ce(),ce(),ce()]);
   ws4data.push([ce(),cs('ΣΥΝΟΛΟ ΠΛΗΡΩΜΩΝ 15 ΤΟΥ ΜΗΝΑ ',true,10),cn(pD5,true,10)]);
   ws4data.push([ce(),cs('ΣΥΝΟΛΟ ΠΛΗΡΩΜΩΝ ΤΕΛΟΣ ΤΟΥ ΜΗΝΑ ',true,10),cn(pTel,true,10)]);
