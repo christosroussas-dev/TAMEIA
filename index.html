@@ -2152,9 +2152,18 @@ function xlBorders(ws,r1,c1,r2,c2,outer){
     ws[a].s.border={top:(outer&&R===r1)?med:thin,bottom:(outer&&R===r2)?med:thin,left:(outer&&C===c1)?med:thin,right:(outer&&C===c2)?med:thin};
   }
 }
-function exportCSV(){
+async function exportCSV(){
   if(typeof XLSX==='undefined'){toast('Φόρτωση βιβλιοθήκης...','info');setTimeout(exportCSV,1500);return;}
-  const k=ek();const{mi,y,days:dim}=gmi(k);const rows=D.days[k]||[];
+  const k=ek();
+  // ΑΣΦΑΛΕΙΑ: αν τα δεδομένα του μήνα δεν είναι στη μνήμη, φόρτωσέ τα ΠΡΙΝ την εξαγωγή
+  // (αλλιώς βγαίνει κενό Excel με μηδενικά)
+  if((D.days[k]||[]).length===0){
+    toast('Φόρτωση δεδομένων μήνα…','info');
+    await ensureEpitagesYear(k.split('_')[1]);
+    await loadFromSheets();
+    if((D.days[k]||[]).length===0){toast('⚠️ Ο μήνας δεν έχει δεδομένα — δεν εξάγεται κενό','err');return;}
+  }
+  const{mi,y,days:dim}=gmi(k);const rows=D.days[k]||[];
   const mn=k.split('_')[0];const yr=k.split('_')[1];
 
   // Helpers
