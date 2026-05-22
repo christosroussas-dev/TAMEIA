@@ -2230,14 +2230,14 @@ function exportCSV(){
     // Sidebar label logic (αντιστοιχεί σε row 6,10,17,24 του πρωτοτύπου)
     let sideVal=ce();
     dayRowCount++;
-    if(dayRowCount===2) sideVal=cs('ΣΥΝΟΛΙΚΟΣ ΜΕΣΟΣ ΟΡΟΣ ΕΙΣΠΡΑΞΕΩΝ',true,10,null,null,'center');
+    if(dayRowCount===2) sideVal=cs('ΣΥΝΟΛΙΚΟΣ ΜΕΣΟΣ ΟΡΟΣ ΕΙΣΠΡΑΞΕΩΝ',true,10,null,GREY,'center');
     else if(dayRowCount===3) sideVal=cn(avg,true,12,null,null,'center');
-    else if(dayRowCount===6) sideVal=cs('ΣΥΝΟΛΟ ΕΙΣΠΡΑΞ. + POS + ΚΑΤΑΘΕΣΕΙΣ',true,10,null,null,'center');
+    else if(dayRowCount===6) sideVal=cs('ΣΥΝΟΛΟ ΕΙΣΠΡΑΞ. + POS + ΚΑΤΑΘΕΣΕΙΣ',true,10,null,GREY,'center');
     else if(dayRowCount===7) sideVal=cn(tAllNet+tEisp,true,12,null,null,'center');
-    else if(dayRowCount===13) sideVal=cs('ΚΑΘΑΡΟ ΣΥΝΟΛΟ ΜΗΝΟΣ',true,10,null,null,'center');
+    else if(dayRowCount===13) sideVal=cs('ΚΑΘΑΡΟ ΣΥΝΟΛΟ ΜΗΝΟΣ',true,10,null,GREY,'center');
     else if(dayRowCount===14) sideVal=cn(yp,false,12,null,null,'center');
-    else if(dayRowCount===20) sideVal=cs('ΕΠΙΤΑΓΕΣ',false,10,null,null,'center');
-    else if(dayRowCount===21) sideVal=cn(pEpit,false,10,null,null,'center');
+    else if(dayRowCount===20) sideVal=cs('ΕΠΙΤΑΓΕΣ',true,10,null,GREY,'center');
+    else if(dayRowCount===21) sideVal=cn(pEpit,true,10,null,null,'center');
 
     ws1data.push([
       ce(),
@@ -2257,10 +2257,10 @@ function exportCSV(){
   ws1data.push([ce(),ce(),ce(),ce(),cn(tPos,false,10,RED),ce(),ce(),ce(),ce(),ce(),ce()]);
   // Κρατήσεις
   ws1data.push([ce(),ce(),cs('κρατησεις τραπεζας POS',false,9),cs(0.013,false,9,null,null,null),cn(kratiseis,false,9,RED),ce(),ce(),ce(),ce(),ce(),cs('YΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ',false,13,null,null,'center')]);
-  // Σύνολα
-  const ypColor=yp<0?RED:null;
-  const ypBg=yp<0?YELL:null;
-  ws1data.push([ce(),ce(),cn(tMet,false,10),cn(tPos,true,12,RED),cn(tAllNet,false,10),ce(),ce(),cn(allP,false,10),ce(),ce(),cn(yp,false,20,ypColor,ypBg,'center')]);
+  // Σύνολα — ΥΠΟΛΟΙΠΟ: κόκκινο φόντο (αρνητικό) / πράσινο (θετικό) όπως το γνήσιο, λευκό bold κείμενο
+  const ypColor='FFFFFFFF';
+  const ypBg=yp<0?RED:GREEN;
+  ws1data.push([ce(),ce(),cn(tMet,false,10),cn(tPos,true,12,RED),cn(tAllNet,false,10),ce(),ce(),cn(allP,false,10),ce(),ce(),cn(yp,true,20,ypColor,ypBg,'center')]);
   ws1data.push(Array(11).fill(ce()));
   ws1data.push(Array(11).fill(ce()));
   ws1data.push(Array(11).fill(ce()));
@@ -2274,6 +2274,12 @@ function exportCSV(){
   // borders: κύριος πίνακας (ΗΜΕΡΟΜ..τελικές) + REPORT/ΔΙΑΦΟΡΑ + σύνολα από κάτω
   xlBorders(ws1,3,1,4+dim,5,true);
   xlBorders(ws1,3,7,3+dim,8,true);
+  // side panel κουτιά (στήλη K): label+value ζευγάρια
+  xlBorders(ws1,5,10,6,10,true);    // ΣΥΝΟΛΙΚΟΣ ΜΕΣΟΣ ΟΡΟΣ
+  xlBorders(ws1,9,10,10,10,true);   // ΣΥΝΟΛΟ ΕΙΣΠΡΑΞ.+POS+ΚΑΤΑΘΕΣΕΙΣ
+  xlBorders(ws1,16,10,17,10,true);  // ΚΑΘΑΡΟ ΣΥΝΟΛΟ ΜΗΝΟΣ
+  xlBorders(ws1,23,10,24,10,true);  // ΕΠΙΤΑΓΕΣ
+  xlBorders(ws1,5+dim,10,6+dim,10,true);  // ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ
   XLSX.utils.book_append_sheet(wb,ws1,'ΟΙΚΟΝΟΜΙΚΗ ΑΝΑΛΥΣΗ ΜΗΝΟΣ');
 
   // ═══════════════════════════════════════════════
