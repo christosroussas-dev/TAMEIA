@@ -805,8 +805,8 @@ function showStatTab(id){
   if(id==='overview') renderStats();
   if(id==='analysis') renderAnalysis();
 }
-// Καρτέλες επιτρεπόμενες ανά ρόλο — ο ΕΡΓΑΖΟΜΕΝΟΣ βλέπει ΜΟΝΟ το ΤΑΜΕΙΟ
-const EMP_ALLOWED=['main'];
+// Καρτέλες επιτρεπόμενες ανά ρόλο — ο ΕΡΓΑΖΟΜΕΝΟΣ βλέπει ΤΑΜΕΙΟ + ΜΕΤΡΗΤΑ (για καταχώρηση)
+const EMP_ALLOWED=['main','metrita'];
 function isTabAllowed(id){return currentRole==='ADMIN'||EMP_ALLOWED.includes(id);}
 function showTab(id,el){
   // Έλεγχος ρόλου — αποτρέπει άνοιγμα κρυφών καρτελών (π.χ. μέσω αλλαγής CSS)
