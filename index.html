@@ -396,7 +396,8 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
   body{background-attachment:scroll;}
 }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- xlsx-js-style: fork του SheetJS που ΓΡΑΦΕΙ στυλ (bold/χρώματα/borders) στο .xlsx export -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 </head>
 <body>
 <div id="topProgress"></div>
@@ -2140,6 +2141,17 @@ function runRules(){
 }
 
 // EXPORT EXCEL — ακριβώς ίδιο οπτικά με το ΤΑΜΕΙΟ_[ΜΗΝΑΣ].xlsx
+// Βάζει borders σε ορθογώνιο range (0-indexed r/c). outer=true → medium περίγραμμα + thin εσωτερικά.
+function xlBorders(ws,r1,c1,r2,c2,outer){
+  const thin={style:'thin',color:{rgb:'FF8C8C8C'}};
+  const med={style:'medium',color:{rgb:'FF404040'}};
+  for(let R=r1;R<=r2;R++)for(let C=c1;C<=c2;C++){
+    const a=XLSX.utils.encode_cell({r:R,c:C});
+    if(!ws[a])ws[a]={t:'s',v:''};
+    if(!ws[a].s)ws[a].s={};
+    ws[a].s.border={top:(outer&&R===r1)?med:thin,bottom:(outer&&R===r2)?med:thin,left:(outer&&C===c1)?med:thin,right:(outer&&C===c2)?med:thin};
+  }
+}
 function exportCSV(){
   if(typeof XLSX==='undefined'){toast('Φόρτωση βιβλιοθήκης...','info');setTimeout(exportCSV,1500);return;}
   const k=ek();const{mi,y,days:dim}=gmi(k);const rows=D.days[k]||[];
@@ -2259,6 +2271,9 @@ function exportCSV(){
   const ws1=XLSX.utils.aoa_to_sheet(ws1data);
   ws1['!cols']=[{wch:8.86},{wch:9.71},{wch:20.86},{wch:12.29},{wch:14.14},{wch:13.86},{wch:3.86},{wch:13.29},{wch:12.71},{wch:11.29},{wch:39.86}];
   ws1['!rows']=[{hpt:13.5},{hpt:28.5},{hpt:11.25},{hpt:39},...Array(dim).fill({hpt:19.5}),{hpt:16.5},{hpt:16.5},{hpt:48.2}];
+  // borders: κύριος πίνακας (ΗΜΕΡΟΜ..τελικές) + REPORT/ΔΙΑΦΟΡΑ + σύνολα από κάτω
+  xlBorders(ws1,3,1,4+dim,5,true);
+  xlBorders(ws1,3,7,3+dim,8,true);
   XLSX.utils.book_append_sheet(wb,ws1,'ΟΙΚΟΝΟΜΙΚΗ ΑΝΑΛΥΣΗ ΜΗΝΟΣ');
 
   // ═══════════════════════════════════════════════
@@ -2277,6 +2292,7 @@ function exportCSV(){
   ws2data.push([ce(),cs('σύνολα πληρωμών :',true,10),cn(totPl,true,10),ce(),cs('ΣΥΝΟΛΟ',true,10),cn(tEisp,true,10)]);
   const ws2=XLSX.utils.aoa_to_sheet(ws2data);
   ws2['!cols']=[{wch:14},{wch:32},{wch:14},{wch:14},{wch:42},{wch:14}];
+  xlBorders(ws2,1,0,2+maxR2,5,true);
   XLSX.utils.book_append_sheet(wb,ws2,'ΤΡΑΠΕΖΙΚΕΣ ΚΙΝΗΣΕΙΣ ΜΗΝΟΣ');
 
   // ═══════════════════════════════════════════════
@@ -2288,6 +2304,7 @@ function exportCSV(){
   ws3data.push([ce(),cs('                                      ΣΥΝΟΛΟ',true,10),cn(pMet,true,10)]);
   const ws3=XLSX.utils.aoa_to_sheet(ws3data);
   ws3['!cols']=[{wch:16},{wch:42},{wch:14}];
+  xlBorders(ws3,0,0,(D.metrita[k]||[]).length,2,true);
   XLSX.utils.book_append_sheet(wb,ws3,'ΠΛΗΡΩΜΕΣ-ΜΕΤΡΗΤΑ');
 
   // ═══════════════════════════════════════════════
@@ -2302,6 +2319,7 @@ function exportCSV(){
   ws4data.push([ce(),cs('                               ΣΥΝΟΛΟ',true,10),cn(pBnk+pD5+pTel,true,10)]);
   const ws4=XLSX.utils.aoa_to_sheet(ws4data);
   ws4['!cols']=[{wch:16},{wch:42},{wch:14}];
+  xlBorders(ws4,0,0,(D.bank[k]||[]).length,2,true);
   XLSX.utils.book_append_sheet(wb,ws4,'ΠΛΗΡΩΜΕΣ-ΤΡΑΠΕΖΑ');
 
   // ═══════════════════════════════════════════════
@@ -2318,6 +2336,7 @@ function exportCSV(){
   ws5data.push([ce(),cs('ΣΥΝΟΛΑ :  ',true,10),ce(),ce(),cn(tot5syn,true,10),cn(pD5,true,10),cn(tot5lou,true,10)]);
   const ws5=XLSX.utils.aoa_to_sheet(ws5data);
   ws5['!cols']=[{wch:4},{wch:10},{wch:36},{wch:40},{wch:14},{wch:14},{wch:14}];
+  xlBorders(ws5,2,1,2+(D.d15[k]||[]).length,6,true);
   XLSX.utils.book_append_sheet(wb,ws5,'ΠΛΗΡΩΜΕΣ 15 ΤΟΥ ΜΗΝΑ');
 
   // ═══════════════════════════════════════════════
@@ -2334,6 +2353,7 @@ function exportCSV(){
   ws6data.push([ce(),ce(),ce(),cs('ΣΥΝΟΛΟ',true,10),cn(tot6syn,true,10),cn(pTel,true,10),cn(tot6lou,true,10)]);
   const ws6=XLSX.utils.aoa_to_sheet(ws6data);
   ws6['!cols']=[{wch:4},{wch:10},{wch:40},{wch:32},{wch:14},{wch:14},{wch:14}];
+  xlBorders(ws6,2,1,2+(D.telos[k]||[]).length,6,true);
   XLSX.utils.book_append_sheet(wb,ws6,'ΠΛΗΡΩΜΕΣ ΤΕΛΟΣ ΤΟΥ ΜΗΝΑ');
 
   // ΑΠΟΘΗΚΕΥΣΗ
