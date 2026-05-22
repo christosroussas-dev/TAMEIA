@@ -2167,7 +2167,7 @@ async function exportCSV(){
   const mn=k.split('_')[0];const yr=k.split('_')[1];
 
   // Helpers
-  const RED='FFFF0000', GREEN='FF92D050', GREY='FFD9D9D9', YELL='FFFFFF00';
+  const RED='FFFF0000', GREEN='FF92D050', GREY='FFD9D9D9', YELL='FFFFFF00', LGREEN='FFD8E4BC', LBLUE='FFB8CCE4';
   function cs(v,bold,sz,color,bg,ha,fmt){
     const c={v:v,t:typeof v==='number'?'n':'s'};
     const s={};
@@ -2209,8 +2209,8 @@ async function exportCSV(){
   const ws1data=[];
   // R1 κενή
   ws1data.push([ce(),ce(),ce(),ce(),ce(),ce(),ce(),ce(),ce(),ce(),ce()]);
-  // R2: τίτλος
-  ws1data.push([ce(),ce(),ce(),cs('   ',false,16),cs(mn+' '+yr,true,18),ce(),ce(),ce(),ce(),ce(),ce()]);
+  // R2: τίτλος — γκρι merged κελί B2:F2 (όπως γνήσιο)
+  ws1data.push([ce(),cs(mn+' '+yr,true,16,null,GREY,'center'),ce(),ce(),ce(),ce(),ce(),ce(),ce(),ce(),ce()]);
   // R3 κενή
   ws1data.push(Array(11).fill(ce()));
   // R4: headers
@@ -2244,7 +2244,7 @@ async function exportCSV(){
     else if(dayRowCount===6) sideVal=cs('ΣΥΝΟΛΟ ΕΙΣΠΡΑΞ. + POS + ΚΑΤΑΘΕΣΕΙΣ',true,10,null,GREY,'center');
     else if(dayRowCount===7) sideVal=cn(tAllNet+tEisp,true,12,null,null,'center');
     else if(dayRowCount===13) sideVal=cs('ΚΑΘΑΡΟ ΣΥΝΟΛΟ ΜΗΝΟΣ',true,10,null,GREY,'center');
-    else if(dayRowCount===14) sideVal=cn(yp,false,12,null,null,'center');
+    else if(dayRowCount===14) sideVal=cn(yp+pEpit,false,12,null,LGREEN,'center');  // καθαρό σύνολο = υπόλοιπο + επιταγές (χωρίς επιταγές)
     else if(dayRowCount===20) sideVal=cs('ΕΠΙΤΑΓΕΣ',true,10,null,GREY,'center');
     else if(dayRowCount===21) sideVal=cn(pEpit,true,10,null,null,'center');
 
@@ -2265,11 +2265,11 @@ async function exportCSV(){
   // POS σύνολο
   ws1data.push([ce(),ce(),ce(),ce(),cn(tPos,false,10,RED),ce(),ce(),ce(),ce(),ce(),ce()]);
   // Κρατήσεις
-  ws1data.push([ce(),ce(),cs('κρατησεις τραπεζας POS',false,9),cs(0.013,false,9,null,null,null),cn(kratiseis,false,9,RED),ce(),ce(),ce(),ce(),ce(),cs('YΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ',false,13,null,null,'center')]);
-  // Σύνολα — ΥΠΟΛΟΙΠΟ: κόκκινο φόντο (αρνητικό) / πράσινο (θετικό) όπως το γνήσιο, λευκό bold κείμενο
+  ws1data.push([ce(),ce(),cs('κρατησεις τραπεζας POS',false,9),cs(0.013,false,9,null,null,null),cn(kratiseis,false,9,RED),ce(),ce(),ce(),ce(),ce(),cs('YΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ',true,13,null,LBLUE,'center')]);
+  // Σύνολα — ΥΠΟΛΟΙΠΟ: κόκκινο φόντο (αρνητικό) / πράσινο (θετικό) όπως το γνήσιο, λευκό bold κείμενο + σύμβολο €
   const ypColor='FFFFFFFF';
   const ypBg=yp<0?RED:GREEN;
-  ws1data.push([ce(),ce(),cn(tMet,false,10),cn(tPos,true,12,RED),cn(tAllNet,false,10),ce(),ce(),cn(allP,false,10),ce(),ce(),cn(yp,true,20,ypColor,ypBg,'center')]);
+  ws1data.push([ce(),ce(),cn(tMet,false,10),cn(tPos,true,12,RED),cn(tAllNet,false,10),ce(),ce(),cn(allP,false,10),ce(),ce(),cs(yp,true,20,ypColor,ypBg,'center','#,##0.00" €"')]);
   ws1data.push(Array(11).fill(ce()));
   ws1data.push(Array(11).fill(ce()));
   ws1data.push(Array(11).fill(ce()));
@@ -2278,6 +2278,7 @@ async function exportCSV(){
   ws1data.push([ce(),cs('ΤΕΛΙΚΟΣ ΑΠΟΛΟΓΙΣΜΟΣ:',false,17),ce(),ce(),ce(),ce(),ce(),ce(),ce(),ce(),ce()]);
 
   const ws1=XLSX.utils.aoa_to_sheet(ws1data);
+  ws1['!merges']=[{s:{r:1,c:1},e:{r:1,c:5}}];  // τίτλος B2:F2
   ws1['!cols']=[{wch:8.86},{wch:9.71},{wch:20.86},{wch:12.29},{wch:14.14},{wch:13.86},{wch:3.86},{wch:13.29},{wch:12.71},{wch:11.29},{wch:39.86}];
   ws1['!rows']=[{hpt:13.5},{hpt:28.5},{hpt:11.25},{hpt:39},...Array(dim).fill({hpt:19.5}),{hpt:16.5},{hpt:16.5},{hpt:48.2}];
   // borders: κύριος πίνακας (ΗΜΕΡΟΜ..τελικές) + REPORT/ΔΙΑΦΟΡΑ + σύνολα από κάτω
