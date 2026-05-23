@@ -879,7 +879,7 @@ function roleForEmail(em){return ROLE_BY_EMAIL[(em||'').toLowerCase()]||'EMP';}
 // ===== EMAILJS (email κλεισίματος ημέρας) =====
 const EMAILJS_SERVICE='service_i5ms3cb', EMAILJS_TEMPLATE='template_r3n3ap9', EMAILJS_PUBLIC='6FE9HxoYLIJ1fptKr', REPORT_EMAIL='afoiroussa@yahoo.gr';
 try{ if(typeof emailjs!=='undefined') emailjs.init({publicKey:EMAILJS_PUBLIC}); }catch(e){}
-function _sendDayEmail(day,dayName,met,pos,rep){
+async function _sendDayEmail(day,dayName,met,pos,rep){
   try{
     if(typeof emailjs==='undefined') return;
     const k=ek();const{mi,y}=gmi(k);const mn=k.split('_')[0],yr=k.split('_')[1];
@@ -891,6 +891,16 @@ function _sendDayEmail(day,dayName,met,pos,rep){
     const subject='Ταμείο ΛΙΟΣΙΑ — '+dayName+' '+dateStr;
     const sender=(currentRole==='ADMIN'?'Διαχειριστής':'Εργαζόμενος')+((_auth&&_auth.currentUser&&_auth.currentUser.email)?' ('+_auth.currentUser.email+')':'');
     const yp=m.yp, ypColor=yp<0?'#d92d20':'#1a7f4b';
+    // Σύγκριση με την ίδια μέρα πέρσι (φόρτωσε τον περσινό μήνα αν λείπει)
+    const kPrev=mn+'_'+(y-1);
+    if(!(D.days[kPrev]&&D.days[kPrev].length)){ try{ const j=await fbLoadMonth(kPrev); if(j&&j.exists&&j.data&&j.data.days) D.days[kPrev]=j.data.days[kPrev]||[]; }catch(e){} }
+    const _pr=(D.days[kPrev]||[]).find(r=>r.day===day);
+    const prevTot=_pr?((_pr.metrita||0)+(_pr.pos||0)):null;
+    const _pdate=String(day).padStart(2,'0')+'/'+String(mi+1).padStart(2,'0')+'/'+(y-1);
+    let cmpHtml='';
+    if(prevTot!=null&&prevTot>0){ const dd=Math.round((total-prevTot)*100)/100, pc=dd/prevTot*100, up=dd>=0;
+      cmpHtml=`<div style="margin-top:12px;padding:10px 14px;background:${up?'#e9f7ef':'#fdecec'};border-radius:6px;font-size:13px;color:#333;">📅 Σε σχέση με <b>πέρσι (${_pdate})</b>: ${fmt(prevTot)} → <span style="color:${up?'#1a7f4b':'#d92d20'};font-weight:700;">${up?'▲ καλύτερα +':'▼ λιγότερα '}${fmt(Math.abs(dd))} (${up?'+':'−'}${Math.abs(pc).toFixed(1)}%)</span></div>`;
+    } else { cmpHtml=`<div style="margin-top:12px;font-size:12px;color:#889;">📅 Δεν υπάρχουν στοιχεία πέρσι (${_pdate}) για σύγκριση.</div>`; }
     const erpAlert=(diff!=null&&Math.abs(diff)>=20)?`<div style="margin-top:14px;padding:10px 14px;background:#fff4e5;border-left:4px solid #f59e0b;border-radius:6px;color:#7a4b00;font-size:13px;">⚠️ Διαφορά ταμείου ↔ ERP: <b>${(diff>=0?'+':'')+fmt(diff)}</b> — αξίζει έλεγχος.</div>`:'';
     const html=`<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;background:#f4f6fb;padding:18px;">
       <div style="background:#0e1626;border-radius:12px 12px 0 0;padding:18px 22px;color:#fff;">
@@ -907,6 +917,7 @@ function _sendDayEmail(day,dayName,met,pos,rep){
           <tr><td style="padding:10px 0 0;font-weight:700;border-top:2px solid #0e1626;">Σύνολο ημέρας</td><td style="text-align:right;font-weight:700;font-size:16px;border-top:2px solid #0e1626;padding-top:10px;">${fmt(total)}</td></tr>
         </table>
         ${erpAlert}
+        ${cmpHtml}
         <div style="font-size:13px;font-weight:700;color:#0e1626;margin:18px 0 6px;">📊 Σύνολα μήνα (${mn} ${yr})</div>
         <table style="width:100%;border-collapse:collapse;font-size:14px;">
           <tr><td style="padding:6px 0;color:#667;">Καθαρές εισπράξεις</td><td style="text-align:right;font-weight:700;color:#1a7f4b;">${fmt(m.tAllNet)}</td></tr>
