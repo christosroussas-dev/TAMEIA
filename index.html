@@ -247,6 +247,35 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 .sidebar-logo:hover .sb-logo-img{transform:scale(1.05);filter:drop-shadow(0 5px 20px rgba(184,148,42,.55));}
 .sidebar-logo .refresh-hint{font-size:8px;color:var(--muted);letter-spacing:.18em;margin-top:5px;opacity:0;transition:opacity .15s;}
 .sidebar-logo:hover .refresh-hint{opacity:.85;color:var(--gold);}
+/* ===== ΜΗΝΙΑΙΑ ΑΝΑΦΟΡΑ (modal) ===== */
+.rep-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;width:100%;max-width:780px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6);}
+.rep-top{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.rep-title{font-weight:700;font-size:15px;}
+.rep-toggle{display:flex;gap:6px;margin-left:auto;}
+.rt-btn{background:var(--bg3);border:1px solid var(--border2);color:var(--muted);padding:5px 12px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;}
+.rt-btn.on{background:rgba(77,159,255,.15);border-color:var(--accent);color:var(--accent);}
+.rep-x{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:2px 6px;}
+.rep-body{padding:16px 18px;overflow-y:auto;}
+.rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.rep-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.rep-h{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px;}
+.rep-l{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:3px 0;align-items:center;}
+.rep-l span{color:var(--muted);}
+.rep-l b{font-family:var(--mono);}
+.rep-l.tot{border-top:1px solid var(--border);margin-top:5px;padding-top:6px;font-size:13px;}
+.rep-l b.pos{color:var(--green);}.rep-l b.neg{color:var(--red);}
+.rep-hero{border-radius:10px;padding:14px 18px;margin-bottom:12px;text-align:center;border:1px solid;}
+.rep-hero.pos{background:rgba(61,220,151,.12);border-color:rgba(61,220,151,.4);}
+.rep-hero.neg{background:rgba(255,93,108,.12);border-color:rgba(255,93,108,.4);}
+.rep-hero-l{font-size:10px;letter-spacing:.1em;color:var(--muted);}
+.rep-hero-v{font-family:var(--mono);font-size:26px;font-weight:700;}
+.rep-hero.pos .rep-hero-v{color:var(--green);}.rep-hero.neg .rep-hero-v{color:var(--red);}
+.rep-advs{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-top:12px;}
+.rep-adv{display:flex;gap:10px;align-items:flex-start;font-size:12px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.rep-adv:last-child{border-bottom:none;}
+.rep-adv span{font-size:15px;line-height:1;}
+.rep-note{font-size:10px;color:var(--muted);margin-top:10px;text-align:center;}
+@media(max-width:680px){.rep-grid{grid-template-columns:1fr;}}
 .sidebar-logo .crown{font-size:13px;color:var(--gold);letter-spacing:.1em;}
 .sidebar-logo .rr{font-family:var(--mono);font-size:30px;font-weight:700;line-height:1;background:linear-gradient(135deg,#f4dd95,var(--gold2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 .sidebar-logo .name{font-size:12px;font-weight:700;letter-spacing:.06em;margin-top:5px;background:linear-gradient(135deg,#f4dd95,var(--gold2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
@@ -1389,6 +1418,7 @@ function renderDashboard(){
     {ic:'➕',l:'Νέα Καταχώρηση',t:'main'},{ic:'💵',l:'Πληρωμή Μετρητών',t:'metrita'},
     {ic:'🔖',l:'Νέα Επιταγή',t:'epitages'},{ic:'📈',l:'Στατιστικά',t:'stats'},
     {ic:'🔔',l:'Ειδοποιήσεις',t:'alerts'},{ic:'📑',l:'Αναφορά Excel',fn:'exportCSV()'},
+    {ic:'📊',l:'Μηνιαία Αναφορά',fn:'openMonthlyReport()'},
   ];
   const qaHtml=qa.map(x=>`<div class="qa" onclick="${x.fn?x.fn:`showTab('${x.t}',document.querySelector('.nav-item[data-tab=${x.t}]'))`}"><span class="qa-ic">${x.ic}</span><span>${x.l}</span></div>`).join('');
   const pcls=m.pct>=85?'ok':m.pct>=65?'warn':'danger';
@@ -1455,6 +1485,138 @@ function renderDashboard(){
       <span>🛡️ ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε. · ΤΑΜΕΙΟ v6</span>
       <span>Τελευταία ανανέωση: ${hh}:${mm} · <span style="color:var(--green-2)">● Αυτόματη αποθήκευση ενεργή</span></span>
     </div>`;
+}
+
+// ===== ΜΗΝΙΑΙΑ ΑΝΑΦΟΡΑ (χωρίς ΑΙ — όλα από δεδομένα + ιστορικό HIST) =====
+function _yoyTrend(y){ // μέση ετήσια % μεταβολή ολοκληρωμένων μηνών τρέχοντος έτους vs πέρσι
+  let s=0,n=0;
+  HIST.filter(h=>h.year===String(y)).forEach(h=>{const p=HIST.find(x=>x.year===String(y-1)&&x.month===h.month);if(p&&p.total){s+=(h.total-p.total)/p.total;n++;}});
+  return n?s/n:0;
+}
+function _monthForecast(mi,y){
+  const prev=HIST.find(h=>h.year===String(y-1)&&h.month===mi+1);
+  if(!prev) return null;
+  const tr=_yoyTrend(y);
+  return {base:prev.total,trend:tr,forecast:Math.round(prev.total*(1+tr))};
+}
+function _adviceRow(icon,txt){return `<div class="rep-adv"><span>${icon}</span><div>${txt}</div></div>`;}
+let _reportMode='apo';
+function closeReport(){const el=document.getElementById('reportModal');if(el)el.style.display='none';}
+function openMonthlyReport(mode){
+  if(typeof dashMetrics!=='function'){return;}
+  const m=dashMetrics();
+  let view=mode;
+  if(!view||view==='auto'){
+    const today=new Date();const isCur=(CM===MONTHS_EL[today.getMonth()]+'_'+today.getFullYear());const d=today.getDate();
+    view=(isCur&&d<=7)?'plan':((isCur&&d>=24)||(m.wd>=Math.max(1,Math.round(m.twd*0.8))))?'apo':'plan';
+  }
+  _reportMode=view;
+  document.getElementById('reportTitle').textContent='Μηνιαία Αναφορά — '+CM.replace('_',' ');
+  document.getElementById('reportBody').innerHTML=(view==='plan')?buildPlanHTML(m):buildApoHTML(m);
+  document.getElementById('rtPlan').className='rt-btn'+(view==='plan'?' on':'');
+  document.getElementById('rtApo').className='rt-btn'+(view==='apo'?' on':'');
+  document.getElementById('reportModal').style.display='flex';
+}
+function buildApoHTML(m){
+  const mn=CM.split('_')[0],yr=CM.split('_')[1];
+  const wdRows=m.rows.filter(r=>r.dayName!=='ΚΥΡΙΑΚΗ'&&((r.metrita||0)+(r.pos||0))>0);
+  let best=null,worst=null;
+  wdRows.forEach(r=>{const t=(r.metrita||0)+(r.pos||0);if(!best||t>best.t)best={d:r.day,dn:r.dayName,t};if(!worst||t<worst.t)worst={d:r.day,dn:r.dayName,t};});
+  let erp=0;m.rows.forEach(r=>{if(r.report!=null)erp+=((r.metrita||0)+(r.pos||0))-r.report;});erp=Math.round(erp*100)/100;
+  const monthEps=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr))));
+  const todayS=new Date().toISOString().slice(0,10);
+  const pend=monthEps.filter(e=>!e.date||e.date>=todayS),paid=monthEps.filter(e=>e.date&&e.date<todayS);
+  const gross=m.tMet+m.tPos;const posPct=gross>0?(m.tPos/gross*100):0;
+  let adv='';
+  if(m.pct>=100) adv+=_adviceRow('🏆','Ξεπέρασες τον στόχο του μήνα — μπράβο!');
+  else if(m.pct>=85) adv+=_adviceRow('👍',`Πολύ κοντά στον στόχο (${m.pct.toFixed(0)}%) — λείπουν ${fmt(Math.max(0,m.tgt-m.tAllNet))}.`);
+  else adv+=_adviceRow('🎯',`Κάτω από τον στόχο: λείπουν ${fmt(Math.max(0,m.tgt-m.tAllNet))} (επίτευξη ${m.pct.toFixed(0)}%).`);
+  if(m.yp<0) adv+=_adviceRow('⚠️',`Πληρωμές + επιταγές ξεπέρασαν τις εισπράξεις κατά <b>${fmt(Math.abs(m.yp))}</b> — προσοχή στη ρευστότητα.`);
+  else adv+=_adviceRow('✅',`Θετικό υπόλοιπο για μάζεμα: <b>${fmt(m.yp)}</b>.`);
+  if(m.dPrevYear!=null){ if(m.dPrevYear<-3) adv+=_adviceRow('📉',`Πτώση ${Math.abs(m.dPrevYear).toFixed(1)}% vs πέρσι — άξιο προσοχής.`); else if(m.dPrevYear>3) adv+=_adviceRow('📈',`Άνοδος ${m.dPrevYear.toFixed(1)}% vs πέρσι!`); }
+  if(Math.abs(erp)>=20) adv+=_adviceRow('🔍',`Συνολική απόκλιση ταμείου ↔ ERP: <b>${(erp>=0?'+':'')+fmt(erp)}</b> — καλό να ελεγχθεί.`);
+  adv+=_adviceRow('💳',`Το POS είναι <b>${posPct.toFixed(0)}%</b> του τζίρου.`);
+  return `
+  <div class="rep-grid">
+    <div class="rep-card"><div class="rep-h">💰 Εισπράξεις</div>
+      <div class="rep-l"><span>Μετρητά</span><b>${fmt(m.tMet)}</b></div>
+      <div class="rep-l"><span>POS</span><b>${fmt(m.tPos)}</b></div>
+      <div class="rep-l"><span>Κράτηση 1,3%</span><b class="neg">−${fmt(m.kratiseis)}</b></div>
+      <div class="rep-l"><span>Εμβάσματα</span><b>${fmt(m.pEisp)}</b></div>
+      <div class="rep-l tot"><span>Καθαρές εισπράξεις</span><b class="pos">${fmt(m.tAllNet)}</b></div>
+    </div>
+    <div class="rep-card"><div class="rep-h">💸 Πληρωμές ΛΙΟΣΙΑ</div>
+      <div class="rep-l"><span>Μετρητά</span><b>${fmt(m.pMet)}</b></div>
+      <div class="rep-l"><span>Τράπεζα</span><b>${fmt(m.pBnk)}</b></div>
+      <div class="rep-l"><span>15ου</span><b>${fmt(m.pD5)}</b></div>
+      <div class="rep-l"><span>Τέλους</span><b>${fmt(m.pTel)}</b></div>
+      <div class="rep-l"><span>Επιταγές</span><b>${fmt(m.pEpit)}</b></div>
+      <div class="rep-l tot"><span>Σύνολο πληρωμών</span><b class="neg">${fmt(m.allP)}</b></div>
+    </div>
+  </div>
+  <div class="rep-hero ${m.yp<0?'neg':'pos'}">
+    <div class="rep-hero-l">ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ</div>
+    <div class="rep-hero-v">${(m.yp>=0?'+':'')+fmt(m.yp)}</div>
+  </div>
+  <div class="rep-grid">
+    <div class="rep-card"><div class="rep-h">🎯 Στόχος & Συγκρίσεις</div>
+      <div class="rep-l"><span>Στόχος μήνα</span><b>${fmt(m.tgt)}</b></div>
+      <div class="rep-l"><span>Επίτευξη</span><b class="${m.pct>=85?'pos':'neg'}">${m.pct.toFixed(0)}%</b></div>
+      <div class="rep-l"><span>vs πέρσι (${mn})</span><b class="${(m.dPrevYear||0)>=0?'pos':'neg'}">${m.dPrevYear!=null?(m.dPrevYear>=0?'+':'')+m.dPrevYear.toFixed(1)+'%':'—'}</b></div>
+      <div class="rep-l"><span>vs προηγ. μήνα</span><b class="${(m.dPrevMonth||0)>=0?'pos':'neg'}">${m.dPrevMonth!=null?(m.dPrevMonth>=0?'+':'')+m.dPrevMonth.toFixed(1)+'%':'—'}</b></div>
+    </div>
+    <div class="rep-card"><div class="rep-h">📅 Ημέρες & Έλεγχος</div>
+      <div class="rep-l"><span>Εργάσιμες</span><b>${m.wd}/${m.twd}</b></div>
+      <div class="rep-l"><span>Μέσος όρος/μέρα</span><b>${fmt(m.avg)}</b></div>
+      <div class="rep-l"><span>Καλύτερη μέρα</span><b class="pos">${best?best.d+' '+best.dn:'—'}${best?' · '+fmt(best.t):''}</b></div>
+      <div class="rep-l"><span>Χαμηλότερη</span><b>${worst?worst.d+' '+worst.dn:'—'}${worst?' · '+fmt(worst.t):''}</b></div>
+      <div class="rep-l tot"><span>Διαφορά ταμείου↔ERP</span><b class="${Math.abs(erp)<20?'pos':'neg'}">${(erp>=0?'+':'')+fmt(erp)}</b></div>
+    </div>
+  </div>
+  <div class="rep-card"><div class="rep-h">🔖 Επιταγές μήνα</div>
+    <div class="rep-l"><span>Πληρωμένες</span><b>${paid.length} · ${fmt(paid.reduce((s,e)=>s+(e.liosia||0),0))}</b></div>
+    <div class="rep-l"><span>Εκκρεμείς</span><b class="neg">${pend.length} · ${fmt(pend.reduce((s,e)=>s+(e.liosia||0),0))}</b></div>
+    <div class="rep-l tot"><span>Σύνολο επιταγών</span><b>${fmt(m.pEpit)}</b></div>
+  </div>
+  <div class="rep-advs"><div class="rep-h">💡 Συμβουλές</div>${adv}</div>`;
+}
+function buildPlanHTML(m){
+  const mn=CM.split('_')[0],yr=CM.split('_')[1];
+  const fc=_monthForecast(m.mi,m.y);
+  const needDay=m.remainWD>0?Math.max(0,(m.tgt-m.tAllNet)/m.remainWD):0;
+  const monthEps=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr))));
+  const epSum=monthEps.reduce((s,e)=>s+(e.liosia||0),0);
+  const knownPay=m.pMet+m.pBnk+m.pD5+m.pTel;
+  const fcNet=fc?fc.forecast:m.tgt;
+  const estMazema=fcNet-epSum-knownPay;
+  let adv='';
+  if(fc){ if(fc.trend<-0.02) adv+=_adviceRow('📉',`Η τάση εφέτος είναι ${(fc.trend*100).toFixed(1)}% vs πέρσι — ίσως χαμηλότερος μήνας.`); else if(fc.trend>0.02) adv+=_adviceRow('📈',`Θετική τάση εφέτος (+${(fc.trend*100).toFixed(1)}% vs πέρσι).`); }
+  adv+=_adviceRow('🎯',`Για τον στόχο χρειάζεσαι ~<b>${fmt(needDay)}</b>/εργάσιμη (απομένουν ${m.remainWD}).`);
+  if(epSum>0) adv+=_adviceRow('🔖',`Επιταγές <b>${fmt(epSum)}</b> (${monthEps.length}) αφορούν τον μήνα — εξασφάλισε ρευστότητα.`);
+  if(estMazema<0) adv+=_adviceRow('⚠️',`Με τα τρέχοντα δεδομένα, το μάζεμα μπορεί να βγει αρνητικό (~${fmt(estMazema)}). Προγραμμάτισε.`);
+  else adv+=_adviceRow('✅',`Εκτιμώμενο θετικό μάζεμα ~<b>${fmt(estMazema)}</b> (κατά προσέγγιση).`);
+  return `
+  <div class="rep-grid">
+    <div class="rep-card"><div class="rep-h">🔮 Πρόβλεψη τζίρου</div>
+      ${fc?`<div class="rep-l"><span>Πέρσι (${mn} ${m.y-1})</span><b>${fmt(fc.base)}</b></div>
+      <div class="rep-l"><span>Τάση εφέτος</span><b class="${fc.trend>=0?'pos':'neg'}">${(fc.trend>=0?'+':'')+(fc.trend*100).toFixed(1)}%</b></div>
+      <div class="rep-l tot"><span>Πρόβλεψη μήνα</span><b class="pos">${fmt(fc.forecast)}</b></div>`:'<div class="rep-l"><span>Δεν υπάρχει ιστορικό πέρσι</span><b>—</b></div>'}
+    </div>
+    <div class="rep-card"><div class="rep-h">🎯 Στόχος</div>
+      <div class="rep-l"><span>Στόχος μήνα</span><b>${fmt(m.tgt)}</b></div>
+      <div class="rep-l"><span>Έως τώρα (καθαρές)</span><b class="pos">${fmt(m.tAllNet)}</b></div>
+      <div class="rep-l"><span>Εργάσιμες</span><b>${m.wd}/${m.twd}</b></div>
+      <div class="rep-l tot"><span>Χρειάζεσαι/μέρα</span><b>${fmt(needDay)}</b></div>
+    </div>
+  </div>
+  <div class="rep-card"><div class="rep-h">📋 Υποχρεώσεις & εκτιμώμενο μάζεμα</div>
+    <div class="rep-l"><span>Επιταγές μήνα</span><b>${fmt(epSum)} (${monthEps.length})</b></div>
+    <div class="rep-l"><span>Γνωστές πληρωμές μέχρι τώρα</span><b>${fmt(knownPay)}</b></div>
+    <div class="rep-l"><span>Πρόβλεψη καθαρού τζίρου</span><b>${fmt(fcNet)}</b></div>
+    <div class="rep-l tot"><span>Εκτιμώμενο μάζεμα</span><b class="${estMazema<0?'neg':'pos'}">${(estMazema>=0?'+':'')+fmt(estMazema)}</b></div>
+  </div>
+  <div class="rep-advs"><div class="rep-h">💡 Συμβουλές</div>${adv}</div>
+  <div class="rep-note">📌 Οι προβλέψεις είναι κατά προσέγγιση, βασισμένες στο ιστορικό σου — χωρίς ΑΙ.</div>`;
 }
 
 // RENDER MAIN
@@ -2409,6 +2571,21 @@ async function preloadAllMonths(){
   }
 }
 </script>
+
+<!-- ΜΗΝΙΑΙΑ ΑΝΑΦΟΡΑ -->
+<div id="reportModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:10000;align-items:center;justify-content:center;padding:18px;">
+  <div class="rep-modal">
+    <div class="rep-top">
+      <div class="rep-title" id="reportTitle">Μηνιαία Αναφορά</div>
+      <div class="rep-toggle">
+        <button class="rt-btn" id="rtPlan" onclick="openMonthlyReport('plan')">🟢 Πλάνο μήνα</button>
+        <button class="rt-btn" id="rtApo" onclick="openMonthlyReport('apo')">🔵 Απολογισμός</button>
+      </div>
+      <button class="rep-x" onclick="closeReport()" title="Κλείσιμο">✕</button>
+    </div>
+    <div class="rep-body" id="reportBody"></div>
+  </div>
+</div>
 
 <!-- DAY COMPARISON POPUP -->
 <div id="dayPopup" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;">
