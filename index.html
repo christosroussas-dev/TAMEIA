@@ -271,6 +271,11 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 /* APP MAIN */
 .app-main{flex:1;margin-left:var(--sidebar-w);min-width:0;display:flex;flex-direction:column;}
 .topbar{min-height:var(--topbar-h);position:sticky;top:0;z-index:150;background:rgba(10,16,30,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--glass-border);display:flex;align-items:center;gap:16px;padding:12px 24px;}
+/* PWA window-controls-overlay: η μπάρα-τίτλος του παραθύρου φεύγει· ο top bar γίνεται «λαβή» για μετακίνηση + αφήνει χώρο δεξιά για τα κουμπιά (─ ☐ ✕) */
+@media (display-mode: window-controls-overlay){
+  .topbar{ -webkit-app-region: drag; padding-right: 150px; }
+  .topbar .hamburger, .topbar select, .topbar .tb-icon, .topbar .tb-profile, .topbar button, .topbar a, .topbar input{ -webkit-app-region: no-drag; }
+}
 .tb-greet h1{font-size:19px;font-weight:700;letter-spacing:-.01em;line-height:1.1;}
 .tb-greet .date{font-size:11px;color:var(--muted);margin-top:2px;}
 .tb-actions{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
