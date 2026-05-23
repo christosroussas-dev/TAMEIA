@@ -403,6 +403,14 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
   body{background-attachment:scroll;}
 }
 </style>
+<!-- PWA: εγκατάσταση σαν εφαρμογή (εικονίδιο στην επιφάνεια εργασίας/κινητό, δικό της παράθυρο) -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#070d1a">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ΤΑΜΕΙΟ">
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(e){console.warn('SW reg failed',e);});});}</script>
 <!-- ExcelJS: διαβάζει ΚΑΙ γράφει στυλ — χρησιμοποιείται για template-fill export 100% ίδιο με το πρωτότυπο .xlsx -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <!-- Firebase (Firestore + Auth) — compat build, εκθέτει global `firebase` -->
