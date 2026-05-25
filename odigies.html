@@ -83,6 +83,7 @@
   @media(max-width:640px){.grid,.cmp,.navlist{grid-template-columns:1fr;}}
   @media print{body{background:#fff;}section{box-shadow:none;break-inside:avoid;}.cover{box-shadow:none;}}
 .shotbox{margin:16px 0;text-align:center;}.shot{max-width:100%;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(20,30,50,.14);}.shot-cap{font-size:12px;color:var(--muted);margin-top:7px;font-weight:600;}
+.inst{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:12px 0;}.inst .ih{font-weight:800;color:var(--navy);font-size:15px;display:flex;align-items:center;gap:8px;margin-bottom:6px;}.inst ol{margin:0;padding-left:0;counter-reset:s;list-style:none;}.inst ol li{position:relative;padding:7px 0 7px 38px;font-size:13.5px;counter-increment:s;border-bottom:1px solid rgba(0,0,0,.05);}.inst ol li:last-child{border-bottom:none;}.inst ol li::before{content:counter(s);position:absolute;left:0;top:6px;width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;}.urlbox{display:inline-block;background:var(--navy);color:#fff;font-family:monospace;font-size:13px;padding:6px 12px;border-radius:8px;}
 </style>
 </head>
 <body>
@@ -222,11 +223,37 @@
 
   <section>
     <h2><span class="n">10</span> Εγκατάσταση σε υπολογιστή & κινητό</h2>
-    <div class="grid">
-      <div class="card"><div class="h">💻 Υπολογιστής (Chrome)</div><div class="x">Γραμμή διεύθυνσης → εικονίδιο εγκατάστασης → «Install». Μπαίνει σαν κανονικό πρόγραμμα με εικονίδιο στην επιφάνεια εργασίας.</div></div>
-      <div class="card"><div class="h">📱 Κινητό</div><div class="x"><b>Android (Chrome):</b> μενού → «Εγκατάσταση εφαρμογής». <b>iPhone (Safari):</b> Μοιραστείτε → «Προσθήκη στην οθόνη Αφετηρίας».</div></div>
+    <p>Η εφαρμογή εγκαθίσταται σαν <b>κανονικό πρόγραμμα</b>: αποκτά δικό της <b>εικονίδιο</b> και ανοίγει σε <b>δικό της παράθυρο</b> (χωρίς μπάρες περιήγησης). Πρώτα άνοιξε τη διεύθυνση:</p>
+    <p style="text-align:center"><span class="urlbox">christosroussas-dev.github.io/TAMEIA</span></p>
+    <div class="inst">
+      <div class="ih">💻 Σε υπολογιστή (Windows — Google Chrome)</div>
+      <ol>
+        <li>Άνοιξε τη διεύθυνση παραπάνω στον <b>Chrome</b>.</li>
+        <li>Δεξιά στη <b>γραμμή διεύθυνσης</b> (λίγο πριν το ⭐) εμφανίζεται εικονίδιο <b>εγκατάστασης</b> (οθόνη με βελάκι ⬇️). Πάτησέ το.<br><span class="muted">Αν δεν φαίνεται: μενού <b>⋮</b> πάνω-δεξιά → «Μετάδοση, αποθήκευση & κοινή χρήση» → «Εγκατάσταση…».</span></li>
+        <li>Στο παραθυράκι, πάτα <b>«Εγκατάσταση / Install»</b>.</li>
+        <li>Δημιουργείται <b>εικονίδιο στην επιφάνεια εργασίας</b> (και στο μενού Έναρξη) και ανοίγει σε δικό της παράθυρο.</li>
+        <li><i>Προαιρετικά:</i> δεξί κλικ στο εικονίδιο της γραμμής εργασιών → «Καρφίτσωμα στη γραμμή εργασιών».</li>
+      </ol>
     </div>
-    <div class="note tip">💡 Το <b>λογότυπο πάνω-αριστερά</b> κάνει ανανέωση (φρέσκια φόρτωση) αν χρειαστεί.</div>
+    <div class="inst">
+      <div class="ih">📱 Σε iPhone / iPad (Safari)</div>
+      <ol>
+        <li>Άνοιξε τη διεύθυνση στο <b>Safari</b> (στο iPhone δουλεύει το Safari — όχι ο Chrome).</li>
+        <li>Πάτα το κουμπί <b>«Μοιραστείτε»</b> (τετράγωνο με βελάκι ⬆️, κάτω στο κέντρο).</li>
+        <li>Κύλησε προς τα κάτω → πάτα <b>«Προσθήκη στην οθόνη Αφετηρίας»</b>.</li>
+        <li>Πάτα <b>«Προσθήκη»</b> (πάνω-δεξιά).</li>
+        <li>Το εικονίδιο μπαίνει στην <b>οθόνη Αφετηρίας</b>· πατώντας το ανοίγει σε <b>πλήρη οθόνη</b> σαν κανονική εφαρμογή.</li>
+      </ol>
+    </div>
+    <div class="inst">
+      <div class="ih">📱 Σε Android (Google Chrome)</div>
+      <ol>
+        <li>Άνοιξε τη διεύθυνση στον <b>Chrome</b>.</li>
+        <li>Μενού <b>⋮</b> (πάνω-δεξιά) → <b>«Εγκατάσταση εφαρμογής»</b> (ή «Προσθήκη στην αρχική οθόνη»).</li>
+        <li>Πάτα <b>«Εγκατάσταση»</b> → το εικονίδιο μπαίνει στην αρχική οθόνη.</li>
+      </ol>
+    </div>
+    <div class="note tip">💡 Την <b>πρώτη φορά</b> κάνεις σύνδεση με email + κωδικό· μετά η εφαρμογή σε <b>θυμάται</b>. Το <b>λογότυπο πάνω-αριστερά</b> κάνει ανανέωση (φρέσκια φόρτωση) αν χρειαστεί.</div>
   </section>
 
   <section>
