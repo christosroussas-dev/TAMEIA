@@ -11,7 +11,8 @@
 :root{
   --bg:#070d1a;--bg2:#0e1626;--bg3:#16203a;--border:#1d2942;--border2:#2a3a5a;
   --text:#eef2fb;--muted:#8493ad;
-  --accent:#4d9fff;--accent2:#2f7fe6;          /* ΜΠΛΕ primary (fintech) */
+  --accent:#4d9fff;--accent2:#2f7fe6;          /* ΜΠΛΕ primary (fintech) — αλλάζει ανά κατάστημα */
+  --accent-bg:rgba(77,159,255,.20);--accent-bg-soft:rgba(77,159,255,.06);--accent-line:rgba(77,159,255,.32); /* store-aware tints (τίθενται στο applyStoreTheme) */
   --gold:#e6c878;--gold2:#c9a84e;              /* χρυσό μόνο για logo/branding */
   --green:#4caf7d;--red:#e05555;--yellow:#e0b84b;--blue:#5599dd;
   --green-2:#3ddc97;--red-2:#ff5d6c;--purple:#a87dff;--orange:#f59e0b;
@@ -298,7 +299,13 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 .nav-item{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:10px;color:var(--muted);font-size:11.5px;font-weight:600;letter-spacing:.02em;cursor:pointer;transition:background .15s var(--ease),color .15s,box-shadow .15s;position:relative;white-space:nowrap;}
 .nav-item .nico{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
 .nav-item:hover{background:rgba(255,255,255,.045);color:var(--text);}
-.nav-item.active{background:linear-gradient(135deg,rgba(77,159,255,.20),rgba(77,159,255,.05));color:#fff;box-shadow:inset 0 0 0 1px rgba(77,159,255,.28);}
+.nav-item.active{background:linear-gradient(135deg,var(--accent-bg),var(--accent-bg-soft));color:#fff;box-shadow:inset 0 0 0 1px var(--accent-line);}
+.active-store-bar{display:flex;align-items:center;gap:14px;padding:14px 22px;border-radius:14px;margin-bottom:18px;border:1.5px solid var(--accent-line);background:linear-gradient(135deg,var(--accent-bg),var(--accent-bg-soft));box-shadow:var(--shadow-sm);}
+.asb-icon{font-size:26px;line-height:1;flex-shrink:0;}
+.asb-text{font-size:18px;font-weight:800;letter-spacing:.02em;color:var(--text);}
+.asb-text b{font-weight:800;}
+.asb-emoji{margin-left:auto;font-size:30px;line-height:1;opacity:.9;filter:drop-shadow(0 2px 6px rgba(0,0,0,.4));}
+@media(max-width:640px){.active-store-bar{padding:11px 15px;gap:10px;}.asb-text{font-size:14px;}.asb-icon{font-size:21px;}.asb-emoji{font-size:24px;}}
 .nav-item.active::before{content:'';position:absolute;left:-10px;top:22%;bottom:22%;width:3px;border-radius:0 3px 3px 0;background:var(--accent);box-shadow:0 0 10px var(--accent);}
 .nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:9px;font-weight:700;border-radius:10px;padding:1px 6px;box-shadow:0 0 8px rgba(224,85,85,.5);}
 .sidebar-role{margin:10px;padding:12px 14px;border-radius:var(--radius);background:var(--glass);border:1px solid var(--glass-border);}
@@ -531,7 +538,7 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
           <button id="swLIOSIA" onclick="setStore('LIOSIA')" style="border:none;background:transparent;color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.05em;padding:5px 13px;border-radius:7px;cursor:pointer;transition:.15s;">ΛΙΟΣΙΑ</button>
           <button id="swLOUTRAKI" onclick="setStore('LOUTRAKI')" style="border:none;background:transparent;color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.05em;padding:5px 13px;border-radius:7px;cursor:pointer;transition:.15s;">ΛΟΥΤΡΑΚΙ</button>
         </div>
-        <span id="mbadge" style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);padding:5px 11px;border:1px solid rgba(77,159,255,.4);border-radius:20px;background:rgba(77,159,255,.08);white-space:nowrap;">ΜΑΙΟΣ 2026</span>
+        <span id="mbadge" style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);padding:5px 11px;border:1px solid var(--accent-line);border-radius:20px;background:var(--accent-bg-soft);white-space:nowrap;">ΜΑΙΟΣ 2026</span>
         <span id="dirtyBadge"></span>
         <select id="ysel" onchange="changeYear(this.value)">
           <option value="2023">2023</option><option value="2024">2024</option>
@@ -549,6 +556,13 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
     </header>
 
 <main class="content">
+
+<!-- ΕΝΕΡΓΟ ΚΑΤΑΣΤΗΜΑ — banner οπτικού διαχωρισμού (χρώμα/label ανά κατάστημα, applyStoreTheme) -->
+<div class="active-store-bar" id="activeStoreBar">
+  <span class="asb-icon" id="asbIcon">📍</span>
+  <span class="asb-text">ΚΑΤΑΣΤΗΜΑ: <b id="asbLabel">ΑΝΩ ΛΙΟΣΙΑ</b></span>
+  <span class="asb-emoji" id="asbEmoji">🏪</span>
+</div>
 
 <!-- DASHBOARD (νέα αρχική — γεμίζει από renderDashboard στη Φ2) -->
 <div class="panel active" id="tab-dashboard"><div class="empty-state"><div class="ico">🏠</div><div class="txt">Φόρτωση dashboard…</div></div></div>
@@ -1112,7 +1126,12 @@ let Dpeer={trapEisp:{},trapPl:{},metrita:{},bank:{}};
 // (χωρίς prefix, χωρίς migration). Μόνο το ΛΟΥΤΡΑΚΙ παίρνει prefix 'LOUTRAKI_'.
 // Τα κοινά τμήματα (15ου/Τέλος) μένουν ΠΑΝΤΑ στο κοινό (unprefixed) doc — ένα για τα δύο καταστήματα.
 let STORE='LIOSIA';
-const STORES={LIOSIA:{label:'ΛΙΟΣΙΑ',accent:'#4d9fff'},LOUTRAKI:{label:'ΛΟΥΤΡΑΚΙ',accent:'#ff9d3d'}};
+const STORES={
+  LIOSIA:{label:'ΛΙΟΣΙΑ',full:'ΑΝΩ ΛΙΟΣΙΑ',icon:'📍',accent:'#4d9fff',accent2:'#2f7fe6'},
+  LOUTRAKI:{label:'ΛΟΥΤΡΑΚΙ',full:'ΛΟΥΤΡΑΚΙ',icon:'🌊',accent:'#22c55e',accent2:'#16a34a'}
+};
+// hex (#rrggbb) → rgba string με alpha
+function hexA(hex,a){var h=(hex||'#4d9fff').replace('#','');var r=parseInt(h.substr(0,2),16),g=parseInt(h.substr(2,2),16),b=parseInt(h.substr(4,2),16);return 'rgba('+r+','+g+','+b+','+a+')';}
 const POSR_NEW=0.0074, POSR_OLD=0.013;   // #4: POS προμήθεια — 0,74% (νέα σύμβαση NBG Pay) από ΙΟΥΝΙΟ 2026· πριν 0,013
 // Date-aware: ΔΕΝ αλλάζει παλιούς μήνες. 0,74% ισχύει μόνο από Ιούνιο 2026 και μετά (ίδιο Λιόσια & Λουτράκι).
 function posRate(monthKey){const p=String(monthKey||CM).split('_');const mi=MONTHS_EL.indexOf(p[0]),y=parseInt(p[1])||0;return (y>2026||(y===2026&&mi>=5))?POSR_NEW:POSR_OLD;}
@@ -1274,8 +1293,24 @@ function applyRole(){
 // ===== STORE switching (ADMIN) — Φάση 1 =====
 function applyStoreTheme(){
   var cfg=STORES[STORE]||STORES.LIOSIA;
-  try{document.documentElement.style.setProperty('--accent',cfg.accent);}catch(e){}
+  try{
+    var root=document.documentElement.style;
+    root.setProperty('--accent',cfg.accent);
+    if(cfg.accent2) root.setProperty('--accent2',cfg.accent2);
+    root.setProperty('--accent-bg',hexA(cfg.accent,.20));
+    root.setProperty('--accent-bg-soft',hexA(cfg.accent,.06));
+    root.setProperty('--accent-line',hexA(cfg.accent,.34));
+  }catch(e){}
   var sb=document.getElementById('sidebarStore'); if(sb) sb.textContent='ΤΑΜΕΙΟ · '+cfg.label;
+  // Banner ΕΝΕΡΓΟ ΚΑΤΑΣΤΗΜΑ (έντονος οπτικός διαχωρισμός ανά κατάστημα)
+  var bar=document.getElementById('activeStoreBar');
+  if(bar){
+    bar.style.background='linear-gradient(135deg,'+hexA(cfg.accent,.20)+','+hexA(cfg.accent,.05)+')';
+    bar.style.borderColor=hexA(cfg.accent,.55);
+    var ic=document.getElementById('asbIcon'); if(ic) ic.textContent=cfg.icon||'📍';
+    var lb=document.getElementById('asbLabel'); if(lb){ lb.textContent=cfg.full||cfg.label; lb.style.color=cfg.accent; }
+    var em=document.getElementById('asbEmoji'); if(em) em.textContent=cfg.icon||'🏪';
+  }
   updateStoreSwitchUI();
 }
 function updateStoreSwitchUI(){
