@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>ΤΑΜΕΙΟ — ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε. v6</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -214,6 +214,28 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 #dirtyBadge.show{display:inline-flex;animation:panelIn .3s var(--ease);}
 #dirtyBadge .dot{width:6px;height:6px;border-radius:50%;background:var(--yellow);box-shadow:0 0 6px var(--yellow);}
 @media(max-width:640px){.kpis{grid-template-columns:1fr 1fr;}.cal-grid{grid-template-columns:repeat(4,1fr);}.comp-grid{grid-template-columns:1fr;}.ep-cal-12{grid-template-columns:repeat(4,1fr);}.scenario-grid{grid-template-columns:1fr;}}
+/* ===== iPhone / mobile: ΕΜΦΑΣΗ ΣΤΗΝ ΠΛΗΡΟΦΟΡΙΑ, διακριτική καταχώρηση ===== */
+@media(max-width:640px){
+  /* περισσότερος χώρος για περιεχόμενο */
+  .content{padding:14px 11px calc(20px + env(safe-area-inset-bottom));}
+  /* ΠΛΗΡΟΦΟΡΙΑ — πίνακες: horizontal scroll αντί συμπίεσης (οι αριθμοί μένουν ευανάγνωστοι, swipe) */
+  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .tw>table{min-width:100%;width:auto;}
+  .tw th,.tw td{white-space:nowrap;}
+  td{font-size:14px;padding:11px 12px;}      /* τα δεδομένα μεγάλα & ευανάγνωστα */
+  th{font-size:10px;padding:9px 12px;}
+  /* ΠΛΗΡΟΦΟΡΙΑ — KPI νούμερα πιο εμφανή */
+  .kpi .kv{font-size:21px;}
+  .dk-v{font-size:25px;}
+  /* ΚΑΤΑΧΩΡΗΣΗ — πιο διακριτική (16px font μένει για iOS no-zoom, μικρότερο padding/labels) */
+  .fg{padding:10px 10px 4px;gap:9px;}
+  .fi label{font-size:9.5px;}
+  .fi input,.fi select{padding:9px 11px;font-size:16px;font-weight:500;}
+  .btn-add{padding:11px 18px;font-size:12.5px;margin:4px 10px 12px;}
+  /* το collapsible κουμπί «➕ Προσθήκη» πιο διακριτικό */
+  .tw-h{font-size:11px;padding:11px 13px;}
+  .st{font-size:11px;}
+}
 
 /* === CONTROL CENTER (ΕΙΔΟΠΟΙΗΣΕΙΣ) === */
 .cc-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
@@ -313,7 +335,7 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 .sidebar-role .rval{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;margin-top:3px;}
 /* APP MAIN */
 .app-main{flex:1;margin-left:var(--sidebar-w);min-width:0;display:flex;flex-direction:column;}
-.topbar{min-height:var(--topbar-h);position:sticky;top:0;z-index:150;background:rgba(10,16,30,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--glass-border);display:flex;align-items:center;gap:16px;padding:12px 24px;}
+.topbar{min-height:var(--topbar-h);position:sticky;top:0;z-index:150;background:rgba(10,16,30,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--glass-border);display:flex;align-items:center;gap:16px;padding:12px 24px;padding-top:calc(12px + env(safe-area-inset-top));padding-right:calc(24px + env(safe-area-inset-right));padding-left:calc(24px + env(safe-area-inset-left));}
 /* PWA window-controls-overlay: η μπάρα-τίτλος του παραθύρου φεύγει· ο top bar γίνεται «λαβή» για μετακίνηση + αφήνει χώρο δεξιά για τα κουμπιά (─ ☐ ✕) */
 @media (display-mode: window-controls-overlay){
   .topbar{ -webkit-app-region: drag; padding-right: 150px; }
@@ -2950,13 +2972,17 @@ async function exportCSV(){
   const tEisp=trEi.reduce((s,r)=>s+(r.poso||0),0);
   const totPl=trPl.reduce((s,r)=>s+(r.poso||0),0);
   const met3=D.metrita[k]||[], bnk=D.bank[k]||[], d15=D.d15[k]||[], tel=D.telos[k]||[];
+  const isLou=(STORE==='LOUTRAKI');                         // STORE-AWARE export (ίδια λογική με calcYP)
   const pMet=met3.reduce((s,r)=>s+(r.poso||0),0);
   const pBnk=bnk.reduce((s,r)=>s+(r.poso||0),0);
-  const pD5=d15.reduce((s,r)=>s+(r.liosia||0),0);
-  const pTel=tel.reduce((s,r)=>s+(r.liosia||0),0);
-  const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(e.liosia||0),0);
+  const pD5L=d15.reduce((s,r)=>s+(r.liosia||0),0);          // άθροισμα στήλης ΛΙΟΣΙΑ (για το G-total των sheets 15ου/Τέλος)
+  const pTelL=tel.reduce((s,r)=>s+(r.liosia||0),0);
+  const pD5=isLou?0:pD5L;                                   // ΛΟΥΤΡΑΚΙ δεν αφαιρεί 15ου/Τέλος (τα πληρώνει μέσα από δικά του ΠΛΗΡΩΜΕΣ-ΤΡΑΠΕΖΑ)
+  const pTel=isLou?0:pTelL;
+  const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
+  const cf=carryFor(k);                                     // POS carry-forward (ίδιο με dashboard/calcYP)
   const allP=pMet+pBnk+pD5+pTel+pEpit;
-  const yp=tAllNet+tEisp-allP;
+  const yp=tAllNet+tEisp-allP-cf.out+cf.in;
   const wd=rows.filter(r=>r.dayName!=='ΚΥΡΙΑΚΗ'&&((r.metrita||0)+(r.pos||0))>0).length;
   const avg=wd?tAllNet/wd:0;
 
@@ -2979,14 +3005,15 @@ async function exportCSV(){
     s1.getCell('F'+r).value={formula:'D'+r+'+E'+r,result:(met||0)+(pos||0)};
     s1.getCell('I'+r).value={formula:'F'+r+'-H'+r,result:rep!=null?((met||0)+(pos||0)-rep):0};
   }
+  s1.getCell('D37').value=posRate(ek());                    // POS rate date-aware (0,74% Ιούν2026+ / 1,3% παλιότερα)
   s1.getCell('E36').value={formula:'SUM(E5:E35)',result:R2(tPos)};
   s1.getCell('E37').value={formula:'E36*D37',result:R2(kratiseis)};
   s1.getCell('D38').value={formula:'SUM(D5:D35)',result:R2(tMet)};
   s1.getCell('E38').value={formula:'E36-E37',result:R2(tPos-kratiseis)};
   s1.getCell('F38').value={formula:'D38+E38',result:R2(tAllNet)};
-  // side-panel — ΣΩΣΤΕΣ τιμές (διορθώνει τον λάθος Μέσο όρο, παρακάμπτει σπασμένα [1])
+  // side-panel — ΣΩΣΤΕΣ τιμές, STORE-AWARE + carry (διορθώνει Μέσο όρο, παρακάμπτει σπασμένα [1])
   s1.getCell('K7').value=R2(avg);
-  s1.getCell('K11').value=R2(tAllNet+tEisp);
+  s1.getCell('K11').value=R2(tAllNet+tEisp+cf.in);          // + POS προηγ. μήνα (carry-in), όπως το dashboard
   s1.getCell('K18').value=R2(yp+pEpit);
   s1.getCell('K25').value=R2(pEpit);
   s1.getCell('K38').value=R2(yp);
@@ -3022,7 +3049,7 @@ async function exportCSV(){
   const ex5=_fillSlots(s5,7,58,d15,(ws,r,it)=>{['C','D','E','F','G','H'].forEach(c=>ws.getCell(c+r).value=null); if(it){ws.getCell('C'+r).value=it.cod||'';ws.getCell('D'+r).value=it.prom||'';ws.getCell('E'+r).value=it.iban||'';ws.getCell('F'+r).value=it.synolo||0;ws.getCell('G'+r).value=it.liosia||0;ws.getCell('H'+r).value=it.loutraki||0;}});
   const t5=59+ex5;
   s5.getCell('F'+t5).value=R2(d15.reduce((s,r)=>s+(r.synolo||0),0));
-  s5.getCell('G'+t5).value=R2(pD5);
+  s5.getCell('G'+t5).value=R2(pD5L);   // G-total = άθροισμα στήλης ΛΙΟΣΙΑ (συνεπές με τα κελιά της στήλης)
   s5.getCell('H'+t5).value=R2(d15.reduce((s,r)=>s+(r.loutraki||0),0));
 
   // ════ ΦΥΛΛΟ 6: ΠΛΗΡΩΜΕΣ ΤΕΛΟΣ ΤΟΥ ΜΗΝΑ (C/D/E/F/G/H · slots 6-39 · totals 40) ════
@@ -3030,7 +3057,7 @@ async function exportCSV(){
   const ex6=_fillSlots(s6,6,39,tel,(ws,r,it)=>{['C','D','E','F','G','H'].forEach(c=>ws.getCell(c+r).value=null); if(it){ws.getCell('C'+r).value=it.cod||'';ws.getCell('D'+r).value=it.iban||'';ws.getCell('E'+r).value=it.name||'';ws.getCell('F'+r).value=it.synolo||0;ws.getCell('G'+r).value=it.liosia||0;ws.getCell('H'+r).value=it.loutraki||0;}});
   const t6=40+ex6;
   s6.getCell('F'+t6).value=R2(tel.reduce((s,r)=>s+(r.synolo||0),0));
-  s6.getCell('G'+t6).value=R2(pTel);
+  s6.getCell('G'+t6).value=R2(pTelL);   // G-total = άθροισμα στήλης ΛΙΟΣΙΑ (συνεπές με τα κελιά της στήλης)
   s6.getCell('H'+t6).value=R2(tel.reduce((s,r)=>s+(r.loutraki||0),0));
 
   // ── Download ──
