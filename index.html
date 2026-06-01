@@ -209,6 +209,12 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 /* Saving spinner στο header */
 .saving-dot{display:inline-block;width:12px;height:12px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;}
 @keyframes spin{to{transform:rotate(360deg);}}
+/* Success burst (μετά από καταχώρηση) */
+@keyframes okPop{0%{transform:translate(-50%,-50%) scale(.3);opacity:0;}35%{transform:translate(-50%,-50%) scale(1.18);opacity:1;}60%{transform:translate(-50%,-50%) scale(.92);opacity:1;}100%{transform:translate(-50%,-50%) scale(1);opacity:0;}}
+.ok-burst{position:fixed;top:46%;left:50%;z-index:99998;width:92px;height:92px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-2));display:flex;align-items:center;justify-content:center;font-size:48px;color:#fff;box-shadow:0 10px 48px rgba(76,175,125,.6);pointer-events:none;animation:okPop .9s var(--ease) forwards;}
+/* Sparkline στα KPI cards */
+.dk .spark{display:block;margin-top:8px;width:100%;height:26px;opacity:.78;}
+.dk .spark polyline{filter:drop-shadow(0 1px 3px rgba(0,0,0,.35));}
 /* Dirty indicator */
 #dirtyBadge{font-size:9px;font-weight:700;color:var(--yellow);padding:3px 8px;border:1px solid rgba(224,184,75,.4);border-radius:20px;background:rgba(224,184,75,.1);letter-spacing:.04em;display:none;align-items:center;gap:5px;}
 #dirtyBadge.show{display:inline-flex;animation:panelIn .3s var(--ease);}
@@ -1352,6 +1358,7 @@ async function setStore(s){
   // καθάρισε δεδομένα μήνα & ξαναφόρτωσε για το νέο κατάστημα (επιταγές = κοινές, δεν αλλάζουν)
   ['days','trapEisp','trapPl','metrita','bank','d15','telos','exoda'].forEach(function(k){D[k]={};D[k][CM]=[];});
   appReady=false;
+  showDashSkeletonIfActive();
   await loadFromSheets();
   appReady=true;
   renderAll(); refreshActiveTab();
@@ -1363,6 +1370,36 @@ function ea(obj,k){if(!obj[k])obj[k]=[];}
 function dn(y,mi,d){return DAYS[new Date(y,mi,d).getDay()];}
 function fmt(n){return Number(n||0).toLocaleString('el-GR',{minimumFractionDigits:2,maximumFractionDigits:2})+'€';}
 function toast(m,t='ok'){const el=document.getElementById('toast');el.textContent=m;el.className='show '+t;setTimeout(()=>el.classList.remove('show'),2600);}
+// ===== ΑΙΣΘΗΤΙΚΑ helpers (καθαρά οπτικά — δεν αγγίζουν υπολογισμούς) =====
+// Animated counter: tween από προηγούμενη τιμή στην target (easeOutCubic). Cache ανά key ώστε re-render χωρίς αλλαγή = χωρίς animation.
+function animateEl(el,to,key,opts){
+  if(!el)return; opts=opts||{};
+  const cache=animateEl._c||(animateEl._c={});
+  const prev=cache[key]; const from=(typeof prev==='number')?prev:0; cache[key]=to;
+  const fmtv=v=>{const s=fmt(Math.abs(v)); return opts.plus?((v>=0?'+':'−')+s):((v<0?'−':'')+s);};
+  if(!isFinite(to)){el.textContent='—';return;}
+  if(Math.abs(to-from)<0.005){el.textContent=fmtv(to);return;}
+  const dur=520,t0=(typeof performance!=='undefined'?performance.now():0);
+  (function step(now){const t=(typeof performance!=='undefined'?performance.now():now);let p=Math.min(1,(t-t0)/dur);const e=1-Math.pow(1-p,3);el.textContent=fmtv(from+(to-from)*e);if(p<1)requestAnimationFrame(step);else el.textContent=fmtv(to);})(t0);
+}
+// Sparkline: μικρό SVG polyline από σειρά τιμών
+function sparkline(vals,color){
+  vals=(vals||[]).filter(v=>v!=null&&isFinite(v));
+  if(vals.length<2)return '';
+  const w=100,h=26,max=Math.max.apply(null,vals),min=Math.min.apply(null,vals.concat([0])),rng=(max-min)||1;
+  const pts=vals.map((v,i)=>{const x=(i/(vals.length-1))*w;const y=h-2-((v-min)/rng)*(h-5);return x.toFixed(1)+','+y.toFixed(1);}).join(' ');
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+// Success burst (✓) μετά από καταχώρηση
+function flashOK(){ try{const d=document.createElement('div');d.className='ok-burst';d.textContent='✓';document.body.appendChild(d);setTimeout(()=>d.remove(),920);}catch(e){} }
+// Dashboard skeleton (κατά το loading)
+function dashSkeleton(){
+  const card='<div class="skel" style="height:108px;border-radius:14px;"></div>';
+  return `<div class="skel" style="height:96px;border-radius:18px;margin-bottom:16px;"></div>
+    <div class="dash-kpis">${card.repeat(5)}</div>
+    <div class="dash-row r3" style="margin-top:4px;"><div class="skel" style="height:230px;border-radius:14px;"></div><div class="skel" style="height:230px;border-radius:14px;"></div><div class="skel" style="height:230px;border-radius:14px;"></div></div>`;
+}
+function showDashSkeletonIfActive(){ try{const p=document.getElementById('tab-dashboard'); if(p&&p.classList.contains('active')) p.innerHTML=dashSkeleton();}catch(e){} }
 // Hard refresh — φρέσκια φόρτωση που παρακάμπτει την cache (μοναδικό ?cb=)
 function hardRefresh(){ if(dirty&&!confirm('Υπάρχουν μη αποθηκευμένες αλλαγές. Ανανέωση;'))return; location.href=location.pathname+'?cb='+Date.now(); }
 
@@ -1522,6 +1559,7 @@ async function changeMonth(v){
   D.days[v]=D.days[v]||[];D.trapEisp[v]=D.trapEisp[v]||[];D.trapPl[v]=D.trapPl[v]||[];
   D.metrita[v]=D.metrita[v]||[];D.bank[v]=D.bank[v]||[];D.d15[v]=D.d15[v]||[];D.telos[v]=D.telos[v]||[];D.exoda[v]=D.exoda[v]||[];
   appReady=false;
+  showDashSkeletonIfActive();
   const btn=document.querySelector('.btn-add');
   if(btn){btn.disabled=true;btn.textContent='Φόρτωση...';}
   // Φόρτωσε ΠΡΩΤΑ τις επιταγές του ΕΤΟΥΣ (αν λείπουν), μετά τα δεδομένα του μήνα
@@ -1649,7 +1687,7 @@ function addDay(){
   ['inp-met','inp-pos','inp-rep'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('inp-day').value='';
   document.getElementById('dayCompare').innerHTML='';
-  renderAll();saveToSheets("days");
+  renderAll();saveToSheets("days");flashOK();
   _sendDayEmail(day,dn(y,mi,day),met,pos,rep);
 }
 function closeDayPopup(){document.getElementById('dayPopup').style.display='none';}
@@ -1748,16 +1786,21 @@ function renderDashboard(){
     </div>
   </div>`;
   // ---- KPI CARDS (5) ----
+  const _dseq=m.rows.slice().sort((a,b)=>a.day-b.day);
+  const _sTot=_dseq.map(r=>(r.metrita||0)+(r.pos||0));
+  const _sMet=_dseq.map(r=>r.metrita||0);
+  const _sPos=_dseq.map(r=>r.pos||0);
   const kpis=[
-    {c:'green', ic:'💶', l:'Σύνολο Εισπράξεων', v:m.tAll, s:`${m.wd} εργάσ. · +καταθ.= ${fmt(m.synKatath)}`, tr:m.dPrevYear},
-    {c:'blue',  ic:'💵', l:'Μετρητά', v:m.tMet, s:'εισπράξεις μετρητών'},
-    {c:'purple',ic:'💳', l:'POS (−'+(posRate(ek())*100).toString().replace('.',',')+'%)', v:m.tPos, s:`−${fmt(m.kratiseis)} κρατήσεις`},
+    {c:'green', ic:'💶', l:'Σύνολο Εισπράξεων', v:m.tAll, s:`${m.wd} εργάσ. · +καταθ.= ${fmt(m.synKatath)}`, tr:m.dPrevYear, spark:sparkline(_sTot,'#3ddc97')},
+    {c:'blue',  ic:'💵', l:'Μετρητά', v:m.tMet, s:'εισπράξεις μετρητών', spark:sparkline(_sMet,'#5599dd')},
+    {c:'purple',ic:'💳', l:'POS (−'+(posRate(ek())*100).toString().replace('.',',')+'%)', v:m.tPos, s:`−${fmt(m.kratiseis)} κρατήσεις`, spark:sparkline(_sPos,'#a87dff')},
     {c:'orange',ic:'🏦', l:'Εμβάσματα', v:m.pEisp, s:'εισπράξεις εμβάσματος'},
     {c:'red',   ic:'📤', l:'Πληρωμές '+stL, v:m.allP, s:'σύνολο μήνα'},
   ];
   const kpiHtml=kpis.map(x=>`<div class="dk dk-${x.c}">
     <div class="dk-top"><div class="dk-ico">${x.ic}</div><div class="dk-l">${x.l}</div>${x.tr!=null?tbadge(x.tr):''}</div>
     <div class="dk-v ${x.v<0?'neg':''}">${(x.v<0?'−':'')+fmt(Math.abs(x.v))}</div>
+    ${x.spark||''}
     <div class="dk-s">${x.s}</div></div>`).join('');
   // ---- ΤΑΜΕΙΟ ΣΗΜΕΡΑ (τελευταία ημέρα) ----
   const ld=m.lastDay;
@@ -1861,6 +1904,13 @@ function renderDashboard(){
       <span>🛡️ ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε. · ΤΑΜΕΙΟ v6</span>
       <span>Τελευταία ανανέωση: ${hh}:${mm} · <span style="color:var(--green-2)">● Αυτόματη αποθήκευση ενεργή</span></span>
     </div>`;
+  // ── Animated counters (καθαρά οπτικό· cache ανά store ώστε re-render χωρίς αλλαγή = χωρίς animation) ──
+  try{
+    const sk=STORE+'|';
+    animateEl(host.querySelector('.yph-val'), yp, sk+'yp', {plus:true});
+    const dkv=host.querySelectorAll('.dk-v'); const kvals=[m.tAll,m.tMet,m.tPos,m.pEisp,m.allP];
+    dkv.forEach((el,i)=>{ if(kvals[i]!=null) animateEl(el,kvals[i],sk+'kpi'+i); });
+  }catch(e){}
 }
 
 // ===== ΜΗΝΙΑΙΑ ΑΝΑΦΟΡΑ (χωρίς ΑΙ — όλα από δεδομένα + ιστορικό HIST) =====
@@ -2319,7 +2369,7 @@ function addTEisp(){
   if(tgt===STORE){ ea(D.trapEisp,k); D.trapEisp[k].push({date:d,pelatis:p,poso:v}); saveToSheets("trapEisp"); }
   else { if(!Dpeer.trapEisp[k]) Dpeer.trapEisp[k]=[]; Dpeer.trapEisp[k].push({date:d,pelatis:p,poso:v}); savePeerSection("trapEisp"); }
   document.getElementById('tei-p').value=''; document.getElementById('tei-v').value='';
-  renderTrap(); renderMain();
+  renderTrap(); renderMain(); flashOK();
 }
 function addTPl(){
   const d=document.getElementById('tpl-d').value, p=document.getElementById('tpl-p').value.trim(), v=parseFloat(document.getElementById('tpl-v').value)||0;
@@ -2329,7 +2379,7 @@ function addTPl(){
   if(tgt===STORE){ ea(D.trapPl,k); D.trapPl[k].push({date:d,prom:p,poso:v}); saveToSheets("trapPl"); }
   else { if(!Dpeer.trapPl[k]) Dpeer.trapPl[k]=[]; Dpeer.trapPl[k].push({date:d,prom:p,poso:v}); savePeerSection("trapPl"); }
   document.getElementById('tpl-p').value=''; document.getElementById('tpl-v').value='';
-  renderTrap(); renderMain();
+  renderTrap(); renderMain(); flashOK();
 }
 function delTEisp(i,st){
   const k=ek();
@@ -2391,7 +2441,7 @@ function addMet(){
   if(tgt===STORE){ ea(D.metrita,k); D.metrita[k].push({date:d,ait:a,poso:v}); saveToSheets("metrita"); }
   else { if(!Dpeer.metrita[k]) Dpeer.metrita[k]=[]; Dpeer.metrita[k].push({date:d,ait:a,poso:v}); savePeerSection("metrita"); }
   document.getElementById('met-a').value=''; document.getElementById('met-v').value='';
-  renderMet(); renderMain();
+  renderMet(); renderMain(); flashOK();
 }
 function delMet(i,st){
   const k=ek();
@@ -2428,7 +2478,7 @@ function addBnk(){
   if(tgt===STORE){ ea(D.bank,k); D.bank[k].push({date:d,ait:a,poso:v}); saveToSheets("bank"); }
   else { if(!Dpeer.bank[k]) Dpeer.bank[k]=[]; Dpeer.bank[k].push({date:d,ait:a,poso:v}); savePeerSection("bank"); }
   document.getElementById('bnk-a').value=''; document.getElementById('bnk-v').value='';
-  renderBnk(); renderMain();
+  renderBnk(); renderMain(); flashOK();
 }
 function delBnk(i,st){
   const k=ek();
@@ -2493,7 +2543,7 @@ function addD5(){
   const k=ek();ea(D.d15,k);
   const item={cod:c,prom:p,iban:i,synolo:s,liosia:l,loutraki:ko};
   D.d15[k].push(item);
-  ['d5-c','d5-p','d5-i','d5-s','d5-l','d5-k'].forEach(id=>document.getElementById(id).value='');renderD5();renderMain();
+  ['d5-c','d5-p','d5-i','d5-s','d5-l','d5-k'].forEach(id=>document.getElementById(id).value='');renderD5();renderMain();flashOK();
   saveToSheets("d15");
 }
 function delD5(idx){
@@ -2515,7 +2565,7 @@ function addTel(){
   if(!n||!s)return;const k=ek();ea(D.telos,k);
   const item={kat:kt,cod:c,iban:i,name:n,synolo:s,liosia:l,loutraki:ko};
   D.telos[k].push(item);
-  ['tel-c','tel-i','tel-n','tel-s','tel-l','tel-k2'].forEach(id=>document.getElementById(id).value='');renderTel();renderMain();
+  ['tel-c','tel-i','tel-n','tel-s','tel-l','tel-k2'].forEach(id=>document.getElementById(id).value='');renderTel();renderMain();flashOK();
   saveToSheets("telos");
 }
 function delTel(idx){
@@ -2538,14 +2588,14 @@ function addExCash(){
   if(!v)return;const k=ek();ea(D.exoda,k);
   D.exoda[k].push({type:'cash',date:d,desc:a,poso:v});
   document.getElementById('exc-a').value='';document.getElementById('exc-v').value='';
-  renderExoda();saveToSheets("exoda");
+  renderExoda();saveToSheets("exoda");flashOK();
 }
 function addExExp(){
   const d=document.getElementById('exe-d').value,a=document.getElementById('exe-a').value.trim(),v=parseFloat(document.getElementById('exe-v').value)||0;
   if(!a||!v)return;const k=ek();ea(D.exoda,k);
   D.exoda[k].push({type:'exp',date:d,desc:a,poso:v});
   document.getElementById('exe-a').value='';document.getElementById('exe-v').value='';
-  renderExoda();saveToSheets("exoda");
+  renderExoda();saveToSheets("exoda");flashOK();
 }
 function delExoda(idx){
   const k=ek();const r=(D.exoda[k]||[])[idx];if(!r)return;
@@ -2578,7 +2628,7 @@ function addEpit(){
   if(!s||!p)return;
   D.epitages.push({month:m,file_year:yr,date:d,ekdosi:ek2,num:n,prom:p,synolo:s,liosia:l,loutraki:ko});
   ['ep-n','ep-s','ep-l','ep-k','ep-d','ep-ek','ep-p'].forEach(id=>document.getElementById(id).value='');
-  renderEpit();saveEpitages();
+  renderEpit();saveEpitages();flashOK();
 }
 function delEpit(i){const r=D.epitages[i];if(!confirmDel('Διαγραφή επιταγής: '+((r&&r.prom)||'')+' '+fmt((r&&r.liosia)||0)))return;D.epitages.splice(i,1);renderEpit();saveEpitages();}
 function saveEpitages(){
@@ -3079,6 +3129,7 @@ async function initApp(){
   document.getElementById('inp-day').disabled=true;
   document.querySelector('.btn-add').disabled=true;
   document.querySelector('.btn-add').textContent='Φόρτωση...';
+  showDashSkeletonIfActive();
   // ΣΕΙΡΙΑΚΑ — πρώτα μήνας, μετά επιταγές, χωρίς race condition
   await loadFromSheets();
   await loadAllEpitages();
