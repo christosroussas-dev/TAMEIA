@@ -1575,11 +1575,12 @@ function renderDashboard(){
   else if(yp>-5000){ypIcon='🟡';ypGrade='ΠΡΟΣΟΧΗ';}
   else if(yp>-15000){ypIcon='🔴';ypGrade='ΔΥΣΚΟΛΟΣ';}
   else{ypIcon='🚨';ypGrade='ΚΡΙΣΙΜΟΣ';}
+  const stL=(STORES[STORE]||STORES.LIOSIA).label;
   const heroHtml=`<div class="yp-hero ${yp>=0?'pos':'neg'}${yp<=-15000?' crit':''}">
     <div class="yph-main">
-      <div class="yph-label">🪙 ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ — ΛΙΟΣΙΑ</div>
+      <div class="yph-label">🪙 ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ — ${stL}</div>
       <div class="yph-val">${(yp>=0?'+':'−')+fmt(Math.abs(yp))}</div>
-      <div class="yph-sub">Εισπράξεις + Εμβάσματα − Πληρωμές ΛΙΟΣΙΑ − Επιταγές</div>
+      <div class="yph-sub">Εισπράξεις + Εμβάσματα − Πληρωμές ${stL} − Επιταγές</div>
     </div>
     <div class="yph-side">
       <div class="yph-icon">${ypIcon}</div>
@@ -1591,9 +1592,9 @@ function renderDashboard(){
   const kpis=[
     {c:'green', ic:'💶', l:'Σύνολο Εισπράξεων', v:m.tAll, s:`${m.wd} εργάσιμες`, tr:m.dPrevYear},
     {c:'blue',  ic:'💵', l:'Μετρητά', v:m.tMet, s:'εισπράξεις μετρητών'},
-    {c:'purple',ic:'💳', l:'POS (−0,74%)', v:m.tPos, s:`−${fmt(m.kratiseis)} κρατήσεις`},
+    {c:'purple',ic:'💳', l:'POS (−'+(posRate(ek())*100).toString().replace('.',',')+'%)', v:m.tPos, s:`−${fmt(m.kratiseis)} κρατήσεις`},
     {c:'orange',ic:'🏦', l:'Εμβάσματα', v:m.pEisp, s:'εισπράξεις εμβάσματος'},
-    {c:'red',   ic:'📤', l:'Πληρωμές ΛΙΟΣΙΑ', v:m.allP, s:'σύνολο μήνα'},
+    {c:'red',   ic:'📤', l:'Πληρωμές '+stL, v:m.allP, s:'σύνολο μήνα'},
   ];
   const kpiHtml=kpis.map(x=>`<div class="dk dk-${x.c}">
     <div class="dk-top"><div class="dk-ico">${x.ic}</div><div class="dk-l">${x.l}</div>${x.tr!=null?tbadge(x.tr):''}</div>
@@ -1623,9 +1624,10 @@ function renderDashboard(){
   const monthEps=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr))));
   const today=new Date().toISOString().slice(0,10);
   const paid=monthEps.filter(e=>e.date&&e.date<today),pend=monthEps.filter(e=>!e.date||e.date>=today);
-  const paidSum=paid.reduce((s,e)=>s+(e.liosia||0),0),pendSum=pend.reduce((s,e)=>s+(e.liosia||0),0);
+  const _isLouEp=(STORE==='LOUTRAKI');
+  const paidSum=paid.reduce((s,e)=>s+(_isLouEp?epK(e):(e.liosia||0)),0),pendSum=pend.reduce((s,e)=>s+(_isLouEp?epK(e):(e.liosia||0)),0);
   const epTot=paidSum+pendSum;
-  const donut=svgDonut([{value:pendSum,color:'#f59e0b'},{value:paidSum,color:'#3ddc97'}],fmt(epTot).replace('€',''),'ΛΙΟΣΙΑ');
+  const donut=svgDonut([{value:pendSum,color:'#f59e0b'},{value:paidSum,color:'#3ddc97'}],fmt(epTot).replace('€',''),stL);
   // ---- CASH FLOW σενάρια ----
   const sc=(v)=>`${v>=0?'+':'−'}${fmt(Math.abs(v))}`;
   // ---- ΓΡΗΓΟΡΕΣ ΕΝΕΡΓΕΙΕΣ ----
