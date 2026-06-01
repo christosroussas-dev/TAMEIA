@@ -1379,7 +1379,7 @@ function animateEl(el,to,key,opts){
   const fmtv=v=>{const s=fmt(Math.abs(v)); return opts.plus?((v>=0?'+':'−')+s):((v<0?'−':'')+s);};
   if(!isFinite(to)){el.textContent='—';return;}
   if(Math.abs(to-from)<0.005){el.textContent=fmtv(to);return;}
-  const dur=520,t0=(typeof performance!=='undefined'?performance.now():0);
+  const dur=850,t0=(typeof performance!=='undefined'?performance.now():0);
   (function step(now){const t=(typeof performance!=='undefined'?performance.now():now);let p=Math.min(1,(t-t0)/dur);const e=1-Math.pow(1-p,3);el.textContent=fmtv(from+(to-from)*e);if(p<1)requestAnimationFrame(step);else el.textContent=fmtv(to);})(t0);
 }
 // Sparkline: μικρό SVG polyline από σειρά τιμών
