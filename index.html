@@ -227,6 +227,37 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
 .ui-modal-btn.danger{background:var(--red);color:#fff;box-shadow:0 4px 16px rgba(224,85,85,.35);}
 .ui-modal-btn.primary{background:var(--accent);color:#04101f;box-shadow:0 4px 16px var(--accent-bg);}
 .ui-modal-btn.danger:hover,.ui-modal-btn.primary:hover{filter:brightness(1.1);}
+/* ===== Πρότυπα κινήσεων (templates modal) ===== */
+.tpl-btn{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a1407;border:none;padding:8px 16px;border-radius:8px;font-size:11px;font-weight:800;letter-spacing:.03em;cursor:pointer;transition:filter .15s,transform .1s;box-shadow:0 2px 10px rgba(201,168,78,.3);margin:0 0 10px;}
+.tpl-btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.tpl-overlay{position:fixed;inset:0;background:rgba(4,8,16,.66);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);z-index:100000;display:none;align-items:center;justify-content:center;padding:18px;}
+.tpl-overlay.show{display:flex;animation:panelIn .2s var(--ease);}
+.tpl-modal{background:var(--bg2);border:1px solid var(--border2);border-top:3px solid var(--gold2);border-radius:16px;width:100%;max-width:620px;max-height:88vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);}
+.tpl-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border2);}
+.tpl-head h3{font-size:15px;font-weight:800;color:var(--gold);margin:0;}
+.tpl-x{background:transparent;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:2px 6px;border-radius:6px;}
+.tpl-x:hover{color:var(--text);background:var(--bg3);}
+.tpl-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:11px 20px;border-bottom:1px solid var(--border2);font-size:11px;}
+.tpl-tools button{background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:6px 12px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;}
+.tpl-tools button:hover{border-color:var(--accent);}
+.tpl-list{overflow-y:auto;padding:8px 14px;flex:1;}
+.tpl-row{display:flex;align-items:center;gap:10px;padding:8px 8px;border-bottom:1px solid var(--border);}
+.tpl-row:hover{background:rgba(255,255,255,.02);}
+.tpl-row input[type=checkbox]{width:18px;height:18px;flex-shrink:0;cursor:pointer;accent-color:var(--gold2);}
+.tpl-info{flex:1;min-width:0;}
+.tpl-nm{font-size:13px;font-weight:600;color:var(--text);}
+.tpl-nm input{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:6px 9px;border-radius:6px;font-size:13px;font-weight:600;}
+.tpl-iban{font-size:9px;color:var(--muted);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px;}
+.tpl-amt{width:104px;flex-shrink:0;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:9px 10px;border-radius:7px;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right;}
+.tpl-amt:focus{outline:none;border-color:var(--gold2);}
+.tpl-del{background:transparent;border:none;color:var(--red);font-size:14px;cursor:pointer;flex-shrink:0;padding:4px 7px;border-radius:6px;opacity:.6;}
+.tpl-del:hover{opacity:1;background:rgba(224,85,85,.12);}
+.tpl-foot{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:14px 20px;border-top:1px solid var(--border2);flex-wrap:wrap;}
+.tpl-foot .tpl-save{background:transparent;border:1px solid var(--border2);color:var(--muted);padding:10px 16px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;}
+.tpl-foot .tpl-save:hover{color:var(--gold);border-color:var(--gold2);}
+.tpl-foot .tpl-apply{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:11px 22px;border-radius:9px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px var(--accent-bg);}
+.tpl-foot .tpl-apply:hover{filter:brightness(1.1);}
+@media(max-width:640px){.tpl-amt{width:84px;font-size:14px;}.tpl-iban{max-width:120px;}}
 .sl{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;}
 .sl.ok{background:var(--green);box-shadow:0 0 6px var(--green);}.sl.warn{background:var(--yellow);box-shadow:0 0 6px var(--yellow);}.sl.danger{background:var(--red);box-shadow:0 0 6px var(--red);animation:pulse 1.8s var(--ease) infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
@@ -721,7 +752,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
       <div class="fi"><label>Ποσό (€)</label><input type="number" id="met-v" step="0.01"></div>
       <div class="fi store-pick" id="met-store-w" style="display:none"><label>Κατάστημα</label><select id="met-store"><option value="LIOSIA">ΛΙΟΣΙΑ</option><option value="LOUTRAKI">ΛΟΥΤΡΑΚΙ</option></select></div>
     </div>
-    <button class="btn-add" onclick="addMet()">ΚΑΤΑΧΩΡΗΣΗ</button>
+    <button class="btn-add" onclick="addMet()">ΚΑΤΑΧΩΡΗΣΗ</button><button class="tpl-btn" onclick="openTemplates('metrita')" title="Γρήγορη προσθήκη επαναλαμβανόμενων">⚡ Πρότυπα</button>
     <table><thead id="metHead"><tr><th>ΗΜΕΡΟΜΗΝΙΑ</th><th>ΠΛΗΡΩΜΕΣ ΜΕ ΜΕΤΡΗΤΑ</th><th class="num">ΠΟΣΟ</th><th></th></tr></thead><tbody id="metBody"></tbody></table>
   </div>
 </div>
@@ -739,7 +770,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
       <div class="fi"><label>Ποσό (€)</label><input type="number" id="bnk-v" step="0.01"></div>
       <div class="fi store-pick" id="bnk-store-w" style="display:none"><label>Κατάστημα</label><select id="bnk-store"><option value="LIOSIA">ΛΙΟΣΙΑ</option><option value="LOUTRAKI">ΛΟΥΤΡΑΚΙ</option></select></div>
     </div>
-    <button class="btn-add" onclick="addBnk()">ΚΑΤΑΧΩΡΗΣΗ</button>
+    <button class="btn-add" onclick="addBnk()">ΚΑΤΑΧΩΡΗΣΗ</button><button class="tpl-btn" onclick="openTemplates('bank')" title="Γρήγορη προσθήκη επαναλαμβανόμενων">⚡ Πρότυπα</button>
     <table><thead id="bnkHead"><tr><th>ΗΜΕΡΟΜΗΝΙΑ</th><th>ΠΛΗΡΩΜΕΣ ΜΕΣΩ ΤΡΑΠΕΖΑΣ</th><th class="num">ΛΙΟΣΙΑ</th><th></th></tr></thead><tbody id="bnkBody"></tbody></table>
   </div>
 </div>
@@ -753,7 +784,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
   <div class="tw">
     <div class="tw-h">ΠΛΗΡΩΜΕΣ 15 ΤΟΥ ΜΗΝΑ</div>
     <div style="padding:10px 12px;border-bottom:1px solid var(--border2)">
-      <button type="button" onclick="toggleAddForm('d5Form',this)" style="background:transparent;border:1px solid var(--accent);color:var(--accent);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:8px 16px;border-radius:7px;cursor:pointer;">➕ Προσθήκη νέας πληρωμής</button>
+      <button type="button" onclick="toggleAddForm('d5Form',this)" style="background:transparent;border:1px solid var(--accent);color:var(--accent);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:8px 16px;border-radius:7px;cursor:pointer;">➕ Προσθήκη νέας πληρωμής</button> <button class="tpl-btn" onclick="openTemplates('d15')" title="Γρήγορη προσθήκη προμηθευτών 15ου">⚡ Πρότυπα</button>
       <div id="d5Form" style="display:none;margin-top:10px;">
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end;">
         <div class="fi"><label>Κωδ.</label><input type="text" id="d5-c" placeholder="ΚΩΔ"></div>
@@ -792,7 +823,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
   <div class="tw">
     <div class="tw-h">ΠΛΗΡΩΜΕΣ ΤΕΛΟΣ ΤΟΥ ΜΗΝΑ</div>
     <div style="padding:10px 12px;border-bottom:1px solid var(--border2)">
-      <button type="button" onclick="toggleAddForm('telForm',this)" style="background:transparent;border:1px solid var(--accent);color:var(--accent);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:8px 16px;border-radius:7px;cursor:pointer;">➕ Προσθήκη νέας πληρωμής</button>
+      <button type="button" onclick="toggleAddForm('telForm',this)" style="background:transparent;border:1px solid var(--accent);color:var(--accent);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:8px 16px;border-radius:7px;cursor:pointer;">➕ Προσθήκη νέας πληρωμής</button> <button class="tpl-btn" onclick="openTemplates('telos')" title="Γρήγορη προσθήκη προμηθευτών τέλους">⚡ Πρότυπα</button>
       <div id="telForm" style="display:none;margin-top:10px;">
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end;">
         <div class="fi"><label>Κατηγορία</label>
@@ -1029,6 +1060,23 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
     </div>
   </div>
 </div>
+<!-- Πρότυπα κινήσεων (γρήγορη προσθήκη επαναλαμβανόμενων) -->
+<div id="tplModal" class="tpl-overlay">
+  <div class="tpl-modal">
+    <div class="tpl-head"><h3 id="tplTitle">⚡ Πρότυπα</h3><button class="tpl-x" onclick="closeTpl()" aria-label="Κλείσιμο">✕</button></div>
+    <div class="tpl-tools">
+      <button onclick="tplSelectAll(true)">☑ Επιλογή όλων</button>
+      <button onclick="tplSelectAll(false)">☐ Καμία</button>
+      <button onclick="tplAddNew()">➕ Νέο πρότυπο</button>
+      <span style="color:var(--muted);margin-left:auto;">Τα ποσά αλλάζουν ελεύθερα ↓</span>
+    </div>
+    <div class="tpl-list" id="tplList"></div>
+    <div class="tpl-foot">
+      <button class="tpl-save" onclick="tplSaveDefaults()" title="Αποθήκευση ονομάτων/ποσών ως μόνιμα πρότυπα">💾 Αποθήκευση προτύπων</button>
+      <button class="tpl-apply" onclick="tplApplySelected()">➕ Προσθήκη επιλεγμένων στον μήνα</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const MONTHS_EL=['ΙΑΝΟΥΑΡΙΟΣ','ΦΕΒΡΟΥΑΡΙΟΣ','ΜΑΡΤΙΟΣ','ΑΠΡΙΛΙΟΣ','ΜΑΙΟΣ','ΙΟΥΝΙΟΣ','ΙΟΥΛΙΟΣ','ΑΥΓΟΥΣΤΟΣ','ΣΕΠΤΕΜΒΡΙΟΣ','ΟΚΤΩΒΡΙΟΣ','ΝΟΕΜΒΡΙΟΣ','ΔΕΚΕΜΒΡΙΟΣ'];
@@ -1179,6 +1227,31 @@ async function fbLoadMonth(key){ try{
 async function fbSaveSection(key,section,arr){ return _db.collection('months').doc(storeDocKey(key,section)).set({[section]:arr||[]},{merge:true}); }
 async function fbLoadEpitages(yr){ try{ const snap=await _db.collection('epitages').doc(String(yr)).get(); if(!snap.exists) return {success:true,exists:false}; return {success:true,exists:true,data:{epitages:(snap.data().items||[])}}; }catch(e){return {success:false,exists:false};} }
 async function fbSaveEpitages(yr,arr){ return _db.collection('epitages').doc(String(yr)).set({items:arr||[]}); }
+// ===== ΠΡΟΤΥΠΑ ΚΙΝΗΣΕΩΝ (recurring templates) — Firestore: templates/{store} (metrita,bank) + templates/SHARED (d15,telos) =====
+const DEFAULT_TEMPLATES={"LIOSIA":{"metrita":[{"poso":250,"desc":"ΜΙΣΘΟΣ ΑΛΕΞΑΝΔΡΟΥ"},{"poso":100,"desc":"ΜΙΣΘΟΣ ΚΑΡΑΓΚΟΥΝΗ"},{"poso":80,"desc":"ΜΙΣΘΟΣ ΓΡΗΓΟΡΗ"},{"poso":50,"desc":"ΜΙΣΘΟΣ ΚΩΝΣΤΑΝΤΙΝΟΥ ΣΑΝΤΑΙΝΤΕ"},{"poso":50,"desc":"ΜΙΣΘΟΣ ΚΩΝΣΤΑΝΤΙΝΟΥ ΣΑΙΝ"}],"bank":[{"poso":1191,"ait":"ΕΝΟΙΚΙΟ ΛΙΟΣΙΑ ΑΠΌ ΤΡΑΠΕΖΑ"},{"poso":2000,"ait":"ΕΝΑΝΤΙ RLED"}]},"LOUTRAKI":{"metrita":[{"poso":310,"desc":"ΜΙΣΘΟΣ ΗΡΑΚΛΗ ΜΕ ΜΕΤΡΗΤΑ"},{"poso":80,"desc":"ΜΙΣΘΟΣ ΔΩΡΑ ΜΕ ΜΕΤΡΗΤΑ"},{"poso":190,"desc":"ΜΙΣΘΟΣ ΤΑΣΟΥ ΜΕ ΜΕΤΡΗΤΑ"},{"poso":225,"desc":"ΜΙΣΘΟΣ ΜΕΛΕΤΗ ΜΕ ΜΕΤΡΗΤΑ"},{"poso":100,"desc":"ΜΙΣΘΟΣ ΤΑΣΟΣ ΜΕ ΜΕΤΡΗΤΑ"},{"poso":165,"desc":"ΜΙΣΘΟΣ ΠΑΝΑΓΙΩΤΗ ΜΕ ΜΕΤΡΗΤΑ"}],"bank":[{"poso":185,"ait":"ΠΛΗΡΩΜΗ ΕΦΚΑ"},{"poso":169,"ait":"ΡΥΘΜΙΣΗ ΕΦΚΑ"},{"poso":2000,"ait":"ΕΝΑΝΤΙ RLED"},{"poso":400,"ait":"ΕΝΟΙΚΙΟ ΣΤΗΝ ΤΡΑΠΕΖΑ"},{"poso":260,"ait":"ΕΦΚΑ"}]},"SHARED":{"d15":[{"poso":668,"prom":"ACCORDIA","iban":"GR4601102100000021047161597"},{"poso":243,"prom":"SMART ACTION ΟΝΕ ΙΚΕ","iban":"53400294160"},{"poso":232,"prom":"ΒΙΟΚΕΦ","iban":"1400 080 3222"},{"poso":222,"prom":"ΒΗΚΑΠ - ΣΤΑΘΟΠΟΥΛΟΣ","iban":"EUROBANK  GR5602600130000830200101226"},{"poso":310,"prom":"ΜΩΡΑΙΤΗΣ ΦΩΤΙΣΤΙΚΑ ΑΒΕΕ","iban":"11547027943"},{"poso":84,"prom":"ΚΑΡΑΚΩΣΤΑΣ","iban":"04400111698"},{"poso":514,"prom":"FORELCA","iban":"89047013563"},{"poso":306,"prom":"Lamda Electronics","iban":"04400318442"},{"poso":93,"prom":"ΜΠΟΥΖΟΣ ΣΠΥΡΟΣ","iban":"40200251607"},{"poso":386,"prom":"Μ.COM (ΠΑΛΙΑ MATEL)","iban":"23500425790"},{"poso":292,"prom":"SPOTLIGHT","iban":"18144030105"},{"poso":0,"prom":"METANOR ΦΩΤΙΣΜΟΣ ΑΕ","iban":"54020158702"},{"poso":261,"prom":"ΒΑΣΙΛΕΙΑΔΗΣ","iban":""},{"poso":231,"prom":"ΠΑΡΠΑΝΕΛΑΣ","iban":"83947011942"},{"poso":0,"prom":"VIOKAR ΚΑΡΑΧΑΛΙΟΣ","iban":"11547023280"},{"poso":752,"prom":"TOP","iban":"GR6301101080000010847152500"},{"poso":121,"prom":"ΔΕΚΑ","iban":"19047090477"},{"poso":93,"prom":"CRL (CENTRACOM)","iban":"ΠΕΙΡΑΙΩΣ GR8901720880005088098301944"},{"poso":502,"prom":"ΣΙΜΑΚΟΜ","iban":"66447007247"},{"poso":6212,"prom":"ΖΑΧΑΡΟΠΟΥΛΟΣ","iban":"21000126025"},{"poso":0,"prom":"ΑΓΓΕΛΙΔΗΣ","iban":"ALPHA BANK GR3201403860386002320002473"},{"poso":86,"prom":"ΧΑΤΖΟΥΔΗΣ","iban":"13047004570"},{"poso":404,"prom":"COM-ILGEKA","iban":"18800139786"},{"poso":129,"prom":"ΤΕΛΜΕΚΟ","iban":"11247045336"},{"poso":295,"prom":"ΕΛΒΗΧ","iban":"EUROBANK GR0702600400000680200817417"},{"poso":109,"prom":"ELVAN","iban":"14020303815"},{"poso":213,"prom":"ΑΡΑΠΙΔΗΣ","iban":"73844002672"},{"poso":885,"prom":"COURBI ELEKTRO SENIKON ΕΠΕ","iban":"GR5501725090005509062861990"},{"poso":719,"prom":"SAS KARANIKOLAS","iban":"04844010506"},{"poso":0,"prom":"ΠΑΠΑΓΙΑΝΝΗΣ","iban":""},{"poso":282,"prom":"ΓΑΛΑΤΗΣ","iban":""},{"poso":0,"prom":"ΕΝΑΝΤΙ ΜΙΣΘΟΥ ΔΩΡΑ","iban":""},{"poso":300,"prom":"ΕΝΑΝΤΙ ΜΙΣΘΟΥ ΑΛΕΞΑΝΔΡΟΣ","iban":""},{"poso":255,"prom":"ΕΦΚΑ ΧΡΗΣΤΟΥ","iban":"RF17902008000211760025003"},{"poso":154,"prom":"ΚΕΑΟ 1 ΧΡΗΣΤΟΣ","iban":"12023540389174622022"},{"poso":50,"prom":"ΚΕΑΟ 2 ΧΡΗΣΤΟΣ","iban":"12034403794192822021"},{"poso":171,"prom":"ΦΩΤΟΚΥΚΛΩΣΗ","iban":"δεν πληρωσε το μεριδιο του το λουτρακι 191,08"},{"poso":0,"prom":"ENANTI ΜΙΣΘΟΥ ΤΑΣΟΣ","iban":""},{"poso":0,"prom":"ΔΗΣΙΟΣ","iban":"16347084820"},{"poso":0,"prom":"ΕΝΑΝΤΙ ΜΙΣΘΟΥ ΠΑΝΑΓΙΩΤΗΣ","iban":""},{"poso":300,"prom":"ΕΝΑΝΤΙ ΜΙΣΘΟΥ ΓΡΗΓΟΡΗΣ","iban":"18300444660"},{"poso":346,"prom":"ΔΕΗ ΛΙΟΣΙΑ","iban":"RF72907738000300011752778"},{"poso":400,"prom":"ΕΝΑΝΤΙ ΜΙΣΘΟΥ ΒΛΑΣΗΣ","iban":""},{"poso":596,"prom":"ΕΝΟΙΚΙΟ ΛΙΟΣΙΑ ΕΦΟΡΙΑ","iban":"039118484 902005210 977624049829"}],"telos":[{"poso":0,"name":"ΖΩΗ ΘΕΟΔΩΡΑ","iban":""},{"poso":0,"name":"ΚΡΙΕΖΗΣ ΗΡΑΚΛΗΣ","iban":"42974752844"},{"poso":955,"name":"ΣΚΟΥΡΑΣ ΚΩΝΣΤΑΝΤΙΝΟΣ","iban":""},{"poso":502,"name":"ΠΑΠΑΔΟΠΟΥΛΟΣ ΑΛΕΞΑΝΔΡΟΣ","iban":""},{"poso":743,"name":"ΚΑΡΑΓΚΟΥΝΗΣ","iban":""},{"poso":0,"name":"ΣΤΕΦΑΝΙΑ","iban":""},{"poso":125,"name":"ΛΟΓΙΣΤΗΣ ΚΑΤΡΑ ΕΛΕΝΗ","iban":"GR9102602730000970102709952 EUROBANK"},{"poso":377,"name":"ΚΑΡΑΣ","iban":"15047032006"},{"poso":450,"name":"ΜΠΑΣΙΑΚΟΣ","iban":""},{"poso":466,"name":"ARLIGHT","iban":"04861359513"},{"poso":2363,"name":"ΚΑΣΙΝΑΚΗΣ","iban":"'08847007328"},{"poso":583,"name":"ELFA","iban":""},{"poso":94,"name":"ΗΛΕΚΤΡΟΚΑΛΥΨΗ","iban":""},{"poso":423,"name":"ΣΟΛΟΜΩΝ","iban":""},{"poso":214,"name":"ΜΑΡΕΤΣΙΚΟΣ","iban":""},{"poso":271,"name":"ΕΒΙΒΑΚ","iban":""},{"poso":811,"name":"GEYER","iban":""},{"poso":0,"name":"ΛΕΚΚΑΣ ΤΑΣΟΣ","iban":""},{"poso":0,"name":"SOUNDSTAR","iban":""},{"poso":275,"name":"LIDO","iban":""},{"poso":108,"name":"ΦΜΥ","iban":"999104747 910102230 534024401028"},{"poso":1668,"name":"ΑΠΔ","iban":"ΤΠΤΕ :  093027045299991047470939020160"},{"poso":221,"name":"ΠΑΠΑΠΑΝΟΣ","iban":""},{"poso":26,"name":"ΤΕΚΑ","iban":"RF32917768930270452900093"},{"poso":0,"name":"ΚΑΜΠΟΥΡΟΠΟΥΛΟΣ ΠΑΝΑΓΙΩΤΗΣ","iban":""},{"poso":635,"name":"ΓΡΗΓΟΡΑΚΟΣ ΓΡΗΓΟΡΗΣ","iban":"18300444660"},{"poso":234,"name":"ΔΟΣΗ ΕΦΟΡΙΑΣ","iban":"999104747 910102228 467606901240"},{"poso":0,"name":"ΜΕΛΕΤΗΣ ΣΤΑΥΡΙΔΗΣ","iban":"GR8201404370437002340013266 ALPHA"},{"poso":257,"name":"ΠΑΠΑΠΑΝΟΣ ΣΤΥΛΙΑΝΟΣ","iban":""},{"poso":706,"name":"ΜΑΥΡΑΚΗΣ ΜΙΧΑΛΗΣ","iban":""},{"poso":569,"name":"ΜΑΥΡΑΚΗΣ","iban":"GR4101720970005097108901910"},{"poso":577,"name":"ΜΑΞΟΥΤΗΣ ΒΛΑΣΗΣ","iban":""}]}};
+// φόρτωση προτύπων τρέχοντος store (+ shared 15ου/τέλος)
+async function fbLoadTemplates(store){
+  try{
+    const res=await Promise.all([ _db.collection('templates').doc(store).get(), _db.collection('templates').doc('SHARED').get() ]);
+    const sd=res[0].exists?(res[0].data()||{}):{}, shd=res[1].exists?(res[1].data()||{}):{};
+    const def=DEFAULT_TEMPLATES[store]||{metrita:[],bank:[]};
+    return {
+      metrita: sd.metrita||def.metrita||[],
+      bank:    sd.bank||def.bank||[],
+      d15:     shd.d15||DEFAULT_TEMPLATES.SHARED.d15||[],
+      telos:   shd.telos||DEFAULT_TEMPLATES.SHARED.telos||[]
+    };
+  }catch(e){
+    const def=DEFAULT_TEMPLATES[store]||{metrita:[],bank:[]};
+    return {metrita:def.metrita||[],bank:def.bank||[],d15:DEFAULT_TEMPLATES.SHARED.d15||[],telos:DEFAULT_TEMPLATES.SHARED.telos||[]};
+  }
+}
+// αποθήκευση κατηγορίας (metrita/bank → store doc · d15/telos → SHARED doc)
+async function fbSaveTemplatesCat(cat){
+  const doc=(cat==='metrita'||cat==='bank')?STORE:'SHARED';
+  return _db.collection('templates').doc(doc).set({[cat]:(D.templates[cat]||[])},{merge:true});
+}
+async function loadTemplates(){ try{ D.templates=await fbLoadTemplates(STORE); }catch(e){} }
 // ΜΕΤΑΦΟΡΑ (μία φορά): διαβάζει ΟΛΑ από το παλιό Apps Script και τα γράφει στο Firestore
 async function migrateFromSheets(){
   if(currentRole!=='ADMIN'){alert('Μόνο ADMIN.');return;}
@@ -1203,7 +1276,7 @@ async function migrateFromSheets(){
 window.migrateFromSheets=migrateFromSheets;
 
 let CM='ΜΑΙΟΣ_2026';
-let D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},exoda:{},epitages:[]};
+let D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},exoda:{},epitages:[],templates:{metrita:[],bank:[],d15:[],telos:[]}};
 // DUAL-STORE buffer: για χρήστες με dualStore (π.χ. Λουτράκι), κρατά τα δεδομένα του ΑΛΛΟΥ καταστήματος
 // (per-store sections μόνο: trapEisp/trapPl/metrita/bank). Τα d15/telos είναι ήδη shared.
 let Dpeer={trapEisp:{},trapPl:{},metrita:{},bank:{}};
@@ -1440,6 +1513,7 @@ async function setStore(s){
   appReady=false;
   showDashSkeletonIfActive();
   await loadFromSheets();
+  await loadTemplates();
   appReady=true;
   renderAll(); refreshActiveTab();
   toast('Κατάστημα: '+STORES[s].label,'info');
@@ -2720,6 +2794,72 @@ function renderExoda(){
   if(eb) eb.innerHTML=rows.map((r,i)=>{ if(r.type!=='exp')return ''; run=Math.round((run-(r.poso||0))*100)/100; return `<tr><td>${r.date||'—'}</td><td>${r.desc||'—'}</td><td class="num neg">${fmt(r.poso)}</td><td class="num" style="color:${run<0?'var(--red)':'var(--muted)'}">${fmt(run)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delExoda(${i})">✕</button></td></tr>`; }).join('')+(exp.length?`<tr class="tot"><td colspan="2">ΤΕΛΙΚΟ ΥΠΟΛΟΙΠΟ</td><td class="num neg">${fmt(expTot)}</td><td class="num acc">${fmt(bal)}</td><td></td></tr>`:'');
 }
 
+// ===== ⚡ ΠΡΟΤΥΠΑ ΚΙΝΗΣΕΩΝ (γρήγορη προσθήκη επαναλαμβανόμενων· καθαρά shortcut — δημιουργεί κανονικές εγγραφές) =====
+const TPL_NF={metrita:'desc',bank:'ait',d15:'prom',telos:'name'};
+let _tplCat=null;
+function escAttr(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function openTemplates(cat){ _tplCat=cat; renderTplModal(); document.getElementById('tplModal').classList.add('show'); }
+function closeTpl(){ document.getElementById('tplModal').classList.remove('show'); }
+function renderTplModal(){
+  const cat=_tplCat, nf=TPL_NF[cat];
+  const labels={metrita:'Μετρητά (πληρωμές)',bank:'Τράπεζα (πληρωμές)',d15:'15ου Μήνα',telos:'Τέλος Μήνα'};
+  document.getElementById('tplTitle').textContent='⚡ Πρότυπα — '+(labels[cat]||'');
+  const items=(D.templates&&D.templates[cat])||[];
+  const hasIban=(cat==='d15'||cat==='telos');
+  document.getElementById('tplList').innerHTML = items.length ? items.map(function(it,i){
+    const nm=it[nf]||'';
+    return '<div class="tpl-row">'
+      +'<input type="checkbox" class="tpl-chk" data-i="'+i+'">'
+      +'<div class="tpl-info"><div class="tpl-nm"><input type="text" class="tpl-name" data-i="'+i+'" value="'+escAttr(nm)+'"></div>'
+      +(hasIban?'<div class="tpl-iban" title="'+escAttr(it.iban||'')+'">'+(it.iban?escAttr(it.iban):'—')+'</div>':'')+'</div>'
+      +'<input type="number" class="tpl-amt" data-i="'+i+'" value="'+(it.poso||0)+'" step="0.01">'
+      +'<button class="tpl-del" onclick="tplDelItem('+i+')" title="Διαγραφή προτύπου">✕</button>'
+      +'</div>';
+  }).join('') : '<div class="empty-state"><div class="ico">⚡</div><div class="txt">Κανένα πρότυπο</div><div class="sub">Πρόσθεσε με «➕ Νέο πρότυπο»</div></div>';
+}
+// διάβασε τα τρέχοντα inputs πίσω στο D.templates (ώστε να μη χαθούν edits σε re-render)
+function tplSyncFromInputs(){
+  const cat=_tplCat, nf=TPL_NF[cat]; if(!D.templates||!D.templates[cat])return;
+  document.querySelectorAll('#tplList .tpl-amt').forEach(function(inp){const i=+inp.dataset.i; if(D.templates[cat][i])D.templates[cat][i].poso=Math.round((parseFloat(inp.value)||0)*100)/100;});
+  document.querySelectorAll('#tplList .tpl-name').forEach(function(inp){const i=+inp.dataset.i; if(D.templates[cat][i])D.templates[cat][i][nf]=inp.value.trim();});
+}
+function tplSelectAll(on){ document.querySelectorAll('#tplList .tpl-chk').forEach(function(c){c.checked=on;}); }
+function tplAddNew(){
+  tplSyncFromInputs();
+  const cat=_tplCat, nf=TPL_NF[cat];
+  if(!D.templates[cat])D.templates[cat]=[];
+  const o={poso:0}; o[nf]=''; if(cat==='d15'||cat==='telos')o.iban='';
+  D.templates[cat].push(o);
+  renderTplModal();
+  // εστίαση στο νέο όνομα
+  const ins=document.querySelectorAll('#tplList .tpl-name'); if(ins.length)ins[ins.length-1].focus();
+}
+function tplDelItem(i){ tplSyncFromInputs(); const cat=_tplCat; if(!D.templates[cat])return; D.templates[cat].splice(i,1); renderTplModal(); }
+function tplApplySelected(){
+  tplSyncFromInputs();
+  const cat=_tplCat, k=ek(), isLou=(STORE==='LOUTRAKI');
+  const chks=document.querySelectorAll('#tplList .tpl-chk:checked');
+  if(!chks.length){ toast('Δεν επέλεξες πρότυπα','warn'); return; }
+  ea(D[cat],k); let n=0;
+  chks.forEach(function(c){
+    const i=+c.dataset.i, it=D.templates[cat][i]; if(!it)return; const amt=it.poso||0;
+    if(cat==='metrita') D.metrita[k].push({date:'',ait:it.desc||'',poso:amt});
+    else if(cat==='bank') D.bank[k].push({date:'',ait:it.ait||'',poso:amt});
+    else if(cat==='d15') D.d15[k].push({cod:'',prom:it.prom||'',iban:it.iban||'',synolo:amt,liosia:isLou?0:amt,loutraki:isLou?amt:0});
+    else if(cat==='telos') D.telos[k].push({kat:'',cod:'',iban:it.iban||'',name:it.name||'',synolo:amt,liosia:isLou?0:amt,loutraki:isLou?amt:0});
+    n++;
+  });
+  if(cat==='metrita')renderMet(); else if(cat==='bank')renderBnk(); else if(cat==='d15')renderD5(); else if(cat==='telos')renderTel();
+  renderMain(); saveToSheets(cat); flashOK(); toast(n+' πρότυπα προστέθηκαν ✓','ok'); closeTpl();
+}
+function tplSaveDefaults(){
+  tplSyncFromInputs();
+  const cat=_tplCat;
+  markSaving&&markSaving();
+  fbSaveTemplatesCat(cat).then(function(){ markSaved&&markSaved(); toast('Πρότυπα αποθηκεύτηκαν ✓','ok'); }).catch(function(){ markDirty&&markDirty(); toast('Σφάλμα αποθήκευσης προτύπων','err'); });
+  renderTplModal();
+}
+
 // ===== ★ ΕΠΙΤΑΓΕΣ — 12ΜΗΝΟ ΗΜΕΡΟΛΟΓΙΟ =====
 function addEpit(){
   const m=document.getElementById('ep-m').value,yr=document.getElementById('ep-yr').value,d=document.getElementById('ep-d').value,ek2=document.getElementById('ep-ek').value,n=document.getElementById('ep-n').value.trim(),p=document.getElementById('ep-p').value.trim();
@@ -3275,6 +3415,7 @@ async function initApp(){
   // ΣΕΙΡΙΑΚΑ — πρώτα μήνας, μετά επιταγές, χωρίς race condition
   await loadFromSheets();
   await loadAllEpitages();
+  await loadTemplates();
   appReady=true;
   document.getElementById('inp-day').disabled=false;
   document.querySelector('.btn-add').disabled=false;
@@ -3326,7 +3467,7 @@ async function doLogin(){
 }
 function doLogout(){
   if(dirty){if(!confirm('Υπάρχουν μη αποθηκευμένες αλλαγές. Έξοδος χωρίς αποθήκευση;'))return;}
-  D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},exoda:{},epitages:[]};
+  D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},exoda:{},epitages:[],templates:{metrita:[],bank:[],d15:[],telos:[]}};
   Dpeer={trapEisp:{},trapPl:{},metrita:{},bank:{}};
   _auth.signOut().finally(function(){location.reload();});
 }
