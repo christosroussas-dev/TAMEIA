@@ -213,8 +213,8 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 @keyframes okPop{0%{transform:translate(-50%,-50%) scale(.3);opacity:0;}35%{transform:translate(-50%,-50%) scale(1.18);opacity:1;}60%{transform:translate(-50%,-50%) scale(.92);opacity:1;}100%{transform:translate(-50%,-50%) scale(1);opacity:0;}}
 .ok-burst{position:fixed;top:46%;left:50%;z-index:99998;width:92px;height:92px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-2));display:flex;align-items:center;justify-content:center;font-size:48px;color:#fff;box-shadow:0 10px 48px rgba(76,175,125,.6);pointer-events:none;animation:okPop .9s var(--ease) forwards;}
 /* Sparkline στα KPI cards */
-.dk .spark{display:block;margin-top:8px;width:100%;height:26px;opacity:.78;}
-.dk .spark polyline{filter:drop-shadow(0 1px 3px rgba(0,0,0,.35));}
+.dk .spark,.kpi .spark{display:block;margin-top:8px;width:100%;height:24px;opacity:.78;}
+.dk .spark polyline,.kpi .spark polyline{filter:drop-shadow(0 1px 3px rgba(0,0,0,.35));}
 /* Dirty indicator */
 #dirtyBadge{font-size:9px;font-weight:700;color:var(--yellow);padding:3px 8px;border:1px solid rgba(224,184,75,.4);border-radius:20px;background:rgba(224,184,75,.1);letter-spacing:.04em;display:none;align-items:center;gap:5px;}
 #dirtyBadge.show{display:inline-flex;animation:panelIn .3s var(--ease);}
@@ -2069,10 +2069,15 @@ function renderMain(){
   document.getElementById('prgBar').style.width=pct+'%';document.getElementById('prgBar').className='pb '+pcls;
   document.getElementById('prgLeft').textContent=`Καθαρές Εισπράξεις: ${fmt(tAllNet)}`;document.getElementById('prgRight').textContent=`Στόχος: ~${fmt(tgt)} (${pct.toFixed(0)}%)`;
   document.getElementById('prgLabel').textContent=wd+'/'+twd+' εργάσιμες';
-  document.getElementById('kpiStrip').innerHTML=`<div class="kpi ${kst}"><div class="kl">Μέσος Όρος/Μέρα</div><div class="kv ${avg<t.warn?'neg':''}">${fmt(avg)}</div><div class="ks">Στόχος >${fmt(t.ok)}</div></div><div class="kpi ok"><div class="kl">Καθαρές Εισπράξεις</div><div class="kv pos">${fmt(tAllNet)}</div><div class="ks">${wd} εργάσιμες</div></div><div class="kpi info"><div class="kl">Μετρητά</div><div class="kv">${fmt(tMet)}</div></div><div class="kpi info"><div class="kl">POS (−0,74% κράτηση)</div><div class="kv">${fmt(tPos)}</div><div class="ks">−${fmt(kratiseis)} κρατήσεις</div></div>`;
+  // daily σειρές για sparklines (ΤΑΜΕΙΟ tab — ίδια λογική με dashboard)
+  const _dseqM=rows.slice().sort((a,b)=>a.day-b.day);
+  const _sTotM=_dseqM.map(r=>(r.metrita||0)+(r.pos||0)), _sMetM=_dseqM.map(r=>r.metrita||0), _sPosM=_dseqM.map(r=>r.pos||0);
+  document.getElementById('kpiStrip').innerHTML=`<div class="kpi ${kst}"><div class="kl">Μέσος Όρος/Μέρα</div><div class="kv ${avg<t.warn?'neg':''}">${fmt(avg)}</div><div class="ks">Στόχος >${fmt(t.ok)}</div></div><div class="kpi ok"><div class="kl">Καθαρές Εισπράξεις</div><div class="kv pos">${fmt(tAllNet)}</div>${sparkline(_sTotM,'#3ddc97')}<div class="ks">${wd} εργάσιμες</div></div><div class="kpi info"><div class="kl">Μετρητά</div><div class="kv">${fmt(tMet)}</div>${sparkline(_sMetM,'#5599dd')}</div><div class="kpi info"><div class="kl">POS (−${(posRate(ek())*100).toString().replace('.',',')}% κράτηση)</div><div class="kv">${fmt(tPos)}</div>${sparkline(_sPosM,'#a87dff')}<div class="ks">−${fmt(kratiseis)} κρατήσεις</div></div>`;
+  // Animated counters στο ΤΑΜΕΙΟ tab (ώστε να τα βλέπουν & οι EMP που δεν έχουν dashboard)
+  try{ const sk=STORE+'|m'; const ks=document.getElementById('kpiStrip').querySelectorAll('.kv'); const kv=[avg,tAllNet,tMet,tPos]; ks.forEach((el,i)=>{ if(kv[i]!=null) animateEl(el,kv[i],sk+'k'+i); }); }catch(e){}
   document.getElementById('totBadge').textContent=fmt(tAllNet);
   const card=document.getElementById('ypCard');
-  document.getElementById('ypVal').textContent=(yp>=0?'+':'')+fmt(yp);document.getElementById('ypVal').style.color=yp>=0?'var(--green)':'var(--red)';
+  animateEl(document.getElementById('ypVal'), yp, STORE+'|m-yp', {plus:true});document.getElementById('ypVal').style.color=yp>=0?'var(--green)':'var(--red)';
   card.style.background=yp>=0?'linear-gradient(135deg,rgba(61,220,151,.20),rgba(76,175,125,.04) 55%)':'linear-gradient(135deg,rgba(255,93,108,.20),rgba(224,85,85,.04) 55%)';card.style.borderColor=yp>=0?'rgba(61,220,151,.55)':'rgba(255,93,108,.55)';card.style.boxShadow=yp>=0?'0 8px 32px rgba(61,220,151,.12)':'0 8px 32px rgba(255,93,108,.12)';
   document.getElementById('ypMonthLabel').textContent=CM.replace('_',' ');document.getElementById('ypMonthLabel').style.color=yp>=0?'var(--green)':'var(--red)';
   let ypIcon,ypGrade,ypGradeColor;
