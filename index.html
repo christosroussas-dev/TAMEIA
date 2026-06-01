@@ -204,10 +204,12 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 .num,td,.kv,.dk-v,.yph-val,.yp-val,.cmp-v,.mono,.spark,.gi-row b{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;}
 /* Visible focus rings (keyboard navigation — WCAG) */
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.btn:focus-visible,.btn-add:focus-visible,.btn-del:focus-visible,.nav-item:focus-visible,.tb-icon:focus-visible,.hamburger:focus-visible,.qa:focus-visible,.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:7px;}
-/* «ΣΗΜΕΡΑ» highlight σε πίνακα ημερών */
-tr.today-row td{background:var(--accent-bg-soft)!important;box-shadow:inset 3px 0 0 var(--accent);}
+/* «ΣΗΜΕΡΑ» highlight σε πίνακα ημερών (μπάρα ΜΟΝΟ στο 1ο κελί — όχι σε κάθε στήλη) */
+tr.today-row td{background:var(--accent-bg-soft)!important;}
+tr.today-row td:first-child{box-shadow:inset 3px 0 0 var(--accent);}
 /* Αργίες — χρυσό fintech ύφος (διακριτικό, οπτική ένδειξη ΜΟΝΟ· δεν μπλοκάρει καταχώρηση) */
-tr.holiday-row td{background:rgba(201,168,78,.07)!important;box-shadow:inset 3px 0 0 var(--gold2);}
+tr.holiday-row td{background:rgba(201,168,78,.07)!important;}
+tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
 .hol-badge{display:inline-block;font-size:8px;font-weight:800;letter-spacing:.04em;padding:1px 6px;border-radius:4px;margin-left:6px;background:rgba(201,168,78,.16);color:var(--gold);border:1px solid rgba(201,168,78,.5);vertical-align:middle;cursor:help;white-space:nowrap;}
 .hol-name{font-size:9px;color:var(--gold);opacity:.85;margin-left:5px;font-weight:600;}
 /* Custom confirm modal */
