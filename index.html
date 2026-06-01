@@ -193,6 +193,34 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 #toast.err{border-color:var(--red);border-left-color:var(--red);color:var(--red);}
 #toast.info{border-color:var(--blue);border-left-color:var(--blue);color:var(--blue);}
 #toast.warn{border-color:var(--yellow);border-left-color:var(--yellow);color:var(--yellow);}
+#toast .ti{font-size:14px;margin-right:7px;vertical-align:middle;}
+/* Custom scrollbars (στο χρώμα του theme) */
+*{scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:6px;border:2px solid transparent;background-clip:content-box;}
+::-webkit-scrollbar-thumb:hover{background:var(--accent);background-clip:content-box;}
+/* Tabular numbers — τέλεια κάθετη στοίχιση ποσών */
+.num,td,.kv,.dk-v,.yph-val,.yp-val,.cmp-v,.mono,.spark,.gi-row b{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;}
+/* Visible focus rings (keyboard navigation — WCAG) */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,.btn:focus-visible,.btn-add:focus-visible,.btn-del:focus-visible,.nav-item:focus-visible,.tb-icon:focus-visible,.hamburger:focus-visible,.qa:focus-visible,.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:7px;}
+/* «ΣΗΜΕΡΑ» highlight σε πίνακα ημερών */
+tr.today-row td{background:var(--accent-bg-soft)!important;box-shadow:inset 3px 0 0 var(--accent);}
+/* Custom confirm modal */
+.ui-modal-overlay{position:fixed;inset:0;background:rgba(4,8,16,.62);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);z-index:100000;display:none;align-items:center;justify-content:center;padding:20px;}
+.ui-modal-overlay.show{display:flex;animation:panelIn .2s var(--ease);}
+.ui-modal{background:var(--bg2);border:1px solid var(--border2);border-top:3px solid var(--accent);border-radius:16px;padding:24px 26px;max-width:390px;width:100%;box-shadow:var(--shadow-lg);}
+.ui-modal.danger{border-top-color:var(--red);}
+.ui-modal-title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:11px;display:flex;align-items:center;gap:9px;}
+.ui-modal-msg{font-size:13.5px;color:var(--muted);line-height:1.55;margin-bottom:22px;word-break:break-word;}
+.ui-modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+.ui-modal-btn{padding:11px 22px;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;border:1px solid transparent;transition:filter .15s,border-color .15s,color .15s,transform .1s;}
+.ui-modal-btn:active{transform:translateY(1px);}
+.ui-modal-btn.ghost{background:transparent;border-color:var(--border2);color:var(--muted);}
+.ui-modal-btn.ghost:hover{color:var(--text);border-color:var(--accent);}
+.ui-modal-btn.danger{background:var(--red);color:#fff;box-shadow:0 4px 16px rgba(224,85,85,.35);}
+.ui-modal-btn.primary{background:var(--accent);color:#04101f;box-shadow:0 4px 16px var(--accent-bg);}
+.ui-modal-btn.danger:hover,.ui-modal-btn.primary:hover{filter:brightness(1.1);}
 .sl{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;}
 .sl.ok{background:var(--green);box-shadow:0 0 6px var(--green);}.sl.warn{background:var(--yellow);box-shadow:0 0 6px var(--yellow);}.sl.danger{background:var(--red);box-shadow:0 0 6px var(--red);animation:pulse 1.8s var(--ease) infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
@@ -470,9 +498,10 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 .login-box.shake{animation:shake .4s var(--ease);}
 @keyframes shake{0%,100%{transform:translateX(0);}20%,60%{transform:translateX(-8px);}40%,80%{transform:translateX(8px);}}
 /* Empty state */
-.empty-state{text-align:center;padding:30px 20px;color:var(--muted);}
-.empty-state .ico{font-size:32px;opacity:.5;margin-bottom:8px;}
-.empty-state .txt{font-size:12px;}
+.empty-state{text-align:center;padding:36px 22px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:4px;}
+.empty-state .ico{font-size:44px;margin-bottom:6px;width:78px;height:78px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:radial-gradient(circle at 50% 40%,var(--accent-bg-soft),transparent 70%);opacity:.85;}
+.empty-state .txt{font-size:12.5px;font-weight:500;}
+.empty-state .sub{font-size:11px;opacity:.7;margin-top:2px;}
 /* Accessibility: σεβασμός prefers-reduced-motion */
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important;}
@@ -556,7 +585,7 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
   <!-- ═══ MAIN ═══ -->
   <div class="app-main">
     <header class="topbar">
-      <div class="hamburger" onclick="toggleSidebar()">☰</div>
+      <div class="hamburger" role="button" tabindex="0" aria-label="Άνοιγμα μενού" onclick="toggleSidebar()">☰</div>
       <div class="tb-greet">
         <h1 id="greetTitle">Καλημέρα! 👋</h1>
         <div class="date" id="greetDate"></div>
@@ -574,7 +603,7 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
           <option value="2027">2027</option>
         </select>
         <select id="msel" onchange="changeMonth(this.value)"></select>
-        <div class="tb-icon" id="alertsBell" onclick="showTab('alerts',document.querySelector('.nav-item[data-tab=alerts]'))" title="Ειδοποιήσεις">🔔<span class="ind" id="bellInd" style="display:none">0</span></div>
+        <div class="tb-icon" id="alertsBell" role="button" tabindex="0" aria-label="Ειδοποιήσεις" onclick="showTab('alerts',document.querySelector('.nav-item[data-tab=alerts]'))" title="Ειδοποιήσεις">🔔<span class="ind" id="bellInd" style="display:none">0</span></div>
         <div class="tb-profile" onclick="doLogout()" title="Έξοδος / Αλλαγή χρήστη">
           <div class="tb-avatar" id="tbAvatar">A</div>
           <span style="font-size:11px;font-weight:700;" id="tbRole">ADMIN</span>
@@ -981,6 +1010,17 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
   </div><!-- /app-main -->
 </div><!-- /app-shell -->
 <div id="toast"></div>
+<!-- Custom confirm modal (αντικαθιστά τα native confirm για διαγραφές) -->
+<div id="uiModal" class="ui-modal-overlay">
+  <div class="ui-modal" id="uiModalBox">
+    <div class="ui-modal-title" id="uiModalTitle">Επιβεβαίωση</div>
+    <div class="ui-modal-msg" id="uiModalMsg"></div>
+    <div class="ui-modal-actions">
+      <button class="ui-modal-btn ghost" id="uiModalCancel">Άκυρο</button>
+      <button class="ui-modal-btn danger" id="uiModalOk">Διαγραφή</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const MONTHS_EL=['ΙΑΝΟΥΑΡΙΟΣ','ΦΕΒΡΟΥΑΡΙΟΣ','ΜΑΡΤΙΟΣ','ΑΠΡΙΛΙΟΣ','ΜΑΙΟΣ','ΙΟΥΝΙΟΣ','ΙΟΥΛΙΟΣ','ΑΥΓΟΥΣΤΟΣ','ΣΕΠΤΕΜΒΡΙΟΣ','ΟΚΤΩΒΡΙΟΣ','ΝΟΕΜΒΡΙΟΣ','ΔΕΚΕΜΒΡΙΟΣ'];
@@ -1234,8 +1274,30 @@ function markSaved(){
 window.addEventListener('beforeunload',function(e){
   if(dirty){e.preventDefault();e.returnValue='';return '';}
 });
-// Επιβεβαίωση πριν από διαγραφή — κεντρικό helper
-function confirmDel(msg){return confirm('🗑️ '+(msg||'Διαγραφή εγγραφής;')+'\n\nΕίσαι σίγουρος;');}
+// Custom confirm modal (Promise<boolean>) — premium αντικατάσταση του native confirm
+function uiConfirm(msg,opts){
+  opts=opts||{};
+  return new Promise(function(resolve){
+    var ov=document.getElementById('uiModal');
+    if(!ov){ resolve(confirm(msg)); return; }   // fallback
+    var box=document.getElementById('uiModalBox');
+    document.getElementById('uiModalTitle').innerHTML=(opts.icon||'🗑️')+' '+(opts.title||'Επιβεβαίωση');
+    document.getElementById('uiModalMsg').textContent=msg||'';
+    var okb=document.getElementById('uiModalOk'), cb=document.getElementById('uiModalCancel');
+    okb.textContent=opts.ok||'Διαγραφή'; cb.textContent=opts.cancel||'Άκυρο';
+    okb.className='ui-modal-btn '+(opts.danger===false?'primary':'danger');
+    box.className='ui-modal'+(opts.danger===false?'':' danger');
+    ov.classList.add('show');
+    function done(val){ ov.classList.remove('show'); okb.onclick=null; cb.onclick=null; ov.onclick=null; document.onkeydown=_prevKey; resolve(val); }
+    var _prevKey=document.onkeydown;
+    okb.onclick=function(){done(true);}; cb.onclick=function(){done(false);};
+    ov.onclick=function(e){ if(e.target===ov) done(false); };
+    document.onkeydown=function(e){ if(e.key==='Escape')done(false); else if(e.key==='Enter')done(true); };
+    try{okb.focus();}catch(e){}
+  });
+}
+// Επιβεβαίωση πριν από διαγραφή — κεντρικό helper (async → custom modal)
+function confirmDel(msg){return uiConfirm(msg||'Διαγραφή εγγραφής;',{title:'Επιβεβαίωση διαγραφής',ok:'Διαγραφή',danger:true});}
 
 // ===== TOP PROGRESS BAR (live ένδειξη φόρτωσης) =====
 var Prog=(function(){
@@ -1369,7 +1431,7 @@ function ek(){return CM;}
 function ea(obj,k){if(!obj[k])obj[k]=[];}
 function dn(y,mi,d){return DAYS[new Date(y,mi,d).getDay()];}
 function fmt(n){return Number(n||0).toLocaleString('el-GR',{minimumFractionDigits:2,maximumFractionDigits:2})+'€';}
-function toast(m,t='ok'){const el=document.getElementById('toast');el.textContent=m;el.className='show '+t;setTimeout(()=>el.classList.remove('show'),2600);}
+function toast(m,t='ok'){const el=document.getElementById('toast');const ic={ok:'✓',err:'✕',info:'ℹ',warn:'⚠'}[t]||'';el.innerHTML='<span class="ti">'+ic+'</span>'+m;el.className='show '+t;setTimeout(()=>el.classList.remove('show'),2600);}
 // ===== ΑΙΣΘΗΤΙΚΑ helpers (καθαρά οπτικά — δεν αγγίζουν υπολογισμούς) =====
 // Animated counter: tween από προηγούμενη τιμή στην target (easeOutCubic). Cache ανά key ώστε re-render χωρίς αλλαγή = χωρίς animation.
 function animateEl(el,to,key,opts){
@@ -1706,7 +1768,7 @@ async function showDayPopup(day,dname,mi,currentYear){
   document.getElementById('popupContent').innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr style="border-bottom:1px solid var(--border2);"><th style="padding:6px 12px;text-align:left;font-size:10px;color:var(--muted);">ΕΤΟΣ</th><th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">ΜΕΤΡΗΤΑ</th><th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">POS</th><th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">ΣΥΝΟΛΟ</th><th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">vs ΤΩΡΑ</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-function delDay(d){const k=ek();const{mi,y}=gmi(k);if(!confirmDel('Διαγραφή ημέρας '+d+' '+dn(y,mi,parseInt(d))))return;D.days[k]=(D.days[k]||[]).filter(r=>r.day!==parseInt(d));renderAll();saveToSheets("days");}
+async function delDay(d){const k=ek();const{mi,y}=gmi(k);if(!(await confirmDel('Διαγραφή ημέρας '+d+' '+dn(y,mi,parseInt(d)))))return;D.days[k]=(D.days[k]||[]).filter(r=>r.day!==parseInt(d));renderAll();saveToSheets("days");}
 
 // ===== ★ DASHBOARD HOME (v6) =====
 // --- Lightweight SVG charts (χωρίς library) ---
@@ -2052,6 +2114,7 @@ function renderMain(){
   let tMet=0,tPos=0,tAll=0,tRep=0,wd=0,twd=0;
   for(let d=1;d<=dim;d++){if(dn(y,mi,d)!=='ΚΥΡΙΑΚΗ')twd++;}
   const tbody=document.getElementById('dayBody');tbody.innerHTML='';
+  const _td=new Date(),_tD=_td.getDate(),_tM=_td.getMonth(),_tY=_td.getFullYear();
   for(let d=1;d<=dim;d++){
     const dname=dn(y,mi,d);const r=rows.find(x=>x.day===d);const sun=dname==='ΚΥΡΙΑΚΗ';
     const met=r?r.metrita:0,pos=r?r.pos:0,rep=r?r.report:null,tot=sun?0:(met+pos),diff=rep!=null?tot-rep:null;
@@ -2059,7 +2122,8 @@ function renderMain(){
     else if(sun&&r&&(r.metrita||r.pos)){tMet+=r.metrita||0;tPos+=r.pos||0;tAll+=(r.metrita||0)+(r.pos||0);} // Κυριακές μετράνε στο σύνολο
     let st='';if(!sun&&r){const t=TGT[mi+1];if(t){if(tot<t.danger*0.7)st='<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(224,85,85,.15);color:var(--red)">⬇ΧΑΜΗΛΟ</span>';else if(tot<t.warn*0.85)st='<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(224,184,75,.12);color:var(--yellow)">◼ΜΕΤΡΙΟ</span>';else st='<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(76,175,125,.12);color:var(--green)">✓ΟΚ</span>';}}
     const tr=document.createElement('tr');tr.style.cursor=(!sun&&r)?'pointer':'default';if(!sun&&r)tr.onclick=()=>showDayPopup(d,dname,mi,y);
-    tr.innerHTML=`<td>${d}</td><td class="${sun?'sun':''}">${dname}</td><td class="num">${sun?'—':fmt(met)}</td><td class="num">${sun?'—':fmt(pos)}</td><td class="${sun?'num':tot>0?'pos':'num'}">${sun?'ΚΛΕΙΣΤΟ':fmt(tot)}</td><td class="num">${rep!=null?fmt(rep):'—'}</td><td class="${diff===null?'num':diff>=0?'pos':'neg'}">${diff===null?'—':fmt(diff)}</td><td>${st}</td><td>${!sun&&r?`<button class="btn-del" onclick="event.stopPropagation();delDay(${d})">✕</button>`:''}</td>`;
+    if(d===_tD&&mi===_tM&&y===_tY)tr.classList.add('today-row');
+    tr.innerHTML=`<td>${d}</td><td class="${sun?'sun':''}">${dname}</td><td class="num">${sun?'—':fmt(met)}</td><td class="num">${sun?'—':fmt(pos)}</td><td class="${sun?'num':tot>0?'pos':'num'}">${sun?'ΚΛΕΙΣΤΟ':fmt(tot)}</td><td class="num">${rep!=null?fmt(rep):'—'}</td><td class="${diff===null?'num':diff>=0?'pos':'neg'}">${diff===null?'—':fmt(diff)}</td><td>${st}</td><td>${!sun&&r?`<button aria-label="Διαγραφή" class="btn-del" onclick="event.stopPropagation();delDay(${d})">✕</button>`:''}</td>`;
     tbody.appendChild(tr);
   }
   const ttr=document.createElement('tr');ttr.className='tot';ttr.innerHTML=`<td colspan="2">ΣΥΝΟΛΟ</td><td class="num">${fmt(tMet)}</td><td class="num">${fmt(tPos)}</td><td class="pos">${fmt(tAll)}</td><td class="num">${fmt(tRep)}</td><td></td><td></td><td></td>`;tbody.appendChild(ttr);
@@ -2386,22 +2450,22 @@ function addTPl(){
   document.getElementById('tpl-p').value=''; document.getElementById('tpl-v').value='';
   renderTrap(); renderMain(); flashOK();
 }
-function delTEisp(i,st){
+async function delTEisp(i,st){
   const k=ek();
   const isPeer=(st&&st!==STORE);
   const arr=isPeer?(Dpeer.trapEisp[k]||[]):(D.trapEisp[k]||[]);
   const r=arr[i]; if(!r)return;
-  if(!confirmDel('Διαγραφή είσπραξης ['+((STORES[st]||{}).label||'')+']: '+((r&&r.pelatis)||'')+' '+fmt((r&&r.poso)||0)))return;
+  if(!(await confirmDel('Διαγραφή είσπραξης ['+((STORES[st]||{}).label||'')+']: '+((r&&r.pelatis)||'')+' '+fmt((r&&r.poso)||0))))return;
   arr.splice(i,1);
   renderTrap(); renderMain();
   if(isPeer) savePeerSection("trapEisp"); else saveToSheets("trapEisp");
 }
-function delTPl(i,st){
+async function delTPl(i,st){
   const k=ek();
   const isPeer=(st&&st!==STORE);
   const arr=isPeer?(Dpeer.trapPl[k]||[]):(D.trapPl[k]||[]);
   const r=arr[i]; if(!r)return;
-  if(!confirmDel('Διαγραφή πληρωμής ['+((STORES[st]||{}).label||'')+']: '+((r&&r.prom)||'')+' '+fmt((r&&r.poso)||0)))return;
+  if(!(await confirmDel('Διαγραφή πληρωμής ['+((STORES[st]||{}).label||'')+']: '+((r&&r.prom)||'')+' '+fmt((r&&r.poso)||0))))return;
   arr.splice(i,1);
   renderTrap(); renderMain();
   if(isPeer) savePeerSection("trapPl"); else saveToSheets("trapPl");
@@ -2430,8 +2494,8 @@ function renderTrap(){
   var hEi=document.getElementById('tEispHead'); if(hEi) hEi.innerHTML=`<tr><th>ΗΜΕΡΟΜΗΝΙΑ</th>${dual?'<th>ΚΑΤΑΣΤΗΜΑ</th>':''}<th>ΠΕΛΑΤΗΣ</th><th class="num">ΠΟΣΟ</th><th></th></tr>`;
   var hPl=document.getElementById('tPlHead'); if(hPl) hPl.innerHTML=`<tr><th>ΗΜΕΡΟΜΗΝΙΑ</th>${dual?'<th>ΚΑΤΑΣΤΗΜΑ</th>':''}<th>ΠΡΟΜΗΘΕΥΤΗΣ</th><th class="num">ΠΟΣΟ</th><th></th></tr>`;
   const cols=dual?3:2;
-  const rowEi=r=>`<tr><td>${r.date||'—'}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.pelatis}</td><td class="pos">${fmt(r.poso)}</td><td><button class="btn-del" onclick="delTEisp(${r._idx},'${r._store}')">✕</button></td></tr>`;
-  const rowPl=r=>`<tr><td>${r.date||'—'}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.prom}</td><td class="neg">${fmt(r.poso)}</td><td><button class="btn-del" onclick="delTPl(${r._idx},'${r._store}')">✕</button></td></tr>`;
+  const rowEi=r=>`<tr><td>${r.date||'—'}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.pelatis}</td><td class="pos">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTEisp(${r._idx},'${r._store}')">✕</button></td></tr>`;
+  const rowPl=r=>`<tr><td>${r.date||'—'}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.prom}</td><td class="neg">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTPl(${r._idx},'${r._store}')">✕</button></td></tr>`;
   const subEi=dual?`<tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[STORE]||{}).label}</td><td class="pos">${fmt(teCur)}</td><td></td></tr><tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[peerStore()]||{}).label}</td><td class="pos">${fmt(tePeer)}</td><td></td></tr>`:'';
   const subPl=dual?`<tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[STORE]||{}).label}</td><td class="neg">${fmt(tpCur)}</td><td></td></tr><tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[peerStore()]||{}).label}</td><td class="neg">${fmt(tpPeer)}</td><td></td></tr>`:'';
   document.getElementById('tEispBody').innerHTML=ei.map(rowEi).join('')+(ei.length?`<tr class="tot"><td colspan="${cols}">ΣΥΝΟΛΟ${dual?' (γενικό)':''}</td><td class="pos">${fmt(te)}</td><td></td></tr>${subEi}`:'');
@@ -2448,12 +2512,12 @@ function addMet(){
   document.getElementById('met-a').value=''; document.getElementById('met-v').value='';
   renderMet(); renderMain(); flashOK();
 }
-function delMet(i,st){
+async function delMet(i,st){
   const k=ek();
   const isPeer=(st&&st!==STORE);
   const arr=isPeer?(Dpeer.metrita[k]||[]):(D.metrita[k]||[]);
   const r=arr[i]; if(!r)return;
-  if(!confirmDel('Διαγραφή μετρητών ['+((STORES[st]||{}).label||'')+']: '+((r&&r.ait)||'')+' '+fmt((r&&r.poso)||0)))return;
+  if(!(await confirmDel('Διαγραφή μετρητών ['+((STORES[st]||{}).label||'')+']: '+((r&&r.ait)||'')+' '+fmt((r&&r.poso)||0))))return;
   arr.splice(i,1);
   renderMet(); renderMain();
   if(isPeer) savePeerSection("metrita"); else saveToSheets("metrita");
@@ -2470,7 +2534,7 @@ function renderMet(){
   document.getElementById('metCnt').textContent=rows.length;
   var hM=document.getElementById('metHead'); if(hM) hM.innerHTML=`<tr><th>ΗΜΕΡΟΜΗΝΙΑ</th>${dual?'<th>ΚΑΤΑΣΤΗΜΑ</th>':''}<th>ΠΛΗΡΩΜΕΣ ΜΕ ΜΕΤΡΗΤΑ</th><th class="num">ΠΟΣΟ</th><th></th></tr>`;
   const cols=dual?3:2;
-  const row=r=>`<tr><td>${r.date||'—'}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button class="btn-del" onclick="delMet(${r._idx},'${r._store}')">✕</button></td></tr>`;
+  const row=r=>`<tr><td>${r.date||'—'}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delMet(${r._idx},'${r._store}')">✕</button></td></tr>`;
   const sub=dual?`<tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[STORE]||{}).label}</td><td class="neg">${fmt(totCur)}</td><td></td></tr><tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[peerStore()]||{}).label}</td><td class="neg">${fmt(totPeer)}</td><td></td></tr>`:'';
   document.getElementById('metBody').innerHTML=rows.map(row).join('')+(rows.length?`<tr class="tot"><td colspan="${cols}">ΣΥΝΟΛΟ${dual?' (γενικό)':''}</td><td class="neg">${fmt(tot)}</td><td></td></tr>${sub}`:'');
 }
@@ -2485,12 +2549,12 @@ function addBnk(){
   document.getElementById('bnk-a').value=''; document.getElementById('bnk-v').value='';
   renderBnk(); renderMain(); flashOK();
 }
-function delBnk(i,st){
+async function delBnk(i,st){
   const k=ek();
   const isPeer=(st&&st!==STORE);
   const arr=isPeer?(Dpeer.bank[k]||[]):(D.bank[k]||[]);
   const r=arr[i]; if(!r)return;
-  if(!confirmDel('Διαγραφή πληρωμής τράπεζας ['+((STORES[st]||{}).label||'')+']: '+((r&&r.ait)||'')+' '+fmt((r&&r.poso)||0)))return;
+  if(!(await confirmDel('Διαγραφή πληρωμής τράπεζας ['+((STORES[st]||{}).label||'')+']: '+((r&&r.ait)||'')+' '+fmt((r&&r.poso)||0))))return;
   arr.splice(i,1);
   renderBnk(); renderMain();
   if(isPeer) savePeerSection("bank"); else saveToSheets("bank");
@@ -2522,7 +2586,7 @@ function renderBnk(){
   var hB=document.getElementById('bnkHead'); if(hB) hB.innerHTML=`<tr><th>ΗΜΕΡΟΜΗΝΙΑ</th>${dual?'<th>ΚΑΤΑΣΤΗΜΑ</th>':''}<th>ΠΛΗΡΩΜΕΣ ΜΕΣΩ ΤΡΑΠΕΖΑΣ</th><th class="num">ΠΟΣΟ</th><th></th></tr>`;
   const cols=dual?3:2;
   const lblHead=dual?'(γενικό)':(STORES[STORE]||{}).label||'';
-  const row=r=>`<tr><td>${r.date||'—'}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button class="btn-del" onclick="delBnk(${r._idx},'${r._store}')">✕</button></td></tr>`;
+  const row=r=>`<tr><td>${r.date||'—'}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delBnk(${r._idx},'${r._store}')">✕</button></td></tr>`;
   const sub=dual?`<tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[STORE]||{}).label}</td><td class="neg">${fmt(totCur)}</td><td></td></tr><tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[peerStore()]||{}).label}</td><td class="neg">${fmt(totPeer)}</td><td></td></tr>`:'';
   document.getElementById('bnkBody').innerHTML=rows.map(row).join('')+(rows.length?`<tr class="tot"><td colspan="${cols}">ΣΥΝΟΛΟ ${lblHead}</td><td class="neg">${fmt(tot)}</td><td></td></tr>${sub}`:'');
 }
@@ -2551,16 +2615,16 @@ function addD5(){
   ['d5-c','d5-p','d5-i','d5-s','d5-l','d5-k'].forEach(id=>document.getElementById(id).value='');renderD5();renderMain();flashOK();
   saveToSheets("d15");
 }
-function delD5(idx){
+async function delD5(idx){
   const k=ek();const r=D.d15[k][idx];
-  if(!confirmDel('Διαγραφή 15ου: '+((r&&r.prom)||'')+' '+fmt((r&&r.liosia)||0)))return;
+  if(!(await confirmDel('Διαγραφή 15ου: '+((r&&r.prom)||'')+' '+fmt((r&&r.liosia)||0))))return;
   D.d15[k].splice(idx,1);renderD5();renderMain();
   saveToSheets("d15");
 }
 function renderD5(){
   const k=ek();const rows=D.d15[k]||[];const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);const totS=rows.reduce((s,r)=>s+(r.synolo||0),0),totK=rows.reduce((s,r)=>s+(r.loutraki||0),0);
   document.getElementById('d5Tot').textContent=fmt(tot);document.getElementById('d5Cnt').textContent=rows.length;
-  document.getElementById('d5Body').innerHTML=rows.map((r,i)=>`<tr><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td>${r.prom}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td class="num">${r.synolo?fmt(r.synolo):'—'}</td><td class="acc">${fmt(r.liosia)}</td><td class="num" style="color:var(--muted)">${r.loutraki?fmt(r.loutraki):'—'}</td><td><button class="btn-del" onclick="delD5(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="3">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
+  document.getElementById('d5Body').innerHTML=rows.map((r,i)=>`<tr><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td>${r.prom}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td class="num">${r.synolo?fmt(r.synolo):'—'}</td><td class="acc">${fmt(r.liosia)}</td><td class="num" style="color:var(--muted)">${r.loutraki?fmt(r.loutraki):'—'}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delD5(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="3">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
 }
 
 function addTel(){
@@ -2573,9 +2637,9 @@ function addTel(){
   ['tel-c','tel-i','tel-n','tel-s','tel-l','tel-k2'].forEach(id=>document.getElementById(id).value='');renderTel();renderMain();flashOK();
   saveToSheets("telos");
 }
-function delTel(idx){
+async function delTel(idx){
   const k=ek();const r=D.telos[k][idx];
-  if(!confirmDel('Διαγραφή τέλους μήνα: '+((r&&r.name)||'')+' '+fmt((r&&r.liosia)||0)))return;
+  if(!(await confirmDel('Διαγραφή τέλους μήνα: '+((r&&r.name)||'')+' '+fmt((r&&r.liosia)||0))))return;
   D.telos[k].splice(idx,1);renderTel();renderMain();
   saveToSheets("telos");
 }
@@ -2583,7 +2647,7 @@ function renderTel(){
   const k=ek();const rows=D.telos[k]||[];const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);const totS=rows.reduce((s,r)=>s+(r.synolo||0),0),totK=rows.reduce((s,r)=>s+(r.loutraki||0),0);
   document.getElementById('telTot').textContent=fmt(tot);document.getElementById('telCnt').textContent=rows.length;
   const kb=kt=>`<span style="font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(200,168,75,.12);color:var(--accent)">${kt}</span>`;
-  document.getElementById('telBody').innerHTML=rows.map((r,i)=>`<tr><td>${kb(r.kat)}</td><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td>${r.name}</td><td class="num">${r.synolo?fmt(r.synolo):'—'}</td><td class="acc">${fmt(r.liosia)}</td><td class="num" style="color:var(--muted)">${r.loutraki?fmt(r.loutraki):'—'}</td><td><button class="btn-del" onclick="delTel(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="4">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
+  document.getElementById('telBody').innerHTML=rows.map((r,i)=>`<tr><td>${kb(r.kat)}</td><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td>${r.name}</td><td class="num">${r.synolo?fmt(r.synolo):'—'}</td><td class="acc">${fmt(r.liosia)}</td><td class="num" style="color:var(--muted)">${r.loutraki?fmt(r.loutraki):'—'}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTel(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="4">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
 }
 
 // ===== #7: ΚΑΘΗΜΕΡΙΝΑ ΕΞΟΔΑ (petty cash / δεύτερο ταμείο) — ανά κατάστημα/μήνα, αυτόνομο =====
@@ -2602,9 +2666,9 @@ function addExExp(){
   document.getElementById('exe-a').value='';document.getElementById('exe-v').value='';
   renderExoda();saveToSheets("exoda");flashOK();
 }
-function delExoda(idx){
+async function delExoda(idx){
   const k=ek();const r=(D.exoda[k]||[])[idx];if(!r)return;
-  if(!confirmDel('Διαγραφή: '+((r&&r.desc)||'')+' '+fmt((r&&r.poso)||0)))return;
+  if(!(await confirmDel('Διαγραφή: '+((r&&r.desc)||'')+' '+fmt((r&&r.poso)||0))))return;
   D.exoda[k].splice(idx,1);renderExoda();saveToSheets("exoda");
 }
 function renderExoda(){
@@ -2619,10 +2683,10 @@ function renderExoda(){
   const bv=document.getElementById('exBalance');if(bv){bv.textContent=fmt(bal);bv.style.color=bal<0?'var(--red)':'var(--green)';}
   const hero=document.getElementById('exHero');if(hero){const neg=bal<0;hero.style.background=neg?'rgba(224,85,85,.07)':'rgba(76,175,125,.07)';hero.style.borderColor=neg?'rgba(224,85,85,.4)':'rgba(76,175,125,.4)';}
   const cb=document.getElementById('exCashBody');
-  if(cb) cb.innerHTML=rows.map((r,i)=>r.type==='cash'?`<tr><td>${r.date||'—'}</td><td>${r.desc||'—'}</td><td class="num pos">${fmt(r.poso)}</td><td><button class="btn-del" onclick="delExoda(${i})">✕</button></td></tr>`:'').join('')+(cash.length?`<tr class="tot"><td colspan="2">ΣΥΝΟΛΟ ΜΕΤΡΗΤΩΝ</td><td class="num acc">${fmt(cashTot)}</td><td></td></tr>`:'');
+  if(cb) cb.innerHTML=rows.map((r,i)=>r.type==='cash'?`<tr><td>${r.date||'—'}</td><td>${r.desc||'—'}</td><td class="num pos">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delExoda(${i})">✕</button></td></tr>`:'').join('')+(cash.length?`<tr class="tot"><td colspan="2">ΣΥΝΟΛΟ ΜΕΤΡΗΤΩΝ</td><td class="num acc">${fmt(cashTot)}</td><td></td></tr>`:'');
   let run=cashTot;
   const eb=document.getElementById('exExpBody');
-  if(eb) eb.innerHTML=rows.map((r,i)=>{ if(r.type!=='exp')return ''; run=Math.round((run-(r.poso||0))*100)/100; return `<tr><td>${r.date||'—'}</td><td>${r.desc||'—'}</td><td class="num neg">${fmt(r.poso)}</td><td class="num" style="color:${run<0?'var(--red)':'var(--muted)'}">${fmt(run)}</td><td><button class="btn-del" onclick="delExoda(${i})">✕</button></td></tr>`; }).join('')+(exp.length?`<tr class="tot"><td colspan="2">ΤΕΛΙΚΟ ΥΠΟΛΟΙΠΟ</td><td class="num neg">${fmt(expTot)}</td><td class="num acc">${fmt(bal)}</td><td></td></tr>`:'');
+  if(eb) eb.innerHTML=rows.map((r,i)=>{ if(r.type!=='exp')return ''; run=Math.round((run-(r.poso||0))*100)/100; return `<tr><td>${r.date||'—'}</td><td>${r.desc||'—'}</td><td class="num neg">${fmt(r.poso)}</td><td class="num" style="color:${run<0?'var(--red)':'var(--muted)'}">${fmt(run)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delExoda(${i})">✕</button></td></tr>`; }).join('')+(exp.length?`<tr class="tot"><td colspan="2">ΤΕΛΙΚΟ ΥΠΟΛΟΙΠΟ</td><td class="num neg">${fmt(expTot)}</td><td class="num acc">${fmt(bal)}</td><td></td></tr>`:'');
 }
 
 // ===== ★ ΕΠΙΤΑΓΕΣ — 12ΜΗΝΟ ΗΜΕΡΟΛΟΓΙΟ =====
@@ -2635,7 +2699,7 @@ function addEpit(){
   ['ep-n','ep-s','ep-l','ep-k','ep-d','ep-ek','ep-p'].forEach(id=>document.getElementById(id).value='');
   renderEpit();saveEpitages();flashOK();
 }
-function delEpit(i){const r=D.epitages[i];if(!confirmDel('Διαγραφή επιταγής: '+((r&&r.prom)||'')+' '+fmt((r&&r.liosia)||0)))return;D.epitages.splice(i,1);renderEpit();saveEpitages();}
+async function delEpit(i){const r=D.epitages[i];if(!(await confirmDel('Διαγραφή επιταγής: '+((r&&r.prom)||'')+' '+fmt((r&&r.liosia)||0))))return;D.epitages.splice(i,1);renderEpit();saveEpitages();}
 function saveEpitages(){
   const byYr={};
   (D.epitages||[]).forEach(e=>{const yr=e.file_year||(e.date?e.date.substring(0,4):'2026');if(!byYr[yr])byYr[yr]=[];byYr[yr].push(e);});
@@ -2707,7 +2771,7 @@ function renderEpit(){
   document.getElementById('epBody').innerHTML=rows.map((r,i)=>{
     const past=r.date&&r.date<todayStr,soon=r.date&&r.date>=todayStr&&new Date(r.date)<=in30;
     const st=past?'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(76,175,125,.15);color:var(--green)">✓ΕΞΟΦΛ.</span>':soon?'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(224,85,85,.15);color:var(--red)">⚠ΕΡΧΕΤΑΙ</span>':'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(100,100,100,.15);color:var(--muted)">◼ΜΕΛΛΟΝ</span>';
-    return`<tr><td>${r.month} ${r.file_year||''}</td><td style="font-family:var(--mono)">${r.date||'—'}</td><td style="font-family:var(--mono)">${r.ekdosi||'—'}</td><td style="font-family:var(--mono)">${r.num||'—'}</td><td>${r.prom}</td><td class="num">${fmt(epS(r))}</td><td class="acc">${fmt(r.liosia||0)}</td><td class="num" style="color:var(--muted)">${epK(r)?fmt(epK(r)):'—'}</td><td>${st}</td><td><button class="btn-del" onclick="delEpit(${D.epitages.indexOf(r)})">✕</button></td></tr>`;
+    return`<tr><td>${r.month} ${r.file_year||''}</td><td style="font-family:var(--mono)">${r.date||'—'}</td><td style="font-family:var(--mono)">${r.ekdosi||'—'}</td><td style="font-family:var(--mono)">${r.num||'—'}</td><td>${r.prom}</td><td class="num">${fmt(epS(r))}</td><td class="acc">${fmt(r.liosia||0)}</td><td class="num" style="color:var(--muted)">${epK(r)?fmt(epK(r)):'—'}</td><td>${st}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delEpit(${D.epitages.indexOf(r)})">✕</button></td></tr>`;
   }).join('')+(rows.length?`<tr class="tot"><td colspan="5">ΣΥΝΟΛΑ ${epMonth?(epMonth+' '+epMonthYear):(epYear==='ΟΛΕΣ'?'ΟΛΑ ΤΑ ΕΤΗ':epYear)}</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td><td></td></tr>`:'');
 }
 
