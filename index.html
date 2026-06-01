@@ -88,10 +88,10 @@ body{
 .badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;background:rgba(212,175,90,.12);color:var(--accent);}
 .tw{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow-sm);transition:box-shadow .2s var(--ease);}
 .tw:hover{box-shadow:var(--shadow);}
-.tw-h{padding:11px 14px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(212,175,90,.07),transparent);}
+.tw-h{padding:12px 16px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(212,175,90,.07),transparent);}
 table{width:100%;border-collapse:collapse;}
-th{font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:7px 10px;background:var(--bg3);border-bottom:1px solid var(--border);text-align:left;position:sticky;top:0;}
-td{padding:7px 10px;border-bottom:1px solid var(--border);font-size:12px;transition:background .12s;}
+th{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:10px 12px;background:var(--bg3);border-bottom:1px solid var(--border);text-align:left;position:sticky;top:0;}
+td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:14px;transition:background .12s;}
 tbody tr:nth-child(even) td{background:rgba(255,255,255,.018);}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:rgba(212,175,90,.06);}
@@ -103,13 +103,13 @@ td.acc{color:var(--accent);font-family:var(--mono);text-align:right;}
 td.sun{color:var(--muted);font-style:italic;}
 tr.tot td{background:linear-gradient(180deg,rgba(212,175,90,.08),var(--bg3));font-weight:700;border-top:2px solid var(--accent2);}
 tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,90,.08),var(--bg3));}
-.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;padding:10px 12px 4px;}
-.fi{display:flex;flex-direction:column;gap:3px;}
-.fi label{font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
-.fi input,.fi select{background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:7px 9px;border-radius:var(--radius-sm);font-family:var(--sans);font-size:12px;transition:border-color .15s,box-shadow .15s,background .15s;}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;padding:14px 14px 6px;}
+.fi{display:flex;flex-direction:column;gap:5px;}
+.fi label{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);}
+.fi input,.fi select{background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:12px 14px;border-radius:var(--radius-sm);font-family:var(--sans);font-size:16px;font-weight:600;transition:border-color .15s,box-shadow .15s,background .15s;}
 .fi input:focus,.fi select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(212,175,90,.14);background:var(--bg2);}
 .fi input:hover,.fi select:hover{border-color:var(--accent2);}
-.btn-add{background:linear-gradient(135deg,var(--accent),var(--accent2));border:1px solid transparent;color:#fff;padding:8px 18px;border-radius:var(--radius-sm);cursor:pointer;font-size:10px;font-weight:700;letter-spacing:.05em;transition:transform .12s var(--ease),box-shadow .15s,filter .15s;margin:0 12px 12px;box-shadow:0 2px 12px rgba(77,159,255,.28);}
+.btn-add{background:linear-gradient(135deg,var(--accent),var(--accent2));border:1px solid transparent;color:#fff;padding:13px 30px;border-radius:var(--radius-sm);cursor:pointer;font-size:14px;font-weight:800;letter-spacing:.05em;transition:transform .12s var(--ease),box-shadow .15s,filter .15s;margin:6px 14px 14px;box-shadow:0 2px 12px rgba(77,159,255,.28);}
 .btn-add:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 5px 18px rgba(77,159,255,.4);}
 .btn-add:active{transform:translateY(0);}
 .btn-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;padding:3px 6px;border-radius:5px;opacity:.45;transition:opacity .15s,background .15s,transform .12s;}
@@ -664,7 +664,7 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
     <div style="padding:10px 12px;border-bottom:1px solid var(--border2)">
       <button type="button" onclick="toggleAddForm('d5Form',this)" style="background:transparent;border:1px solid var(--accent);color:var(--accent);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:8px 16px;border-radius:7px;cursor:pointer;">➕ Προσθήκη νέας πληρωμής</button>
       <div id="d5Form" style="display:none;margin-top:10px;">
-      <div style="display:grid;grid-template-columns:80px 2fr 2fr 1fr 1fr 1fr auto;gap:6px;align-items:end;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end;">
         <div class="fi"><label>Κωδ.</label><input type="text" id="d5-c" placeholder="ΚΩΔ"></div>
         <div class="fi"><label>Προμηθευτής</label>
           <select id="d5-p">
@@ -683,7 +683,7 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
         <div class="fi"><label>Σύνολο (€)</label><input type="number" id="d5-s" step="0.01" placeholder="0.00" oninput="recalcShare('d5-s','d5-k','d5-l')"></div>
         <div class="fi"><label>ΛΙΟΣΙΑ (€) 🔒</label><input type="number" id="d5-l" placeholder="auto" readonly title="Αυτόματο: Σύνολο − Λουτράκι" style="background:rgba(255,255,255,.04);opacity:.7;cursor:not-allowed;"></div>
         <div class="fi"><label>ΛΟΥΤΡΑΚΙ (€)</label><input type="number" id="d5-k" step="0.01" placeholder="0.00" oninput="recalcShare('d5-s','d5-k','d5-l')"></div>
-        <div class="fi"><label>&nbsp;</label><button class="btn-add" style="margin:0;padding:7px 10px" onclick="addD5()">+</button></div>
+        <div class="fi"><label>&nbsp;</label><button class="btn-add" style="margin:0;padding:12px 14px;width:100%" onclick="addD5()">+ ΠΡΟΣΘΗΚΗ</button></div>
       </div>
       </div>
     </div>
@@ -703,7 +703,7 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
     <div style="padding:10px 12px;border-bottom:1px solid var(--border2)">
       <button type="button" onclick="toggleAddForm('telForm',this)" style="background:transparent;border:1px solid var(--accent);color:var(--accent);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:8px 16px;border-radius:7px;cursor:pointer;">➕ Προσθήκη νέας πληρωμής</button>
       <div id="telForm" style="display:none;margin-top:10px;">
-      <div style="display:grid;grid-template-columns:1fr 80px 2fr 2fr 1fr 1fr 1fr auto;gap:6px;align-items:end;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end;">
         <div class="fi"><label>Κατηγορία</label>
           <select id="tel-k"><option>ΜΙΣΘΟΣ</option><option>ΑΠΔ</option><option>ΦΠΑ</option><option>ΦΜΥ</option><option>ΤΕΚΑ</option><option>ΛΟΓΙΣΤΗΣ</option><option>ΕΦΟΡΙΑ</option><option>ΔΩΡΟ</option><option>ΑΛΛΟ</option></select>
         </div>
@@ -713,7 +713,7 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
         <div class="fi"><label>Σύνολο (€)</label><input type="number" id="tel-s" step="0.01" placeholder="0.00" oninput="recalcShare('tel-s','tel-k2','tel-l')"></div>
         <div class="fi"><label>ΛΙΟΣΙΑ (€) 🔒</label><input type="number" id="tel-l" placeholder="auto" readonly title="Αυτόματο: Σύνολο − Λουτράκι" style="background:rgba(255,255,255,.04);opacity:.7;cursor:not-allowed;"></div>
         <div class="fi"><label>ΛΟΥΤΡΑΚΙ (€)</label><input type="number" id="tel-k2" step="0.01" placeholder="0.00" oninput="recalcShare('tel-s','tel-k2','tel-l')"></div>
-        <div class="fi"><label>&nbsp;</label><button class="btn-add" style="margin:0;padding:7px 10px" onclick="addTel()">+</button></div>
+        <div class="fi"><label>&nbsp;</label><button class="btn-add" style="margin:0;padding:12px 14px;width:100%" onclick="addTel()">+ ΠΡΟΣΘΗΚΗ</button></div>
       </div>
       </div>
     </div>
@@ -741,11 +741,11 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
     <div style="padding:10px 12px;border-bottom:1px solid var(--border2)">
       <button type="button" onclick="toggleAddForm('exCashForm',this)" style="background:transparent;border:1px solid var(--accent);color:var(--accent);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:8px 16px;border-radius:7px;cursor:pointer;">➕ Προσθήκη μετρητών</button>
       <div id="exCashForm" style="display:none;margin-top:10px;">
-        <div style="display:grid;grid-template-columns:1fr 2fr 1fr auto;gap:6px;align-items:end;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;align-items:end;">
           <div class="fi"><label>Ημερομηνία</label><input type="date" id="exc-d"></div>
           <div class="fi"><label>Περιγραφή</label><input type="text" id="exc-a" placeholder="π.χ. ΜΕΤΡΗΤΑ 1"></div>
           <div class="fi"><label>Ποσό (€)</label><input type="number" id="exc-v" step="0.01" placeholder="0.00"></div>
-          <div class="fi"><label>&nbsp;</label><button class="btn-add" style="margin:0;padding:7px 10px" onclick="addExCash()">+</button></div>
+          <div class="fi"><label>&nbsp;</label><button class="btn-add" style="margin:0;padding:12px 14px;width:100%" onclick="addExCash()">+ ΠΡΟΣΘΗΚΗ</button></div>
         </div>
       </div>
     </div>
@@ -756,11 +756,11 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
     <div style="padding:10px 12px;border-bottom:1px solid var(--border2)">
       <button type="button" onclick="toggleAddForm('exExpForm',this)" style="background:transparent;border:1px solid var(--accent);color:var(--accent);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:8px 16px;border-radius:7px;cursor:pointer;">➕ Προσθήκη εξόδου</button>
       <div id="exExpForm" style="display:none;margin-top:10px;">
-        <div style="display:grid;grid-template-columns:1fr 2fr 1fr auto;gap:6px;align-items:end;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;align-items:end;">
           <div class="fi"><label>Ημερομηνία</label><input type="date" id="exe-d"></div>
           <div class="fi"><label>Είδος</label><input type="text" id="exe-a" placeholder="π.χ. ΓΑΛΑΞΙΑΣ, ΚΟΥΡΙΕΡ, ΒΕΝΖΙΝΗ..."></div>
           <div class="fi"><label>Ποσό (€)</label><input type="number" id="exe-v" step="0.01" placeholder="0.00"></div>
-          <div class="fi"><label>&nbsp;</label><button class="btn-add" style="margin:0;padding:7px 10px" onclick="addExExp()">+</button></div>
+          <div class="fi"><label>&nbsp;</label><button class="btn-add" style="margin:0;padding:12px 14px;width:100%" onclick="addExExp()">+ ΠΡΟΣΘΗΚΗ</button></div>
         </div>
       </div>
     </div>
@@ -2539,11 +2539,14 @@ function renderEpit(){
   const calRows=allRows.filter(e=>(e.file_year===calYear)||(e.date&&e.date.startsWith(calYear)));
   const byM={};MONTHS_EL.forEach(m=>byM[m]={s:0,l:0,k:0});
   calRows.forEach(r=>{if(byM[r.month]){byM[r.month].s+=epS(r);byM[r.month].l+=(r.liosia||0);byM[r.month].k+=epK(r);}});
-  const maxV=Math.max(...Object.values(byM).map(o=>o.s),1);
+  // STORE-AWARE: το μεγάλο νούμερο = ποσό του τρέχοντος καταστήματος· μπάρα/χρώμα ακολουθούν αυτό
+  const isLouEp=(STORE==='LOUTRAKI');
+  const storeVal=o=>isLouEp?o.k:o.l;
+  const maxV=Math.max(...Object.values(byM).map(o=>storeVal(o)),1);
   const today=new Date();const todayMI=today.getMonth();const todayYear=today.getFullYear().toString();
   const cal12=document.getElementById('epCal12');
   cal12.innerHTML=MONTHS_EL.map((m,i)=>{
-    const o=byM[m];const v=o.s;
+    const o=byM[m];const v=storeVal(o);   // μεγάλο νούμερο = τρέχον κατάστημα
     const barW=v>0?Math.max(10,Math.round(v/maxV*100)):0;
     let cls='ep-zero';
     if(v>0){cls=v>=maxV*.7?'ep-hi':v>=maxV*.4?'ep-md':'ep-lo';}
@@ -2551,7 +2554,9 @@ function renderEpit(){
     if(calYear===todayYear&&i===todayMI) extra=' ep-now';
     else if(calYear<todayYear||(calYear===todayYear&&i<todayMI)) extra=' ep-past';
     const sel=(epMonth===m&&epMonthYear===calYear)?'box-shadow:0 0 0 2px var(--accent) inset;':'';
-    const tri=v>0?`<div style="font-size:8px;color:var(--muted);margin-top:2px;line-height:1.4;">Λ ${fmt(o.l).replace('€','')} · Λτ ${fmt(o.k).replace('€','')}</div>`:'';
+    // από κάτω με μικρά: ΛΟΥ + ΛΙΟ (και τα δύο καταστήματα)
+    const hasAny=(o.l>0||o.k>0);
+    const tri=hasAny?`<div style="font-size:8px;color:var(--muted);margin-top:2px;line-height:1.4;">ΛΟΥ ${fmt(o.k).replace('€','')} · ΛΙΟ ${fmt(o.l).replace('€','')}</div>`:'';
     return`<div class="ep-month-box ${cls}${extra}" style="cursor:pointer;${sel}" onclick="epPickMonth('${m}','${calYear}')" title="Κλικ για ανάλυση μήνα">
       <div class="ep-month-name">${MS[i+1]} ${calYear}</div>
       <div class="ep-month-amount">${v?fmt(v):'—'}</div>
