@@ -384,6 +384,8 @@ tr.holiday-row td{background:rgba(201,168,78,.07)!important;box-shadow:inset 3px
 .tb-actions{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
 .tb-actions select{background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:7px 10px;border-radius:9px;font-size:11px;font-family:var(--sans);font-weight:600;cursor:pointer;}
 .tb-actions select#ysel{border-color:var(--accent);color:var(--accent);}
+.sel-wrap{display:inline-flex;flex-direction:column;gap:2px;}
+.sel-lbl{font-size:7.5px;font-weight:800;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;padding-left:2px;}
 .tb-icon{position:relative;width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);cursor:pointer;font-size:15px;transition:border-color .15s,transform .12s var(--ease);color:var(--text);}
 .tb-icon:hover{border-color:var(--accent);transform:translateY(-1px);}
 .tb-icon .ind{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:8px;font-weight:700;border-radius:10px;min-width:15px;height:15px;display:flex;align-items:center;justify-content:center;padding:0 3px;box-shadow:0 0 8px rgba(224,85,85,.6);}
@@ -605,8 +607,8 @@ tr.holiday-row td{background:rgba(201,168,78,.07)!important;box-shadow:inset 3px
         </div>
         <span id="mbadge" style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);padding:5px 11px;border:1px solid var(--accent-line);border-radius:20px;background:var(--accent-bg-soft);white-space:nowrap;">ΜΑΙΟΣ 2026</span>
         <span id="dirtyBadge"></span>
-        <select id="ysel" onchange="changeYear(this.value)"><!-- 2023-2040: γεμίζει δυναμικά στο buildYearSelect() --></select>
-        <select id="msel" onchange="changeMonth(this.value)"></select>
+        <span class="sel-wrap"><span class="sel-lbl">ΕΤΟΣ</span><select id="ysel" onchange="changeYear(this.value)" title="Επιλογή έτους (2023–2040)"><!-- 2023-2040: γεμίζει δυναμικά στο buildYearSelect() --></select></span>
+        <span class="sel-wrap"><span class="sel-lbl">ΜΗΝΑΣ</span><select id="msel" onchange="changeMonth(this.value)" title="Επιλογή μήνα"></select></span>
         <div class="tb-icon" id="alertsBell" role="button" tabindex="0" aria-label="Ειδοποιήσεις" onclick="showTab('alerts',document.querySelector('.nav-item[data-tab=alerts]'))" title="Ειδοποιήσεις">🔔<span class="ind" id="bellInd" style="display:none">0</span></div>
         <div class="tb-profile" onclick="doLogout()" title="Έξοδος / Αλλαγή χρήστη">
           <div class="tb-avatar" id="tbAvatar">A</div>
