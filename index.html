@@ -715,7 +715,8 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end;">
         <div class="fi"><label>Κωδ.</label><input type="text" id="d5-c" placeholder="ΚΩΔ"></div>
         <div class="fi"><label>Προμηθευτής</label>
-          <select id="d5-p">
+          <input type="text" id="d5-p" list="d5-suppliers" placeholder="Γράψε ή επίλεξε προμηθευτή..." autocomplete="off">
+          <datalist id="d5-suppliers">
             <option>SMART ACTION ONE ΙΚΕ</option><option>ΒΙΟΚΕΦ</option><option>ΒΗΚΑΠ - ΣΤΑΘΟΠΟΥΛΟΣ</option>
             <option>ΜΩΡΑΙΤΗΣ ΦΩΤΙΣΤΙΚΑ ΑΒΕΕ</option><option>ΚΑΡΑΚΩΣΤΑΣ</option><option>FORELCA</option>
             <option>Lamda Electronics</option><option>ΜΠΟΥΖΟΣ ΣΠΥΡΟΣ</option><option>Μ.COM</option>
@@ -724,8 +725,7 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
             <option>ΣΙΜΑΚΟΜ</option><option>ΖΑΧΑΡΟΠΟΥΛΟΣ</option><option>COM-ILGEKA</option>
             <option>ΤΕΛΜΕΚΟ</option><option>ΕΛΒΗΧ</option><option>ELVAN</option>
             <option>ΓΑΛΑΤΗΣ</option><option>ΑΓΚΙΣΤΡΙΩΤΗΣ</option><option>ATC ACCESSORIES</option>
-            <option>ΑΛΛΟΣ</option>
-          </select>
+          </datalist>
         </div>
         <div class="fi"><label>IBAN</label><input type="text" id="d5-i" placeholder="IBAN..."></div>
         <div class="fi"><label>Σύνολο (€)</label><input type="number" id="d5-s" step="0.01" placeholder="0.00" oninput="recalcShare('d5-s','d5-k','d5-l')"></div>
@@ -2486,13 +2486,14 @@ function recalcShare(sumId,loutId,liosId){
   le.value=(sv||kv)?((Math.round((sv-kv)*100)/100).toFixed(2)):'';
 }
 function addD5(){
-  const c=document.getElementById('d5-c').value.trim(),p=document.getElementById('d5-p').value,i=document.getElementById('d5-i').value.trim();
+  const c=document.getElementById('d5-c').value.trim(),p=document.getElementById('d5-p').value.trim(),i=document.getElementById('d5-i').value.trim();
   const s=parseFloat(document.getElementById('d5-s').value)||0,ko=parseFloat(document.getElementById('d5-k').value)||0;
   const l=Math.round((s-ko)*100)/100;   // ΛΙΟΣΙΑ = ΣΥΝΟΛΟ − ΛΟΥΤΡΑΚΙ (αυτόματο, #2)
-  if(!s)return;const k=ek();ea(D.d15,k);
+  if(!s||!p){toast('⚠️ Συμπλήρωσε Προμηθευτή & Σύνολο','err');return;}
+  const k=ek();ea(D.d15,k);
   const item={cod:c,prom:p,iban:i,synolo:s,liosia:l,loutraki:ko};
   D.d15[k].push(item);
-  ['d5-c','d5-i','d5-s','d5-l','d5-k'].forEach(id=>document.getElementById(id).value='');renderD5();renderMain();
+  ['d5-c','d5-p','d5-i','d5-s','d5-l','d5-k'].forEach(id=>document.getElementById(id).value='');renderD5();renderMain();
   saveToSheets("d15");
 }
 function delD5(idx){
