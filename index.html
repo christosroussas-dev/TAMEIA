@@ -1484,12 +1484,19 @@ function autoInitNewMonth(v){
   if(hasData) return;
   const mn=v.split('_')[0],yr=v.split('_')[1];
   if(!D.bank[v]) D.bank[v]=[];
-  if(!(D.bank[v]).some(r=>r.ait&&r.ait.includes('RLED'))){D.bank[v].push({date:'',ait:'ΕΝΑΝΤΙ RLED',poso:2000});}
+  // RLED 2.000€ είναι ΛΙΟΣΙΑΣ — μη το προσθέτεις σε νέους μήνες ΛΟΥΤΡΑΚΙΟΥ
+  let addedRLED=false;
+  if(STORE==='LIOSIA' && !(D.bank[v]).some(r=>r.ait&&r.ait.includes('RLED'))){
+    D.bank[v].push({date:'',ait:'ΕΝΑΝΤΙ RLED',poso:2000});
+    addedRLED=true;
+  }
   const monthEp=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr))));
   const epTot=monthEp.reduce((s,e)=>s+(e.liosia||0),0);
   renderAll();
-  if(epTot>0){toast('RLED 2.000€ + Επιταγές '+fmt(epTot),'info');}else{toast('Προστέθηκε: RLED 2.000€','info');}
-  saveToSheets("bank");
+  if(addedRLED){
+    if(epTot>0){toast('RLED 2.000€ + Επιταγές '+fmt(epTot),'info');}else{toast('Προστέθηκε: RLED 2.000€','info');}
+    saveToSheets("bank");
+  }
 }
 function renderAll(){buildDD();renderMain();renderTrap();renderMet();renderBnk();renderD5();renderTel();renderExoda();renderEpit();runRules();document.getElementById('mbadge').textContent=CM.replace('_',' ');}
 
