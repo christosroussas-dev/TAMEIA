@@ -375,8 +375,9 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
 .sidebar-logo .rr{font-family:var(--mono);font-size:30px;font-weight:700;line-height:1;background:linear-gradient(135deg,#f4dd95,var(--gold2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 .sidebar-logo .name{font-size:12px;font-weight:700;letter-spacing:.06em;margin-top:5px;background:linear-gradient(135deg,#f4dd95,var(--gold2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 .sidebar-logo .sub{font-size:9px;color:var(--muted);letter-spacing:.22em;margin-top:2px;}
-.sb-logo-img{width:120px;height:120px;display:block;margin:0 auto 6px;object-fit:contain;filter:drop-shadow(0 4px 14px rgba(0,0,0,.5));}
-.login-logo-img{width:180px;height:180px;display:block;margin:0 auto 14px;object-fit:contain;filter:drop-shadow(0 8px 26px rgba(0,0,0,.55));animation:logoIn .6s var(--ease);}
+.sb-logo-img{width:156px;height:156px;display:block;margin:0 auto 8px;object-fit:contain;filter:drop-shadow(0 4px 14px rgba(0,0,0,.5));}
+.login-logo-img{width:234px;height:234px;display:block;margin:0 auto 16px;object-fit:contain;filter:drop-shadow(0 8px 26px rgba(0,0,0,.55));animation:logoIn .6s var(--ease);}
+@media(max-width:380px){.sb-logo-img{width:128px;height:128px;}.login-logo-img{width:192px;height:192px;}}
 @keyframes logoIn{from{opacity:0;transform:scale(.85);}to{opacity:1;transform:scale(1);}}
 /* TOP PROGRESS BAR (live φόρτωση) */
 #topProgress{position:fixed;top:0;left:0;height:3px;width:0;z-index:100000;background:linear-gradient(90deg,var(--accent),var(--purple));box-shadow:0 0 12px var(--accent),0 0 4px var(--accent);opacity:0;border-radius:0 3px 3px 0;transition:width .3s var(--ease),opacity .35s;}
@@ -563,13 +564,13 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
 }
 </style>
 <!-- Favicon (νέο λογότυπο ΤΑΜΕΙΑ ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε.) -->
-<link rel="icon" type="image/png" sizes="48x48" href="favicon.png?v=39">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=39">
-<link rel="shortcut icon" href="favicon.png?v=39">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon.png?v=40">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=40">
+<link rel="shortcut icon" href="favicon.png?v=40">
 <!-- PWA: εγκατάσταση σαν εφαρμογή (εικονίδιο στην επιφάνεια εργασίας/κινητό, δικό της παράθυρο) -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#070d1a">
-<link rel="apple-touch-icon" href="icon-192.png?v=39">
+<link rel="apple-touch-icon" href="icon-192.png?v=40">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ΤΑΜΕΙΟ">
@@ -593,7 +594,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
 <div id="topProgress"></div>
 <div id="loginScreen">
   <div class="login-box">
-    <img src="logo.png?v=39" alt="ΤΑΜΕΙΑ ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε." class="login-logo-img" onerror="this.style.display='none';">
+    <img src="logo.png?v=40" alt="ΤΑΜΕΙΑ ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε." class="login-logo-img" onerror="this.style.display='none';">
     <div class="login-logo">ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε.</div>
     <div class="login-sub">ΛΙΟΣΙΑ · Σύστημα Ταμείου v6</div>
     <input class="login-inp" type="email" id="loginEmail" placeholder="email" autocomplete="username"
@@ -610,7 +611,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
   <!-- ═══ SIDEBAR ═══ -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo" onclick="hardRefresh()" title="Ανανέωση εφαρμογής (φρέσκια φόρτωση)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();hardRefresh();}">
-      <img src="logo.png?v=39" alt="ΤΑΜΕΙΑ ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε." class="sb-logo-img" onerror="this.style.display='none';document.getElementById('sbLogoFb').style.display='block';">
+      <img src="logo.png?v=40" alt="ΤΑΜΕΙΑ ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε." class="sb-logo-img" onerror="this.style.display='none';document.getElementById('sbLogoFb').style.display='block';">
       <div class="rr" id="sbLogoFb" style="display:none;">RR</div>
       <div class="name">ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε.</div>
       <div class="sub" id="sidebarStore">ΤΑΜΕΙΟ · ΛΙΟΣΙΑ</div>
