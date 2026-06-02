@@ -929,7 +929,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
       <div class="ex-hero-sub">Μετρητά (φλουρί) − Καθημερινά έξοδα · ανεξάρτητο ανά κατάστημα &amp; μήνα</div>
     </div>
     <div class="ex-hero-badge" id="exBadge">🧾</div>
-    <div class="ex-mascot-wrap" id="exMascot" style="display:none"><img class="ex-mascot" src="mascot-money.png?v=44" alt="Ταμίας" onerror="this.parentNode.style.display='none'"></div>
+    <div class="ex-mascot-wrap" id="exMascot" style="display:none"><img class="ex-mascot" src="mascot-money.png?v=46" alt="" onerror="this.parentNode.style.display='none';var b=document.getElementById('exBadge');if(b)b.style.display=''"></div>
   </div>
   <div class="kpis ex-kpis">
     <div class="kpi"><div class="kl">Μετρητά (φλουρί)</div><div class="kv" id="exCashTot">—</div></div>
@@ -969,7 +969,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
   <!-- Αστείο popup όταν αδειάζει το ταμείο εξόδων -->
   <div class="ex-pop-overlay" id="exPop" onclick="if(event.target===this)closeExPop()">
     <div class="ex-pop">
-      <img class="ex-pop-img" src="mascot-money.png?v=43" alt="" onerror="this.style.display='none'">
+      <img class="ex-pop-img" src="mascot-money.png?v=46" alt="" onerror="this.style.display='none'">
       <div class="ex-pop-title">ΑΔΕΙΑΣΕ ΤΟ ΚΟΥΤΙ! 🪙</div>
       <div class="ex-pop-msg">Τέλειωσαν τα ψιλά του ταμείου εξόδων.<br>Υπόλοιπο: <b id="exPopVal">0,00€</b><br>Ώρα να βάλεις νέο φλουρί! 😅</div>
       <button class="ex-pop-btn" onclick="closeExPop()">Εντάξει, βάζω φλουρί 💰</button>
@@ -1225,7 +1225,7 @@ try{ _db.settings({ignoreUndefinedProperties:true}); }catch(e){}
 // store = σε ποιο κατάστημα «δένει» ο εργαζόμενος · tabs = ποιες καρτέλες βλέπει · hideHero = κρύβει το ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ.
 const USER_CFG={
   'christosroussas@gmail.com':{role:'ADMIN'},
-  'afoiroussa@gmail.com':{role:'EMP',store:'LIOSIA',tabs:['main','exoda'],hideHero:true,funMascot:true},
+  'afoiroussa@gmail.com':{role:'EMP',store:'LIOSIA',tabs:['main','metrita','exoda'],hideHero:true,funMascot:true},
   'roussasp@yahoo.gr':{role:'EMP',store:'LOUTRAKI',tabs:['main','metrita','trap','bank','deka5','telos','exoda'],hideHero:true,dualStore:['trap','metrita','bank']},
 };
 function userCfg(em){return USER_CFG[(em||'').toLowerCase()]||{role:'EMP',store:'LIOSIA',tabs:['main','metrita','exoda']};}
@@ -1237,6 +1237,7 @@ try{ if(typeof emailjs!=='undefined') emailjs.init({publicKey:EMAILJS_PUBLIC}); 
 async function _sendDayEmail(day,dayName,met,pos,rep){
   try{
     if(typeof emailjs==='undefined') return;
+    if(STORE!=='LIOSIA') return;  // Π5: email κλεισίματος ημέρας ΜΟΝΟ Λιόσια — το Λουτράκι ΔΕΝ στέλνει (το subject/label είναι ΛΙΟΣΙΑ-specific)
     const k=ek();const{mi,y}=gmi(k);const mn=k.split('_')[0],yr=k.split('_')[1];
     const total=(met||0)+(pos||0);
     const diff=(rep!=null)?Math.round((total-rep)*100)/100:null;
