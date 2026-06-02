@@ -683,6 +683,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
       <div class="nav-item" id="alertsTab" data-tab="alerts" onclick="showTab('alerts',this)"><span class="nico">🔔</span>ΕΙΔΟΠΟΙΗΣΕΙΣ</div>
       <div class="nav-sep"></div>
       <div class="nav-item" id="navExcel" onclick="exportCSV()"><span class="nico">📑</span>ΑΝΑΦΟΡΕΣ (Excel)</div>
+      <div class="nav-item" id="navAI" onclick="exportAIReport()" style="background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(59,130,246,.12));border:1px solid rgba(139,92,246,.35);color:#c4b5fd;" title="Εξαγωγή αναλυτικής αναφοράς για ανάλυση με AI"><span class="nico">🤖</span>ΑΝΑΦΟΡΑ AI</div>
       <div class="nav-item" onclick="window.open('odigies.html','_blank')"><span class="nico">❓</span>ΟΔΗΓΙΕΣ</div>
       <div class="nav-sep" style="margin-top:14px;background:rgba(76,175,125,.3);"></div>
       <div class="nav-grouplabel">🔸 ΑΝΕΞΑΡΤΗΤΟ 2ο ΤΑΜΕΙΟ</div>
@@ -1510,6 +1511,7 @@ function applyRole(){
     ni.style.display=(!isAdmin&&!isTabAllowed(tab))?'none':'';
   });
   var navExcel=document.getElementById('navExcel');if(navExcel)navExcel.style.display=isAdmin?'':'none';
+  var navAI=document.getElementById('navAI');if(navAI)navAI.style.display=isAdmin?'':'none';
   // Top bar buttons (ΑΠΟΘ/ΦΟΡΤ) μόνο admin
   document.querySelectorAll('.btn').forEach(function(b){
     var txt=b.textContent||'';
@@ -3377,6 +3379,150 @@ function _fillSlots(ws,firstRow,lastSlot,arr,writer){
   for(let i=0;i<arr.length;i++) writer(ws,firstRow+i,arr[i]);
   for(let r=firstRow+arr.length;r<=lastSlot+extra;r++) writer(ws,r,null);
   return extra;
+}
+async function exportAIReport(){
+  toast('Δημιουργία αναφοράς AI…','info');
+  try{
+    const now=new Date();
+    const k=ek();
+    const{mi,y}=gmi(k);
+    const mn=k.split('_')[0],yr=k.split('_')[1];
+    const CY=parseInt(yr),CM=mi+1;
+    const MONTHS_GR=['Ιανουάριος','Φεβρουάριος','Μάρτιος','Απρίλιος','Μάιος','Ιούνιος','Ιούλιος','Αύγουστος','Σεπτέμβριος','Οκτώβριος','Νοέμβριος','Δεκέμβριος'];
+    const ACTIVE=STORE;
+    const stLabel=(STORES[ACTIVE]||STORES.LIOSIA).full||ACTIVE;
+    const isLou=(ACTIVE==='LOUTRAKI');
+    const r2=(n)=>Math.round((n||0)*100)/100;
+    const pct=(a,b)=>b?r2((a-b)/Math.abs(b)*100):null;
+    const fmtE=(n)=>'€'+r2(n).toLocaleString('el-GR',{minimumFractionDigits:2});
+    const fmtP=(p)=>p===null?'—':(p>=0?'+':'')+r2(p)+'%';
+
+    // === ΕΝΕΡΓΟ ΚΑΤΑΣΤΗΜΑ — δοκιμασμένη dashMetrics() (store-aware, ταιριάζει με Excel) ===
+    const m=dashMetrics();
+    const cf=carryFor(k);
+
+    const lines=[]; const L=(s='')=>lines.push(s);
+    L('════════════════════════════════════════════════════════════');
+    L('   ΤΑΜΕΙΟ ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε. — ΑΝΑΦΟΡΑ ΓΙΑ AI ΑΝΑΛΥΣΗ');
+    L('════════════════════════════════════════════════════════════');
+    L('▶▶ ΚΑΤΑΣΤΗΜΑ: '+stLabel+' ◀◀');
+    L('Ημερομηνία εξαγωγής: '+now.toLocaleDateString('el-GR')+' '+now.toLocaleTimeString('el-GR'));
+    L('Μήνας: '+mn+' '+yr+'  |  Έκδοση app: v48');
+    L('Εργάσιμες: '+m.wd+'/'+m.twd+'  |  Εναπομένουσες: '+m.remainWD);
+    L('POS κράτηση τράπεζας: '+r2(posRate(k)*100)+'%');
+    L('');
+    L('━━━ 1. ΤΡΕΧΩΝ ΜΗΝΑΣ — '+stLabel+' ━━━');
+    L('─────────────────────────────────────────');
+    L('Μετρητά εισπράξεις:    '+fmtE(m.tMet));
+    L('POS εισπράξεις:        '+fmtE(m.tPos));
+    L('  └ Κράτηση τράπεζας:  -'+fmtE(m.kratiseis));
+    L('Σύνολο εισπράξεων:     '+fmtE(m.tAll));
+    L('Καθαρές εισπράξεις:    '+fmtE(m.tAllNet));
+    L('Εμβάσματα/Καταθέσεις:  '+fmtE(m.pEisp));
+    L('POS carry-in (προηγ.): '+fmtE(cf.in));
+    L('');
+    L('  ΠΛΗΡΩΜΕΣ:');
+    L('  Μετρητά:             -'+fmtE(m.pMet));
+    L('  Τραπεζικές:          -'+fmtE(m.pBnk));
+    if(!isLou){
+      L('  15ου μήνα:           -'+fmtE(m.pD5));
+      L('  Τέλος μήνα:          -'+fmtE(m.pTel));
+    }
+    L('  Επιταγές:            -'+fmtE(m.pEpit));
+    L('  POS carry-out:       -'+fmtE(cf.out));
+    L('  Σύνολο πληρωμών:     -'+fmtE(m.allP));
+    L('');
+    L('▶ ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ: '+fmtE(m.yp));
+    L('  Μέσος/εργάσιμη:      '+fmtE(m.avg));
+    L('  Στόχος μήνα:         '+fmtE(m.tgt)+' ('+fmtE(m.t.ok)+'/εργάσιμη × '+m.twd+')');
+    L('  Επίτευξη στόχου:     '+r2(m.pct)+'%');
+    L('  vs πέρσι ('+MONTHS_GR[CM-1]+' '+(CY-1)+'): '+(m.hPrevYear?fmtE(m.hPrevYear.total)+' → '+fmtP(m.dPrevYear):'—'));
+    L('  vs προηγ. μήνα:      '+(m.hPrevMonth?fmtE(m.hPrevMonth.total)+' → '+fmtP(m.dPrevMonth):'—'));
+    L('');
+    L('━━━ 2. ΠΡΟΒΛΕΨΕΙΣ ΥΠΟΛΟΙΠΟΥ (τέλος μήνα) ━━━');
+    L('─────────────────────────────────────────');
+    L('Απαισιόδοξο σενάριο:   '+fmtE(m.projWeak));
+    L('Ρεαλιστικό σενάριο:    '+fmtE(m.projBase));
+    L('Αισιόδοξο σενάριο:     '+fmtE(m.projStrong));
+    L('(βάσει '+m.remainWD+' εναπομενουσών εργασίμων)');
+    L('');
+    L('━━━ 3. ΤΕΛΕΥΤΑΙΟΙ 3 ΜΗΝΕΣ — '+stLabel+' ━━━');
+    L('─────────────────────────────────────────');
+    const last3=[];
+    for(let i=2;i>=0;i--){let m2=CM-i,y2=CY;if(m2<=0){m2+=12;y2--;}const h=histGet(String(y2),m2);last3.push({mn:MONTHS_GR[m2-1],yr:y2,h:h});}
+    last3.forEach(x=>L('  '+x.mn+' '+x.yr+': '+(x.h?fmtE(x.h.total)+' (μέσος '+fmtE(x.h.avg_day||0)+'/μέρα, '+(x.h.work_days||'—')+' εργ.)':'—')));
+    const t3=last3[2].h&&last3[0].h?pct(last3[2].h.total,last3[0].h.total):null;
+    L('  Τάση 3 μηνών: '+fmtP(t3));
+    L('');
+    L('━━━ 4. YTD (Ιαν → '+mn+' '+yr+') — '+stLabel+' ━━━');
+    L('─────────────────────────────────────────');
+    let ytdNow=0,ytdMonths=0,ytdPrev=0;
+    for(let m2=1;m2<=CM;m2++){const h=histGet(String(CY),m2);if(h){ytdNow+=h.total||0;ytdMonths++;}const hp=histGet(String(CY-1),m2);if(hp)ytdPrev+=hp.total||0;}
+    L(stLabel+' '+yr+':   '+fmtE(ytdNow)+' ('+ytdMonths+' μήνες)');
+    L(stLabel+' '+(CY-1)+': '+fmtE(ytdPrev));
+    L('YTD vs πέρσι: '+fmtP(pct(ytdNow,ytdPrev)));
+    L('');
+    L('━━━ 5. ΙΣΤΟΡΙΚΑ ΜΗΝΙΑΙΑ ΣΥΝΟΛΑ — '+stLabel+' ━━━');
+    L('─────────────────────────────────────────');
+    const allH=liveHistAll();
+    const years=[...new Set(allH.map(h=>h.year))].sort();
+    years.forEach(y2=>{const mths=allH.filter(h=>h.year===y2).sort((a,b)=>a.month-b.month);const ytot=mths.reduce((s,h)=>s+(h.total||0),0);L('  '+y2+' (σύνολο '+fmtE(ytot)+'):');mths.forEach(h=>L('      '+MONTHS_GR[h.month-1]+': '+fmtE(h.total)+' (μέσος '+fmtE(h.avg_day||0)+', '+(h.work_days||'—')+' εργ.)'));});
+    L('');
+    L('━━━ 6. ΕΠΙΤΑΓΕΣ — '+stLabel+' (μερίδιο) ━━━');
+    L('─────────────────────────────────────────');
+    const epitYr=(D.epitages||[]).filter(e=>(e.date||'').split('/')[2]===yr);
+    const epShare=epitYr.reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
+    L('Επιταγές έτους '+yr+': '+epitYr.length+' (μερίδιο '+stLabel+': '+fmtE(epShare)+')');
+    const pend=(D.epitages||[]).filter(e=>{const p=(e.date||'').split('/');if(p.length<3)return false;return new Date(p[2],p[1]-1,p[0])>=now;}).sort((a,b)=>{const da=a.date.split('/'),db=b.date.split('/');return new Date(da[2],da[1]-1,da[0])-new Date(db[2],db[1]-1,db[0]);}).slice(0,10);
+    L('Επόμενες λήξεις:');
+    pend.forEach(e=>L('  '+e.date+' — '+e.prom+' — μερίδιο '+stLabel+': '+fmtE(isLou?epK(e):(e.liosia||0))+' (σύνολο '+fmtE(epS(e))+')'));
+    L('');
+    L('━━━ 7. ΚΑΘΗΜΕΡΙΝΑ ΕΞΟΔΑ — '+stLabel+' ━━━');
+    L('─────────────────────────────────────────');
+    const exR=D.exoda[k]||[];
+    const exCash=exR.filter(r=>r.type==='cash').reduce((s,r)=>s+(r.poso||0),0);
+    const exExp=exR.filter(r=>r.type==='exp').reduce((s,r)=>s+(r.poso||0),0);
+    L('Φλουρί (μετρητά κουτιού): '+fmtE(exCash));
+    L('Σύνολο εξόδων:            '+fmtE(exExp));
+    L('Διαθέσιμο κουτιού:        '+fmtE(r2(exCash-exExp)));
+    exR.filter(r=>r.type==='exp').forEach(r=>L('  '+(r.date||'—')+' '+r.desc+': -'+fmtE(r.poso)));
+    L('');
+    L('━━━ 8. ΗΜΕΡΗΣΙΑ ΑΝΑΛΥΣΗ — '+stLabel+' ━━━');
+    L('─────────────────────────────────────────');
+    L('ΗΜ  ΜΕΡΑ        ΜΕΤΡΗΤΑ      POS      ΣΥΝΟΛΟ      ERP      ΔΙΑΦ');
+    (m.rows||[]).filter(r=>r.dayName!=='ΚΥΡΙΑΚΗ'&&(r.metrita+r.pos)>0).forEach(r=>{const tot=r2((r.metrita||0)+(r.pos||0));const diff=r.report!=null?r2(tot-r.report):null;L(String(r.day).padEnd(3)+' '+(r.dayName||'').substring(0,9).padEnd(11)+' '+fmtE(r.metrita||0).padStart(10)+' '+fmtE(r.pos||0).padStart(9)+' '+fmtE(tot).padStart(10)+' '+(r.report!=null?fmtE(r.report):'—').padStart(9)+'  '+(diff!==null?(diff>=0?'+':'')+r2(diff):'—'));});
+    L('');
+    const other=isLou?'LIOSIA':'LOUTRAKI';
+    const otherLabel=(STORES[other]||{}).full||other;
+    const otherHist=other==='LOUTRAKI'?HIST_LOUTRAKI:HIST;
+    L('━━━ 9. ΣΥΓΚΡΙΣΗ ΜΕ '+otherLabel+' (ιστορικά YTD) ━━━');
+    L('─────────────────────────────────────────');
+    let oYtd=0;for(let m2=1;m2<=CM;m2++){const h=otherHist.find(h=>h.year===String(CY)&&h.month===m2);if(h)oYtd+=h.total||0;}
+    L(stLabel+' YTD '+yr+':   '+fmtE(ytdNow));
+    L(otherLabel+' YTD '+yr+': '+fmtE(oYtd)+' (ιστορικά)');
+    L('ΣΥΝΟΛΟ ΕΠΙΧΕΙΡΗΣΗΣ YTD: '+fmtE(ytdNow+oYtd));
+    L('(Για LIVE τρέχοντα νούμερα του '+otherLabel+', άλλαξε κατάστημα & ξανα-εξήγαγε.)');
+    L('');
+    L('────────────────────────────────────────────────────────────');
+    L('ΟΔΗΓΙΕΣ ΓΙΑ ΤΟ AI:');
+    L('Δεδομένα: ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε. (ηλεκτρολογικά υλικά & φωτισμός).');
+    L('Η αναφορά αφορά ΑΠΟΚΛΕΙΣΤΙΚΑ το κατάστημα: '+stLabel+'.');
+    L('Ανέλυσε: πορεία μήνα vs στόχο, τάση 3μηνου & YTD vs πέρσι,');
+    L('πρόβλεψη τέλους μήνα, εκκρεμείς επιταγές & ταμειακή ροή,');
+    L('προτάσεις βελτίωσης, κινδύνους, ευκαιρίες.');
+    L('(Για πλήρη σύγκριση των 2 καταστημάτων με LIVE νούμερα,');
+    L(' εξάγετε ξεχωριστή αναφορά και για το '+otherLabel+'.)');
+    L('────────────────────────────────────────────────────────────');
+
+    const text=lines.join('\n');
+    const blob=new Blob(['﻿'+text],{type:'text/plain;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;
+    a.download='ΤΑΜΕΙΟ_AI_'+ACTIVE+'_'+mn+'_'+yr+'.txt';
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},500);
+    toast('✅ Αναφορά AI ('+stLabel+') κατεβαίνει…','ok');
+  }catch(e){console.error('exportAIReport',e);toast('❌ Σφάλμα αναφοράς: '+e.message,'err');}
 }
 async function exportCSV(){
   if(typeof ExcelJS==='undefined'){toast('Φόρτωση βιβλιοθήκης…','info');setTimeout(exportCSV,1500);return;}
