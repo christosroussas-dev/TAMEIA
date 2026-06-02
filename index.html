@@ -3470,12 +3470,24 @@ async function exportAIReport(){
     L('');
     L('━━━ 6. ΕΠΙΤΑΓΕΣ — '+stLabel+' (μερίδιο) ━━━');
     L('─────────────────────────────────────────');
-    const epitYr=(D.epitages||[]).filter(e=>(e.date||'').split('/')[2]===yr);
-    const epShare=epitYr.reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
-    L('Επιταγές έτους '+yr+': '+epitYr.length+' (μερίδιο '+stLabel+': '+fmtE(epShare)+')');
-    const pend=(D.epitages||[]).filter(e=>{const p=(e.date||'').split('/');if(p.length<3)return false;return new Date(p[2],p[1]-1,p[0])>=now;}).sort((a,b)=>{const da=a.date.split('/'),db=b.date.split('/');return new Date(da[2],da[1]-1,da[0])-new Date(db[2],db[1]-1,db[0]);}).slice(0,10);
-    L('Επόμενες λήξεις:');
-    pend.forEach(e=>L('  '+e.date+' — '+e.prom+' — μερίδιο '+stLabel+': '+fmtE(isLou?epK(e):(e.liosia||0))+' (σύνολο '+fmtE(epS(e))+')'));
+    // ΙΔΙΟ φίλτρο μήνα με dashMetrics (§1) → ώστε το σύνολο εδώ να ΣΥΜΦΩΝΕΙ με τις πληρωμές επιταγών του §1
+    const epMonth=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr))));
+    const epMonthShare=epMonth.reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
+    L('Επιταγές ΜΗΝΑ ('+mn+' '+yr+'): '+epMonth.length+' | μερίδιο '+stLabel+': '+fmtE(epMonthShare));
+    epMonth.sort((a,b)=>(a.date||'').localeCompare(b.date||'')).forEach(e=>L('  '+(e.date||'—')+' #'+(e.num||'—')+' '+e.prom+' — '+stLabel+': '+fmtE(isLou?epK(e):(e.liosia||0))+' (σύνολο '+fmtE(epS(e))+')'));
+    L('');
+    // Σύνολο έτους (όλοι οι μήνες)
+    const epYearAll=(D.epitages||[]).filter(e=>e.file_year===yr||(e.date&&e.date.startsWith(yr)));
+    const epYearShare=epYearAll.reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
+    L('Σύνολο επιταγών έτους '+yr+': '+epYearAll.length+' | μερίδιο '+stLabel+': '+fmtE(epYearShare));
+    L('');
+    // Επόμενες λήξεις — date σε μορφή yyyy-mm-dd (ISO), σύγκριση με σημερινή ISO
+    const _pad=(n)=>String(n).padStart(2,'0');
+    const todayISO=now.getFullYear()+'-'+_pad(now.getMonth()+1)+'-'+_pad(now.getDate());
+    const pend=(D.epitages||[]).filter(e=>e.date&&e.date>=todayISO).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,12);
+    L('Επόμενες λήξεις (μελλοντικές):');
+    if(!pend.length) L('  (καμία επιταγή με μελλοντική ημερομηνία λήξης)');
+    pend.forEach(e=>L('  '+e.date+' #'+(e.num||'—')+' '+e.prom+' — '+stLabel+': '+fmtE(isLou?epK(e):(e.liosia||0))+' (σύνολο '+fmtE(epS(e))+')'));
     L('');
     L('━━━ 7. ΚΑΘΗΜΕΡΙΝΑ ΕΞΟΔΑ — '+stLabel+' ━━━');
     L('─────────────────────────────────────────');
