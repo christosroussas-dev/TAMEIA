@@ -1011,14 +1011,10 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
   <div class="tw">
     <div class="tw-h">Καταχώρηση Επιταγής</div>
     <div class="fg">
-      <div class="fi"><label>Μήνας λήξης</label>
-        <select id="ep-m"><option>ΙΑΝΟΥΑΡΙΟΣ</option><option>ΦΕΒΡΟΥΑΡΙΟΣ</option><option>ΜΑΡΤΙΟΣ</option><option>ΑΠΡΙΛΙΟΣ</option><option>ΜΑΙΟΣ</option><option>ΙΟΥΝΙΟΣ</option><option>ΙΟΥΛΙΟΣ</option><option>ΑΥΓΟΥΣΤΟΣ</option><option>ΣΕΠΤΕΜΒΡΙΟΣ</option><option>ΟΚΤΩΒΡΙΟΣ</option><option>ΝΟΕΜΒΡΙΟΣ</option><option>ΔΕΚΕΜΒΡΙΟΣ</option></select>
-      </div>
-      <div class="fi"><label>Έτος λήξης</label>
-        <select id="ep-yr"><option>2025</option><option selected>2026</option><option>2027</option><option>2028</option></select>
-      </div>
-      <div class="fi"><label>Ημ. λήξης</label><input type="date" id="ep-d"></div>
+      <div class="fi"><label>Ημ. λήξης</label><input type="date" id="ep-d" onchange="epSyncMY()"></div>
       <div class="fi"><label>Ημ. έκδοσης</label><input type="date" id="ep-ek"></div>
+      <div class="fi"><label>Μήνας λήξης 🔒</label><input type="text" id="ep-m" readonly placeholder="auto από ημ. λήξης" title="Συμπληρώνεται αυτόματα από την Ημ. λήξης" style="background:rgba(255,255,255,.04);opacity:.7;cursor:not-allowed;"></div>
+      <div class="fi"><label>Έτος λήξης 🔒</label><input type="text" id="ep-yr" readonly placeholder="auto" title="Συμπληρώνεται αυτόματα από την Ημ. λήξης" style="background:rgba(255,255,255,.04);opacity:.7;cursor:not-allowed;"></div>
       <div class="fi"><label>Αρ. Επιταγής</label><input type="text" id="ep-n"></div>
       <div class="fi"><label>Προμηθευτής</label>
         <input type="text" id="ep-p" list="ep-p-list" placeholder="EUROLAMP, ΚΑΣΙΝΑΚΗΣ..." autocomplete="off" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:6px 8px;border-radius:4px;font-family:var(--sans);font-size:12px;">
@@ -2964,13 +2960,28 @@ function tplSaveDefaults(){
 }
 
 // ===== ★ ΕΠΙΤΑΓΕΣ — 12ΜΗΝΟ ΗΜΕΡΟΛΟΓΙΟ =====
+// Μήνας/Έτος λήξης = ΠΑΝΤΑ από την Ημ. λήξης (μία πηγή αλήθειας → μηδέν ασυμφωνία στο ημερολόγιο/φίλτρα)
+function epSyncMY(){
+  const d=document.getElementById('ep-d').value, me=document.getElementById('ep-m'), ye=document.getElementById('ep-yr');
+  if(d&&d.length>=10){
+    const mi=parseInt(d.substring(5,7),10);
+    if(me)me.value=(mi>=1&&mi<=12)?MONTHS_EL[mi-1]:'';
+    if(ye)ye.value=d.substring(0,4);
+  }else{ if(me)me.value=''; if(ye)ye.value=''; }
+}
 function addEpit(){
-  const m=document.getElementById('ep-m').value,yr=document.getElementById('ep-yr').value,d=document.getElementById('ep-d').value,ek2=document.getElementById('ep-ek').value,n=document.getElementById('ep-n').value.trim(),p=document.getElementById('ep-p').value.trim();
+  const d=document.getElementById('ep-d').value,ek2=document.getElementById('ep-ek').value,n=document.getElementById('ep-n').value.trim(),p=document.getElementById('ep-p').value.trim();
   const s=parseFloat(document.getElementById('ep-s').value)||0,ko=parseFloat(document.getElementById('ep-k').value)||0;
   const l=Math.round((s-ko)*100)/100;   // ΛΙΟΣΙΑ = ΣΥΝΟΛΟ − ΛΟΥΤΡΑΚΙ (#6)
-  if(!s||!p)return;
+  if(!s||!p){toast('⚠️ Συμπλήρωσε Προμηθευτή & Σύνολο','err');return;}
+  if(!d||d.length<10){toast('⚠️ Συμπλήρωσε Ημ. λήξης (από αυτήν προκύπτει μήνας/έτος)','err');return;}
+  // Μήνας/Έτος λήξης παράγονται ΑΠΟ την Ημ. λήξης — όχι από χειροκίνητα dropdowns (αδύνατο πλέον να μπει σε λάθος μήνα)
+  const mi=parseInt(d.substring(5,7),10);
+  const m=(mi>=1&&mi<=12)?MONTHS_EL[mi-1]:'';
+  const yr=d.substring(0,4);
+  if(!m){toast('⚠️ Μη έγκυρη Ημ. λήξης','err');return;}
   D.epitages.push({month:m,file_year:yr,date:d,ekdosi:ek2,num:n,prom:p,synolo:s,liosia:l,loutraki:ko});
-  ['ep-n','ep-s','ep-l','ep-k','ep-d','ep-ek','ep-p'].forEach(id=>document.getElementById(id).value='');
+  ['ep-n','ep-s','ep-l','ep-k','ep-d','ep-ek','ep-p','ep-m','ep-yr'].forEach(id=>document.getElementById(id).value='');
   renderEpit();saveEpitages();flashOK();
 }
 async function delEpit(i){const r=D.epitages[i];if(!(await confirmDel('Διαγραφή επιταγής: '+((r&&r.prom)||'')+' '+fmt((r&&r.liosia)||0))))return;D.epitages.splice(i,1);renderEpit();saveEpitages();}
