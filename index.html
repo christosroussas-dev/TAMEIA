@@ -183,6 +183,9 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 .ep-month-box.ep-past{opacity:.45;}
 .ep-month-box.ep-now{box-shadow:0 0 0 2px var(--accent);border-color:var(--accent);}
 .ep-month-box .ep-status-dot{width:5px;height:5px;border-radius:50%;margin:0 auto 3px;}
+/* chip επιβεβαίωσης λήξης (φόρμα επιταγής) — store-aware χρώμα */
+.ep-when{margin:2px 14px 12px;display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:24px;background:var(--accent-bg-soft);border:1px solid var(--accent-line);color:var(--accent);font-size:14px;font-weight:700;width:fit-content;}
+.ep-when.empty{background:rgba(133,147,173,.08);border-color:var(--border2);color:var(--muted);font-weight:600;}
 
 /* === ΣΥΓΚΡΙΣΗ ΜΗΝΑ vs ΠΕΡΣΙ === */
 .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
@@ -684,6 +687,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
       <div class="nav-sep"></div>
       <div class="nav-item" id="navExcel" onclick="exportCSV()"><span class="nico">📑</span>ΑΝΑΦΟΡΕΣ (Excel)</div>
       <div class="nav-item" id="navAI" onclick="exportAIReport()" style="background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(59,130,246,.12));border:1px solid rgba(139,92,246,.35);color:#c4b5fd;" title="Εξαγωγή αναλυτικής αναφοράς για ανάλυση με AI"><span class="nico">🤖</span>ΑΝΑΦΟΡΑ AI</div>
+      <div class="nav-item" id="navAudit" data-tab="audit" onclick="showTab('audit',this)" style="background:linear-gradient(135deg,rgba(224,184,75,.16),rgba(212,175,90,.08));border:1px solid rgba(224,184,75,.35);color:#e6c878;" title="Ιστορικό: ποιος χρήστης μπήκε & τι έκανε (μόνο ADMIN)"><span class="nico">📋</span>ΙΣΤΟΡΙΚΟ ΕΝΕΡΓΕΙΩΝ</div>
       <div class="nav-item" onclick="window.open('odigies.html','_blank')"><span class="nico">❓</span>ΟΔΗΓΙΕΣ</div>
       <div class="nav-sep" style="margin-top:14px;background:rgba(76,175,125,.3);"></div>
       <div class="nav-grouplabel">🔸 ΑΝΕΞΑΡΤΗΤΟ 2ο ΤΑΜΕΙΟ</div>
@@ -1013,8 +1017,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
     <div class="fg">
       <div class="fi"><label>Ημ. λήξης</label><input type="date" id="ep-d" onchange="epSyncMY()"></div>
       <div class="fi"><label>Ημ. έκδοσης</label><input type="date" id="ep-ek"></div>
-      <div class="fi"><label>Μήνας λήξης 🔒</label><input type="text" id="ep-m" readonly placeholder="auto από ημ. λήξης" title="Συμπληρώνεται αυτόματα από την Ημ. λήξης" style="background:rgba(255,255,255,.04);opacity:.7;cursor:not-allowed;"></div>
-      <div class="fi"><label>Έτος λήξης 🔒</label><input type="text" id="ep-yr" readonly placeholder="auto" title="Συμπληρώνεται αυτόματα από την Ημ. λήξης" style="background:rgba(255,255,255,.04);opacity:.7;cursor:not-allowed;"></div>
+      <input type="hidden" id="ep-m"><input type="hidden" id="ep-yr">
       <div class="fi"><label>Αρ. Επιταγής</label><input type="text" id="ep-n"></div>
       <div class="fi"><label>Προμηθευτής</label>
         <input type="text" id="ep-p" list="ep-p-list" placeholder="EUROLAMP, ΚΑΣΙΝΑΚΗΣ..." autocomplete="off" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:6px 8px;border-radius:4px;font-family:var(--sans);font-size:12px;">
@@ -1036,6 +1039,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
       <div class="fi"><label>ΛΙΟΣΙΑ (€) 🔒</label><input type="number" id="ep-l" placeholder="auto" readonly title="Αυτόματο: Σύνολο − Λουτράκι" style="background:rgba(255,255,255,.04);opacity:.7;cursor:not-allowed;"></div>
       <div class="fi"><label>ΛΟΥΤΡΑΚΙ (€)</label><input type="number" id="ep-k" step="0.01" placeholder="0.00" oninput="recalcShare('ep-s','ep-k','ep-l')"></div>
     </div>
+    <div id="epWhen" class="ep-when empty"><span id="epWhenTxt">🗓️ Διάλεξε ημ. λήξης για να δεις πότε λήγει</span></div>
     <button class="btn-add" onclick="addEpit()">ΚΑΤΑΧΩΡΗΣΗ</button>
     <div id="epMonthBanner"></div>
     <table><thead><tr><th>ΜΗΝΑΣ</th><th>ΗΜ.ΛΗΞΗΣ</th><th>ΗΜ.ΕΚΔΟΣΗΣ</th><th>ΑΡ.ΕΠΙΤΑΓΗΣ</th><th>ΠΡΟΜΗΘΕΥΤΗΣ</th><th class="num">ΣΥΝΟΛΟ</th><th class="num">ΛΙΟΣΙΑ</th><th class="num">ΛΟΥΤΡΑΚΙ</th><th>STATUS</th><th></th></tr></thead>
@@ -1122,6 +1126,30 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
   <div id="rulesPanel"></div>
 </div>
 
+<div class="panel" id="tab-audit">
+  <div class="sh"><div class="st">📋 Ιστορικό Ενεργειών</div></div>
+  <div class="tw">
+    <div class="tw-h">Φίλτρα <span id="auditCount" style="margin-left:auto;color:var(--muted);font-weight:600;">—</span></div>
+    <div class="fg">
+      <div class="fi"><label>Χρήστης</label><select id="auditUser" onchange="renderAudit()"><option value="">— Όλοι —</option></select></div>
+      <div class="fi"><label>Ενέργεια</label><select id="auditAction" onchange="renderAudit()"><option value="">— Όλες —</option></select></div>
+      <div class="fi"><label>Αναζήτηση</label><input type="text" id="auditSearch" placeholder="πρόσωπο, ποσό, λεπτομέρεια…" oninput="renderAudit()"></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 12px;">
+      <button class="btn-add" style="margin:0;" onclick="loadAudit()">🔄 Ανανέωση</button>
+      <button class="btn-add" style="margin:0;background:linear-gradient(135deg,var(--red),#b53b3b);box-shadow:none;" onclick="openAuditPurge()">🗑️ Καθαρισμός ιστορικού</button>
+    </div>
+  </div>
+  <div class="tw">
+    <div class="tw-h">Καταγραφές <span id="auditShown" style="margin-left:auto;color:var(--muted);font-weight:600;"></span></div>
+    <table><thead><tr><th>ΗΜ/ΝΙΑ & ΩΡΑ</th><th>ΧΡΗΣΤΗΣ</th><th>ΚΑΤΑΣΤΗΜΑ</th><th>ΕΝΕΡΓΕΙΑ</th><th>ΛΕΠΤΟΜΕΡΕΙΑ</th></tr></thead>
+    <tbody id="auditBody"></tbody></table>
+    <div style="padding:12px 14px;text-align:center;">
+      <button class="btn" id="auditMore" style="display:none;" onclick="auditLoadMore()">Φόρτωσε περισσότερα ↓</button>
+    </div>
+  </div>
+</div>
+
     </main><!-- /content -->
   </div><!-- /app-main -->
 </div><!-- /app-shell -->
@@ -1151,6 +1179,25 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
     <div class="tpl-foot">
       <button class="tpl-save" onclick="tplSaveDefaults()" title="Αποθήκευση ονομάτων/ποσών ως μόνιμα πρότυπα">💾 Αποθήκευση προτύπων</button>
       <button class="tpl-apply" onclick="tplApplySelected()">➕ Προσθήκη επιλεγμένων στον μήνα</button>
+    </div>
+  </div>
+</div>
+<!-- Καθαρισμός ιστορικού ενεργειών (ADMIN, με επανα-επιβεβαίωση κωδικού) -->
+<div id="auditPurgeModal" class="ui-modal-overlay">
+  <div class="ui-modal" style="max-width:440px;">
+    <div class="ui-modal-title">🗑️ Καθαρισμός Ιστορικού</div>
+    <div class="ui-modal-msg" style="text-align:left;">
+      <div style="margin-bottom:10px;font-weight:600;">Τι να διαγραφεί;</div>
+      <label style="display:flex;gap:8px;align-items:center;margin-bottom:8px;cursor:pointer;"><input type="radio" name="apScope" value="6m" checked> Εγγραφές παλαιότερες από 6 μήνες</label>
+      <label style="display:flex;gap:8px;align-items:center;margin-bottom:14px;cursor:pointer;"><input type="radio" name="apScope" value="all"> ΟΛΕΣ οι εγγραφές</label>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Για ασφάλεια, επιβεβαίωσε με email & κωδικό ADMIN:</div>
+      <input type="email" id="apEmail" placeholder="Email ADMIN" autocomplete="off" style="width:100%;margin-bottom:8px;padding:11px 13px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:15px;">
+      <input type="password" id="apPwd" placeholder="Κωδικός" autocomplete="off" style="width:100%;padding:11px 13px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:15px;">
+      <div id="apErr" style="color:var(--red-2);font-size:12.5px;margin-top:8px;min-height:16px;"></div>
+    </div>
+    <div class="ui-modal-actions">
+      <button class="ui-modal-btn ghost" onclick="closeAuditPurge()">Άκυρο</button>
+      <button class="ui-modal-btn danger" id="apOk" onclick="doAuditPurge()">Διαγραφή</button>
     </div>
   </div>
 </div>
@@ -1508,6 +1555,7 @@ function applyRole(){
   });
   var navExcel=document.getElementById('navExcel');if(navExcel)navExcel.style.display=isAdmin?'':'none';
   var navAI=document.getElementById('navAI');if(navAI)navAI.style.display=isAdmin?'':'none';
+  var navAudit=document.getElementById('navAudit');if(navAudit)navAudit.style.display=isAdmin?'':'none';
   // Top bar buttons (ΑΠΟΘ/ΦΟΡΤ) μόνο admin
   document.querySelectorAll('.btn').forEach(function(b){
     var txt=b.textContent||'';
@@ -1600,12 +1648,15 @@ async function setStore(s){
   appReady=true;
   renderAll(); refreshActiveTab();
   toast('Κατάστημα: '+STORES[s].label,'info');
+  logAction('Αλλαγή καταστήματος','→ '+(STORES[s].label||s));
 }
 function gmi(ms){const[mn,yr]=ms.split('_');const mi=MONTHS_EL.indexOf(mn);const y=parseInt(yr);return{mi,y,days:new Date(y,mi+1,0).getDate()};}
 function ek(){return CM;}
 function ea(obj,k){if(!obj[k])obj[k]=[];}
 function dn(y,mi,d){return DAYS[new Date(y,mi,d).getDay()];}
 function fmt(n){return Number(n||0).toLocaleString('el-GR',{minimumFractionDigits:2,maximumFractionDigits:2})+'€';}
+// Εμφάνιση ημερομηνίας ΗΜΕΡΑ/ΜΗΝΑΣ/ΕΤΟΣ (το storage μένει ISO yyyy-mm-dd για sorting/φίλτρα)
+function fmtDate(s){ if(!s)return '—'; const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(s)); return m?(m[3]+'/'+m[2]+'/'+m[1]):String(s); }
 function toast(m,t='ok'){const el=document.getElementById('toast');const ic={ok:'✓',err:'✕',info:'ℹ',warn:'⚠'}[t]||'';el.innerHTML='<span class="ti">'+ic+'</span>'+m;el.className='show '+t;setTimeout(()=>el.classList.remove('show'),2600);}
 // ===== ΑΙΣΘΗΤΙΚΑ helpers (καθαρά οπτικά — δεν αγγίζουν υπολογισμούς) =====
 // Animated counter: tween από προηγούμενη τιμή στην target (easeOutCubic). Cache ανά key ώστε re-render χωρίς αλλαγή = χωρίς animation.
@@ -1778,6 +1829,7 @@ function showTab(id,el){
   if(id==='epitages')ensureAllEpitages();
   if(id==='stats'){renderStats();}
   if(id==='alerts')runRules();
+  if(id==='audit')loadAudit();
   if(id==='main')renderMain();
   toggleSidebar(false);                // κλείσε το mobile sidebar
   const c=document.querySelector('.content');if(c)c.scrollTop=0;
@@ -1933,6 +1985,7 @@ function addDay(){
   document.getElementById('inp-day').value='';
   document.getElementById('dayCompare').innerHTML='';
   renderAll();saveToSheets("days");flashOK();
+  logAction('Καταχώρηση ημέρας','Ημέρα '+day+' '+dn(y,mi,day)+' · μετρητά '+fmt(met)+' / POS '+fmt(pos)+' / ERP '+fmt(rep));
   _sendDayEmail(day,dn(y,mi,day),met,pos,rep);
 }
 function closeDayPopup(){document.getElementById('dayPopup').style.display='none';}
@@ -1951,7 +2004,7 @@ async function showDayPopup(day,dname,mi,currentYear){
   document.getElementById('popupContent').innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr style="border-bottom:1px solid var(--border2);"><th style="padding:6px 12px;text-align:left;font-size:10px;color:var(--muted);">ΕΤΟΣ</th><th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">ΜΕΤΡΗΤΑ</th><th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">POS</th><th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">ΣΥΝΟΛΟ</th><th style="padding:6px 12px;text-align:right;font-size:10px;color:var(--muted);">vs ΤΩΡΑ</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-async function delDay(d){const k=ek();const{mi,y}=gmi(k);if(!(await confirmDel('Διαγραφή ημέρας '+d+' '+dn(y,mi,parseInt(d)))))return;D.days[k]=(D.days[k]||[]).filter(r=>r.day!==parseInt(d));renderAll();saveToSheets("days");}
+async function delDay(d){const k=ek();const{mi,y}=gmi(k);if(!(await confirmDel('Διαγραφή ημέρας '+d+' '+dn(y,mi,parseInt(d)))))return;D.days[k]=(D.days[k]||[]).filter(r=>r.day!==parseInt(d));renderAll();saveToSheets("days");logAction('Διαγραφή ημέρας','Ημέρα '+d+' ('+k+')');}
 
 // ===== ★ DASHBOARD HOME (v6) =====
 // --- Lightweight SVG charts (χωρίς library) ---
@@ -2467,7 +2520,7 @@ function renderCashFlow(){
   document.getElementById('cf-epitages').innerHTML=monthEps.length?monthEps.map(e=>{
     const past=e.date&&e.date<today2;
     const st=past?'<span style="color:var(--green);font-size:10px;">✓ ΕΞΟΦΛ.</span>':'<span style="color:var(--red);font-size:10px;">⚠ ΕΡΧΕΤΑΙ</span>';
-    return`<tr><td style="font-family:var(--mono)">${e.date||'—'}</td><td>${e.prom}</td><td class="acc">${fmt(e.liosia)}</td><td>${st}</td></tr>`;
+    return`<tr><td style="font-family:var(--mono)">${fmtDate(e.date)}</td><td>${e.prom}</td><td class="acc">${fmt(e.liosia)}</td><td>${st}</td></tr>`;
   }).join(''):'<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:12px;">Δεν υπάρχουν επιταγές για αυτόν τον μήνα</td></tr>';
 }
 
@@ -2626,6 +2679,7 @@ function addTEisp(){
   if(tgt===STORE){ ea(D.trapEisp,k); D.trapEisp[k].push({date:d,pelatis:p,poso:v}); saveToSheets("trapEisp"); }
   else { if(!Dpeer.trapEisp[k]) Dpeer.trapEisp[k]=[]; Dpeer.trapEisp[k].push({date:d,pelatis:p,poso:v}); savePeerSection("trapEisp"); }
   document.getElementById('tei-p').value=''; document.getElementById('tei-v').value='';
+  logAction('Είσπραξη τράπεζας','['+((STORES[tgt]||{}).label||tgt)+'] '+p+' · '+fmt(v));
   renderTrap(); renderMain(); flashOK();
 }
 function addTPl(){
@@ -2636,6 +2690,7 @@ function addTPl(){
   if(tgt===STORE){ ea(D.trapPl,k); D.trapPl[k].push({date:d,prom:p,poso:v}); saveToSheets("trapPl"); }
   else { if(!Dpeer.trapPl[k]) Dpeer.trapPl[k]=[]; Dpeer.trapPl[k].push({date:d,prom:p,poso:v}); savePeerSection("trapPl"); }
   document.getElementById('tpl-p').value=''; document.getElementById('tpl-v').value='';
+  logAction('Πληρωμή τράπεζας','['+((STORES[tgt]||{}).label||tgt)+'] '+p+' · '+fmt(v));
   renderTrap(); renderMain(); flashOK();
 }
 async function delTEisp(i,st){
@@ -2647,6 +2702,7 @@ async function delTEisp(i,st){
   arr.splice(i,1);
   renderTrap(); renderMain();
   if(isPeer) savePeerSection("trapEisp"); else saveToSheets("trapEisp");
+  logAction('Διαγραφή είσπραξης','['+((STORES[st]||{}).label||st)+'] '+((r&&r.pelatis)||'')+' · '+fmt((r&&r.poso)||0));
 }
 async function delTPl(i,st){
   const k=ek();
@@ -2657,6 +2713,7 @@ async function delTPl(i,st){
   arr.splice(i,1);
   renderTrap(); renderMain();
   if(isPeer) savePeerSection("trapPl"); else saveToSheets("trapPl");
+  logAction('Διαγραφή πληρωμής τράπεζας','['+((STORES[st]||{}).label||st)+'] '+((r&&r.prom)||'')+' · '+fmt((r&&r.poso)||0));
 }
 // Badge ΛΙΟΣΙΑ/ΛΟΥΤΡΑΚΙ για combined view
 function storeBadge(s){
@@ -2682,8 +2739,8 @@ function renderTrap(){
   var hEi=document.getElementById('tEispHead'); if(hEi) hEi.innerHTML=`<tr><th>ΗΜΕΡΟΜΗΝΙΑ</th>${dual?'<th>ΚΑΤΑΣΤΗΜΑ</th>':''}<th>ΠΕΛΑΤΗΣ</th><th class="num">ΠΟΣΟ</th><th></th></tr>`;
   var hPl=document.getElementById('tPlHead'); if(hPl) hPl.innerHTML=`<tr><th>ΗΜΕΡΟΜΗΝΙΑ</th>${dual?'<th>ΚΑΤΑΣΤΗΜΑ</th>':''}<th>ΠΡΟΜΗΘΕΥΤΗΣ</th><th class="num">ΠΟΣΟ</th><th></th></tr>`;
   const cols=dual?3:2;
-  const rowEi=r=>`<tr><td>${r.date||'—'}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.pelatis}</td><td class="pos">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTEisp(${r._idx},'${r._store}')">✕</button></td></tr>`;
-  const rowPl=r=>`<tr><td>${r.date||'—'}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.prom}</td><td class="neg">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTPl(${r._idx},'${r._store}')">✕</button></td></tr>`;
+  const rowEi=r=>`<tr><td>${fmtDate(r.date)}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.pelatis}</td><td class="pos">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTEisp(${r._idx},'${r._store}')">✕</button></td></tr>`;
+  const rowPl=r=>`<tr><td>${fmtDate(r.date)}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.prom}</td><td class="neg">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTPl(${r._idx},'${r._store}')">✕</button></td></tr>`;
   const subEi=dual?`<tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[STORE]||{}).label}</td><td class="pos">${fmt(teCur)}</td><td></td></tr><tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[peerStore()]||{}).label}</td><td class="pos">${fmt(tePeer)}</td><td></td></tr>`:'';
   const subPl=dual?`<tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[STORE]||{}).label}</td><td class="neg">${fmt(tpCur)}</td><td></td></tr><tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[peerStore()]||{}).label}</td><td class="neg">${fmt(tpPeer)}</td><td></td></tr>`:'';
   document.getElementById('tEispBody').innerHTML=ei.map(rowEi).join('')+(ei.length?`<tr class="tot"><td colspan="${cols}">ΣΥΝΟΛΟ${dual?' (γενικό)':''}</td><td class="pos">${fmt(te)}</td><td></td></tr>${subEi}`:'');
@@ -2698,6 +2755,7 @@ function addMet(){
   if(tgt===STORE){ ea(D.metrita,k); D.metrita[k].push({date:d,ait:a,poso:v}); saveToSheets("metrita"); }
   else { if(!Dpeer.metrita[k]) Dpeer.metrita[k]=[]; Dpeer.metrita[k].push({date:d,ait:a,poso:v}); savePeerSection("metrita"); }
   document.getElementById('met-a').value=''; document.getElementById('met-v').value='';
+  logAction('Πληρωμή μετρητών','['+((STORES[tgt]||{}).label||tgt)+'] '+a+' · '+fmt(v));
   renderMet(); renderMain(); flashOK();
 }
 async function delMet(i,st){
@@ -2709,6 +2767,7 @@ async function delMet(i,st){
   arr.splice(i,1);
   renderMet(); renderMain();
   if(isPeer) savePeerSection("metrita"); else saveToSheets("metrita");
+  logAction('Διαγραφή πληρωμής μετρητών','['+((STORES[st]||{}).label||st)+'] '+((r&&r.ait)||'')+' · '+fmt((r&&r.poso)||0));
 }
 function renderMet(){
   const k=ek();
@@ -2722,7 +2781,7 @@ function renderMet(){
   document.getElementById('metCnt').textContent=rows.length;
   var hM=document.getElementById('metHead'); if(hM) hM.innerHTML=`<tr><th>ΗΜΕΡΟΜΗΝΙΑ</th>${dual?'<th>ΚΑΤΑΣΤΗΜΑ</th>':''}<th>ΠΛΗΡΩΜΕΣ ΜΕ ΜΕΤΡΗΤΑ</th><th class="num">ΠΟΣΟ</th><th></th></tr>`;
   const cols=dual?3:2;
-  const row=r=>`<tr><td>${r.date||'—'}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delMet(${r._idx},'${r._store}')">✕</button></td></tr>`;
+  const row=r=>`<tr><td>${fmtDate(r.date)}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delMet(${r._idx},'${r._store}')">✕</button></td></tr>`;
   const sub=dual?`<tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[STORE]||{}).label}</td><td class="neg">${fmt(totCur)}</td><td></td></tr><tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[peerStore()]||{}).label}</td><td class="neg">${fmt(totPeer)}</td><td></td></tr>`:'';
   document.getElementById('metBody').innerHTML=rows.map(row).join('')+(rows.length?`<tr class="tot"><td colspan="${cols}">ΣΥΝΟΛΟ${dual?' (γενικό)':''}</td><td class="neg">${fmt(tot)}</td><td></td></tr>${sub}`:'');
 }
@@ -2735,6 +2794,7 @@ function addBnk(){
   if(tgt===STORE){ ea(D.bank,k); D.bank[k].push({date:d,ait:a,poso:v}); saveToSheets("bank"); }
   else { if(!Dpeer.bank[k]) Dpeer.bank[k]=[]; Dpeer.bank[k].push({date:d,ait:a,poso:v}); savePeerSection("bank"); }
   document.getElementById('bnk-a').value=''; document.getElementById('bnk-v').value='';
+  logAction('Πληρωμή τράπεζας (bank)','['+((STORES[tgt]||{}).label||tgt)+'] '+a+' · '+fmt(v));
   renderBnk(); renderMain(); flashOK();
 }
 async function delBnk(i,st){
@@ -2746,6 +2806,7 @@ async function delBnk(i,st){
   arr.splice(i,1);
   renderBnk(); renderMain();
   if(isPeer) savePeerSection("bank"); else saveToSheets("bank");
+  logAction('Διαγραφή πληρωμής (bank)','['+((STORES[st]||{}).label||st)+'] '+((r&&r.ait)||'')+' · '+fmt((r&&r.poso)||0));
 }
 // DUAL-STORE: helpers για add/save στο peer + reading dropdown
 function getFormStore(selId){
@@ -2774,7 +2835,7 @@ function renderBnk(){
   var hB=document.getElementById('bnkHead'); if(hB) hB.innerHTML=`<tr><th>ΗΜΕΡΟΜΗΝΙΑ</th>${dual?'<th>ΚΑΤΑΣΤΗΜΑ</th>':''}<th>ΠΛΗΡΩΜΕΣ ΜΕΣΩ ΤΡΑΠΕΖΑΣ</th><th class="num">ΠΟΣΟ</th><th></th></tr>`;
   const cols=dual?3:2;
   const lblHead=dual?'(γενικό)':(STORES[STORE]||{}).label||'';
-  const row=r=>`<tr><td>${r.date||'—'}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delBnk(${r._idx},'${r._store}')">✕</button></td></tr>`;
+  const row=r=>`<tr><td>${fmtDate(r.date)}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delBnk(${r._idx},'${r._store}')">✕</button></td></tr>`;
   const sub=dual?`<tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[STORE]||{}).label}</td><td class="neg">${fmt(totCur)}</td><td></td></tr><tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[peerStore()]||{}).label}</td><td class="neg">${fmt(totPeer)}</td><td></td></tr>`:'';
   document.getElementById('bnkBody').innerHTML=rows.map(row).join('')+(rows.length?`<tr class="tot"><td colspan="${cols}">ΣΥΝΟΛΟ ${lblHead}</td><td class="neg">${fmt(tot)}</td><td></td></tr>${sub}`:'');
 }
@@ -2800,6 +2861,7 @@ function addD5(){
   const k=ek();ea(D.d15,k);
   const item={cod:c,prom:p,iban:i,synolo:s,liosia:l,loutraki:ko};
   D.d15[k].push(item);
+  logAction('Προσθήκη 15ου',p+' · σύνολο '+fmt(s)+' (ΛΙΟ '+fmt(l)+' / ΛΟΥ '+fmt(ko)+')');
   ['d5-c','d5-p','d5-i','d5-s','d5-l','d5-k'].forEach(id=>document.getElementById(id).value='');renderD5();renderMain();flashOK();
   saveToSheets("d15");
 }
@@ -2808,6 +2870,7 @@ async function delD5(idx){
   if(!(await confirmDel('Διαγραφή 15ου: '+((r&&r.prom)||'')+' '+fmt((r&&r.liosia)||0))))return;
   D.d15[k].splice(idx,1);renderD5();renderMain();
   saveToSheets("d15");
+  logAction('Διαγραφή 15ου',((r&&r.prom)||'')+' · '+fmt((r&&r.liosia)||0));
 }
 function renderD5(){
   const k=ek();const rows=D.d15[k]||[];const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);const totS=rows.reduce((s,r)=>s+(r.synolo||0),0),totK=rows.reduce((s,r)=>s+(r.loutraki||0),0);
@@ -2822,6 +2885,7 @@ function addTel(){
   if(!n||!s)return;const k=ek();ea(D.telos,k);
   const item={kat:kt,cod:c,iban:i,name:n,synolo:s,liosia:l,loutraki:ko};
   D.telos[k].push(item);
+  logAction('Προσθήκη Τέλους μήνα',n+' · σύνολο '+fmt(s)+' (ΛΙΟ '+fmt(l)+' / ΛΟΥ '+fmt(ko)+')');
   ['tel-c','tel-i','tel-n','tel-s','tel-l','tel-k2'].forEach(id=>document.getElementById(id).value='');renderTel();renderMain();flashOK();
   saveToSheets("telos");
 }
@@ -2830,6 +2894,7 @@ async function delTel(idx){
   if(!(await confirmDel('Διαγραφή τέλους μήνα: '+((r&&r.name)||'')+' '+fmt((r&&r.liosia)||0))))return;
   D.telos[k].splice(idx,1);renderTel();renderMain();
   saveToSheets("telos");
+  logAction('Διαγραφή Τέλους μήνα',((r&&r.name)||'')+' · '+fmt((r&&r.liosia)||0));
 }
 function renderTel(){
   const k=ek();const rows=D.telos[k]||[];const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);const totS=rows.reduce((s,r)=>s+(r.synolo||0),0),totK=rows.reduce((s,r)=>s+(r.loutraki||0),0);
@@ -2846,6 +2911,7 @@ function addExCash(){
   D.exoda[k].push({type:'cash',date:d,desc:a,poso:v});
   document.getElementById('exc-a').value='';document.getElementById('exc-v').value='';
   renderExoda();saveToSheets("exoda");flashOK();
+  logAction('Έξοδα: φλουρί/μετρητά (+)',(a||'φλουρί')+' · '+fmt(v));
 }
 function exBalanceFor(k){
   const rows=D.exoda[k]||[];
@@ -2866,6 +2932,7 @@ function addExExp(){
   D.exoda[k].push({type:'exp',date:d,desc:a,poso:v});
   document.getElementById('exe-a').value='';document.getElementById('exe-v').value='';
   renderExoda();saveToSheets("exoda");flashOK();
+  logAction('Έξοδα: δαπάνη (−)',a+' · '+fmt(v));
   // αστείο: μόλις το ταμείο εξόδων «αδειάσει» (πέρασε από θετικό σε ≤0) — ΜΟΝΟ afoiroussa (funMascot)
   const newBal=exBalanceFor(k);
   if(currentUserCfg&&currentUserCfg.funMascot && prevBal>0 && newBal<=0) exEmptyPopup(newBal);
@@ -2874,6 +2941,7 @@ async function delExoda(idx){
   const k=ek();const r=(D.exoda[k]||[])[idx];if(!r)return;
   if(!(await confirmDel('Διαγραφή: '+((r&&r.desc)||'')+' '+fmt((r&&r.poso)||0))))return;
   D.exoda[k].splice(idx,1);renderExoda();saveToSheets("exoda");
+  logAction('Διαγραφή εξόδου',((r&&r.desc)||'')+' · '+fmt((r&&r.poso)||0));
 }
 function renderExoda(){
   const k=ek();const rows=D.exoda[k]||[];
@@ -2887,10 +2955,10 @@ function renderExoda(){
   const bv=document.getElementById('exBalance');if(bv){bv.textContent=fmt(bal);bv.style.color=bal<0?'#ff6b6b':'#34d27a';}
   const hero=document.getElementById('exHero');if(hero){hero.classList.toggle('neg',bal<0);}
   const cb=document.getElementById('exCashBody');
-  if(cb) cb.innerHTML=rows.map((r,i)=>r.type==='cash'?`<tr><td>${r.date||'—'}</td><td>${r.desc||'—'}</td><td class="num pos">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delExoda(${i})">✕</button></td></tr>`:'').join('')+(cash.length?`<tr class="tot"><td colspan="2">ΣΥΝΟΛΟ ΜΕΤΡΗΤΩΝ</td><td class="num acc">${fmt(cashTot)}</td><td></td></tr>`:'');
+  if(cb) cb.innerHTML=rows.map((r,i)=>r.type==='cash'?`<tr><td>${fmtDate(r.date)}</td><td>${r.desc||'—'}</td><td class="num pos">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delExoda(${i})">✕</button></td></tr>`:'').join('')+(cash.length?`<tr class="tot"><td colspan="2">ΣΥΝΟΛΟ ΜΕΤΡΗΤΩΝ</td><td class="num acc">${fmt(cashTot)}</td><td></td></tr>`:'');
   let run=cashTot;
   const eb=document.getElementById('exExpBody');
-  if(eb) eb.innerHTML=rows.map((r,i)=>{ if(r.type!=='exp')return ''; run=Math.round((run-(r.poso||0))*100)/100; return `<tr><td>${r.date||'—'}</td><td>${r.desc||'—'}</td><td class="num neg">${fmt(r.poso)}</td><td class="num" style="color:${run<0?'var(--red)':'var(--muted)'}">${fmt(run)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delExoda(${i})">✕</button></td></tr>`; }).join('')+(exp.length?`<tr class="tot"><td colspan="2">ΤΕΛΙΚΟ ΥΠΟΛΟΙΠΟ</td><td class="num neg">${fmt(expTot)}</td><td class="num acc">${fmt(bal)}</td><td></td></tr>`:'');
+  if(eb) eb.innerHTML=rows.map((r,i)=>{ if(r.type!=='exp')return ''; run=Math.round((run-(r.poso||0))*100)/100; return `<tr><td>${fmtDate(r.date)}</td><td>${r.desc||'—'}</td><td class="num neg">${fmt(r.poso)}</td><td class="num" style="color:${run<0?'var(--red)':'var(--muted)'}">${fmt(run)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delExoda(${i})">✕</button></td></tr>`; }).join('')+(exp.length?`<tr class="tot"><td colspan="2">ΤΕΛΙΚΟ ΥΠΟΛΟΙΠΟ</td><td class="num neg">${fmt(expTot)}</td><td class="num acc">${fmt(bal)}</td><td></td></tr>`:'');
 }
 
 // ===== ⚡ ΠΡΟΤΥΠΑ ΚΙΝΗΣΕΩΝ (γρήγορη προσθήκη επαναλαμβανόμενων· καθαρά shortcut — δημιουργεί κανονικές εγγραφές) =====
@@ -2963,11 +3031,16 @@ function tplSaveDefaults(){
 // Μήνας/Έτος λήξης = ΠΑΝΤΑ από την Ημ. λήξης (μία πηγή αλήθειας → μηδέν ασυμφωνία στο ημερολόγιο/φίλτρα)
 function epSyncMY(){
   const d=document.getElementById('ep-d').value, me=document.getElementById('ep-m'), ye=document.getElementById('ep-yr');
+  const w=document.getElementById('epWhen'), wt=document.getElementById('epWhenTxt');
   if(d&&d.length>=10){
-    const mi=parseInt(d.substring(5,7),10);
-    if(me)me.value=(mi>=1&&mi<=12)?MONTHS_EL[mi-1]:'';
+    const mi=parseInt(d.substring(5,7),10), mIdx=(mi>=1&&mi<=12)?mi-1:-1;
+    if(me)me.value=mIdx>=0?MONTHS_EL[mIdx]:'';
     if(ye)ye.value=d.substring(0,4);
-  }else{ if(me)me.value=''; if(ye)ye.value=''; }
+    if(w&&wt){ if(mIdx>=0){w.classList.remove('empty');wt.textContent='✓ Λήγει: '+MONTHS_EL[mIdx]+' '+d.substring(0,4);}else{w.classList.add('empty');wt.textContent='🗓️ Μη έγκυρη ημερομηνία';} }
+  }else{
+    if(me)me.value=''; if(ye)ye.value='';
+    if(w&&wt){ w.classList.add('empty'); wt.textContent='🗓️ Διάλεξε ημ. λήξης για να δεις πότε λήγει'; }
+  }
 }
 function addEpit(){
   const d=document.getElementById('ep-d').value,ek2=document.getElementById('ep-ek').value,n=document.getElementById('ep-n').value.trim(),p=document.getElementById('ep-p').value.trim();
@@ -2981,10 +3054,12 @@ function addEpit(){
   const yr=d.substring(0,4);
   if(!m){toast('⚠️ Μη έγκυρη Ημ. λήξης','err');return;}
   D.epitages.push({month:m,file_year:yr,date:d,ekdosi:ek2,num:n,prom:p,synolo:s,liosia:l,loutraki:ko});
+  logAction('Νέα επιταγή',p+' · λήξη '+fmtDate(d)+' · σύνολο '+fmt(s)+' (ΛΙΟ '+fmt(l)+' / ΛΟΥ '+fmt(ko)+')');
   ['ep-n','ep-s','ep-l','ep-k','ep-d','ep-ek','ep-p','ep-m','ep-yr'].forEach(id=>document.getElementById(id).value='');
+  epSyncMY();   // reset της γραμμής «Λήγει» μετά την καταχώρηση
   renderEpit();saveEpitages();flashOK();
 }
-async function delEpit(i){const r=D.epitages[i];if(!(await confirmDel('Διαγραφή επιταγής: '+((r&&r.prom)||'')+' '+fmt((r&&r.liosia)||0))))return;D.epitages.splice(i,1);renderEpit();saveEpitages();}
+async function delEpit(i){const r=D.epitages[i];if(!(await confirmDel('Διαγραφή επιταγής: '+((r&&r.prom)||'')+' '+fmt((r&&r.liosia)||0))))return;D.epitages.splice(i,1);renderEpit();saveEpitages();logAction('Διαγραφή επιταγής',((r&&r.prom)||'')+' · λήξη '+fmtDate(r&&r.date)+' · '+fmt((r&&r.liosia)||0));}
 function saveEpitages(){
   const byYr={};
   (D.epitages||[]).forEach(e=>{const yr=e.file_year||(e.date?e.date.substring(0,4):'2026');if(!byYr[yr])byYr[yr]=[];byYr[yr].push(e);});
@@ -3050,13 +3125,13 @@ function renderEpit(){
   const todayStr=new Date().toISOString().slice(0,10);
   const next=rows.filter(r=>r.date&&r.date>=todayStr).sort((a,b)=>a.date.localeCompare(b.date));
   const n30=rows.filter(r=>r.date&&r.date>=todayStr&&new Date(r.date)<=in30).reduce((s,r)=>s+(r.liosia||0),0);
-  if(next.length){document.getElementById('epNext').textContent=next[0].date;document.getElementById('epNextV').textContent=fmt(next[0].liosia);}
+  if(next.length){document.getElementById('epNext').textContent=fmtDate(next[0].date);document.getElementById('epNextV').textContent=fmt(next[0].liosia);}
   document.getElementById('ep30').textContent=n30?fmt(n30):'—';
 
   document.getElementById('epBody').innerHTML=rows.map((r,i)=>{
     const past=r.date&&r.date<todayStr,soon=r.date&&r.date>=todayStr&&new Date(r.date)<=in30;
     const st=past?'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(76,175,125,.15);color:var(--green)">✓ΕΞΟΦΛ.</span>':soon?'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(224,85,85,.15);color:var(--red)">⚠ΕΡΧΕΤΑΙ</span>':'<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(100,100,100,.15);color:var(--muted)">◼ΜΕΛΛΟΝ</span>';
-    return`<tr><td>${r.month} ${r.file_year||''}</td><td style="font-family:var(--mono)">${r.date||'—'}</td><td style="font-family:var(--mono)">${r.ekdosi||'—'}</td><td style="font-family:var(--mono)">${r.num||'—'}</td><td>${r.prom}</td><td class="num">${fmt(epS(r))}</td><td class="acc">${fmt(r.liosia||0)}</td><td class="num" style="color:var(--muted)">${epK(r)?fmt(epK(r)):'—'}</td><td>${st}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delEpit(${D.epitages.indexOf(r)})">✕</button></td></tr>`;
+    return`<tr><td>${r.month} ${r.file_year||''}</td><td style="font-family:var(--mono)">${fmtDate(r.date)}</td><td style="font-family:var(--mono)">${fmtDate(r.ekdosi)}</td><td style="font-family:var(--mono)">${r.num||'—'}</td><td>${r.prom}</td><td class="num">${fmt(epS(r))}</td><td class="acc">${fmt(r.liosia||0)}</td><td class="num" style="color:var(--muted)">${epK(r)?fmt(epK(r)):'—'}</td><td>${st}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delEpit(${D.epitages.indexOf(r)})">✕</button></td></tr>`;
   }).join('')+(rows.length?`<tr class="tot"><td colspan="5">ΣΥΝΟΛΑ ${epMonth?(epMonth+' '+epMonthYear):(epYear==='ΟΛΕΣ'?'ΟΛΑ ΤΑ ΕΤΗ':epYear)}</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td><td></td></tr>`:'');
 }
 
@@ -3393,6 +3468,7 @@ function _fillSlots(ws,firstRow,lastSlot,arr,writer){
 }
 async function exportAIReport(){
   toast('Δημιουργία αναφοράς AI…','info');
+  logAction('Εξαγωγή Αναφοράς AI',(STORES[STORE]||{}).label+' · '+CM);
   try{
     const now=new Date();
     const k=ek();
@@ -3485,7 +3561,7 @@ async function exportAIReport(){
     const epMonth=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr))));
     const epMonthShare=epMonth.reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
     L('Επιταγές ΜΗΝΑ ('+mn+' '+yr+'): '+epMonth.length+' | μερίδιο '+stLabel+': '+fmtE(epMonthShare));
-    epMonth.sort((a,b)=>(a.date||'').localeCompare(b.date||'')).forEach(e=>L('  '+(e.date||'—')+' #'+(e.num||'—')+' '+e.prom+' — '+stLabel+': '+fmtE(isLou?epK(e):(e.liosia||0))+' (σύνολο '+fmtE(epS(e))+')'));
+    epMonth.sort((a,b)=>(a.date||'').localeCompare(b.date||'')).forEach(e=>L('  '+fmtDate(e.date)+' #'+(e.num||'—')+' '+e.prom+' — '+stLabel+': '+fmtE(isLou?epK(e):(e.liosia||0))+' (σύνολο '+fmtE(epS(e))+')'));
     L('');
     // Σύνολο έτους (όλοι οι μήνες)
     const epYearAll=(D.epitages||[]).filter(e=>e.file_year===yr||(e.date&&e.date.startsWith(yr)));
@@ -3498,7 +3574,7 @@ async function exportAIReport(){
     const pend=(D.epitages||[]).filter(e=>e.date&&e.date>=todayISO).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,12);
     L('Επόμενες λήξεις (μελλοντικές):');
     if(!pend.length) L('  (καμία επιταγή με μελλοντική ημερομηνία λήξης)');
-    pend.forEach(e=>L('  '+e.date+' #'+(e.num||'—')+' '+e.prom+' — '+stLabel+': '+fmtE(isLou?epK(e):(e.liosia||0))+' (σύνολο '+fmtE(epS(e))+')'));
+    pend.forEach(e=>L('  '+fmtDate(e.date)+' #'+(e.num||'—')+' '+e.prom+' — '+stLabel+': '+fmtE(isLou?epK(e):(e.liosia||0))+' (σύνολο '+fmtE(epS(e))+')'));
     L('');
     L('━━━ 7. ΚΑΘΗΜΕΡΙΝΑ ΕΞΟΔΑ — '+stLabel+' ━━━');
     L('─────────────────────────────────────────');
@@ -3508,7 +3584,7 @@ async function exportAIReport(){
     L('Φλουρί (μετρητά κουτιού): '+fmtE(exCash));
     L('Σύνολο εξόδων:            '+fmtE(exExp));
     L('Διαθέσιμο κουτιού:        '+fmtE(r2(exCash-exExp)));
-    exR.filter(r=>r.type==='exp').forEach(r=>L('  '+(r.date||'—')+' '+r.desc+': -'+fmtE(r.poso)));
+    exR.filter(r=>r.type==='exp').forEach(r=>L('  '+fmtDate(r.date)+' '+r.desc+': -'+fmtE(r.poso)));
     L('');
     L('━━━ 8. ΗΜΕΡΗΣΙΑ ΑΝΑΛΥΣΗ — '+stLabel+' ━━━');
     L('─────────────────────────────────────────');
@@ -3547,9 +3623,94 @@ async function exportAIReport(){
     toast('✅ Αναφορά AI ('+stLabel+') κατεβαίνει…','ok');
   }catch(e){console.error('exportAIReport',e);toast('❌ Σφάλμα αναφοράς: '+e.message,'err');}
 }
+
+// ===== ΙΣΤΟΡΙΚΟ ΕΝΕΡΓΕΙΩΝ (AUDIT LOG) — μόνο ADMIN διαβάζει =====
+// Γράφει μια εγγραφή ανά ενέργεια. Σιωπηλό try/catch → ΠΟΤΕ δεν σπάει η app/καταχώρηση.
+function logAction(action,detail){
+  try{
+    if(!_auth||!_auth.currentUser)return;
+    _db.collection('audit').add({
+      ts:firebase.firestore.FieldValue.serverTimestamp(),
+      email:(_auth.currentUser.email||''),
+      store:(STORE||''),
+      action:(action||''),
+      detail:(detail||'')
+    }).catch(function(){});
+  }catch(e){}
+}
+function _ap2(n){return String(n).padStart(2,'0');}
+function fmtTs(ts){ if(!ts)return '—'; var d=ts&&ts.toDate?ts.toDate():new Date(ts); if(!d||isNaN(d))return '—'; return _ap2(d.getDate())+'/'+_ap2(d.getMonth()+1)+'/'+d.getFullYear()+' '+_ap2(d.getHours())+':'+_ap2(d.getMinutes()); }
+var _auditDocs=[], _auditLimit=200;
+async function loadAudit(){
+  if(currentRole!=='ADMIN')return;
+  var body=document.getElementById('auditBody'); if(body)body.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:18px;">Φόρτωση…</td></tr>';
+  try{
+    var snap=await _db.collection('audit').orderBy('ts','desc').limit(_auditLimit).get();
+    _auditDocs=snap.docs.map(function(d){var o=d.data();o._id=d.id;return o;});
+    var more=document.getElementById('auditMore'); if(more)more.style.display=(snap.size>=_auditLimit)?'':'none';
+    var us=document.getElementById('auditUser');
+    if(us){ var cur=us.value; var emails=Array.from(new Set(_auditDocs.map(function(x){return x.email||'';}).filter(Boolean))).sort(); us.innerHTML='<option value="">— Όλοι —</option>'+emails.map(function(e){return '<option>'+e+'</option>';}).join(''); us.value=cur; }
+    var ac=document.getElementById('auditAction');
+    if(ac){ var curA=ac.value; var acts=Array.from(new Set(_auditDocs.map(function(x){return x.action||'';}).filter(Boolean))).sort(); ac.innerHTML='<option value="">— Όλες —</option>'+acts.map(function(a){return '<option>'+a+'</option>';}).join(''); ac.value=curA; }
+    renderAudit();
+  }catch(e){ if(body)body.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--red-2);padding:18px;">Σφάλμα φόρτωσης: '+((e&&e.message)||e)+'</td></tr>'; }
+}
+function auditLoadMore(){ _auditLimit+=200; loadAudit(); }
+function renderAudit(){
+  var body=document.getElementById('auditBody'); if(!body)return;
+  var fU=(document.getElementById('auditUser')||{}).value||'';
+  var fA=(document.getElementById('auditAction')||{}).value||'';
+  var fT=(((document.getElementById('auditSearch')||{}).value)||'').toLowerCase().trim();
+  var rows=_auditDocs.filter(function(r){
+    if(fU&&r.email!==fU)return false;
+    if(fA&&r.action!==fA)return false;
+    if(fT){ var hay=((r.email||'')+' '+(r.action||'')+' '+(r.detail||'')+' '+(r.store||'')).toLowerCase(); if(hay.indexOf(fT)<0)return false; }
+    return true;
+  });
+  var cnt=document.getElementById('auditCount'); if(cnt)cnt.textContent=_auditDocs.length+' φορτωμένες';
+  var shown=document.getElementById('auditShown'); if(shown)shown.textContent=rows.length+' εγγραφές';
+  if(!rows.length){ body.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:18px;">Καμία εγγραφή</td></tr>'; return; }
+  body.innerHTML=rows.map(function(r){
+    var st=r.store==='LOUTRAKI'?'<span style="color:#22c55e;font-weight:700;">ΛΟΥΤΡΑΚΙ</span>':(r.store==='LIOSIA'?'<span style="color:#4d9fff;font-weight:700;">ΛΙΟΣΙΑ</span>':'—');
+    return '<tr><td style="font-family:var(--mono);white-space:nowrap;">'+fmtTs(r.ts)+'</td><td>'+(r.email||'—')+'</td><td>'+st+'</td><td style="font-weight:700;">'+(r.action||'—')+'</td><td style="color:var(--muted);">'+(r.detail||'')+'</td></tr>';
+  }).join('');
+}
+function openAuditPurge(){ var m=document.getElementById('auditPurgeModal'); if(!m)return; var er=document.getElementById('apErr'); if(er)er.textContent=''; var em=document.getElementById('apEmail'); if(em&&_auth.currentUser)em.value=_auth.currentUser.email||''; var pw=document.getElementById('apPwd'); if(pw)pw.value=''; m.classList.add('show'); }
+function closeAuditPurge(){ var m=document.getElementById('auditPurgeModal'); if(m)m.classList.remove('show'); }
+async function doAuditPurge(){
+  var er=document.getElementById('apErr'), ok=document.getElementById('apOk');
+  var email=((document.getElementById('apEmail')||{}).value)||'', pwd=((document.getElementById('apPwd')||{}).value)||'';
+  var scope=((document.querySelector('input[name="apScope"]:checked')||{}).value)||'6m';
+  if(!email||!pwd){ if(er)er.textContent='Συμπλήρωσε email & κωδικό.'; return; }
+  if(ok){ok.disabled=true;ok.textContent='Έλεγχος…';}
+  try{
+    var cred=firebase.auth.EmailAuthProvider.credential(email,pwd);
+    await _auth.currentUser.reauthenticateWithCredential(cred);
+    var cutoff=null;
+    if(scope==='6m'){ var dd=new Date(); dd.setMonth(dd.getMonth()-6); cutoff=dd; }
+    var snap = cutoff ? await _db.collection('audit').where('ts','<',cutoff).get() : await _db.collection('audit').get();
+    var docs=snap.docs, count=docs.length;
+    if(!count){ if(er)er.textContent='Δεν βρέθηκαν εγγραφές για διαγραφή.'; if(ok){ok.disabled=false;ok.textContent='Διαγραφή';} return; }
+    // ΚΑΤΑΓΡΑΨΕ ΠΡΩΤΑ τον καθαρισμό (νέα εγγραφή → δεν διαγράφεται)
+    logAction('ΚΑΘΑΡΙΣΜΟΣ ΙΣΤΟΡΙΚΟΥ','Διαγραφή '+count+' εγγραφών ('+(scope==='6m'?'παλαιότερες από 6 μήνες':'ΟΛΕΣ')+')');
+    for(var i=0;i<docs.length;i+=450){
+      var batch=_db.batch();
+      docs.slice(i,i+450).forEach(function(dref){batch.delete(dref.ref);});
+      await batch.commit();
+    }
+    closeAuditPurge();
+    toast('🗑️ Διαγράφηκαν '+count+' εγγραφές','ok');
+    _auditLimit=200; loadAudit();
+  }catch(e){
+    var msg=(e&&(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential'))?'Λάθος κωδικός.':((e&&e.code==='auth/user-mismatch')?'Το email δεν είναι του συνδεδεμένου χρήστη.':((e&&e.message)||'Σφάλμα'));
+    if(er)er.textContent=msg;
+  }finally{ if(ok){ok.disabled=false;ok.textContent='Διαγραφή';} }
+}
+
 async function exportCSV(){
   if(typeof ExcelJS==='undefined'){toast('Φόρτωση βιβλιοθήκης…','info');setTimeout(exportCSV,1500);return;}
   if(!window.TEMPLATE_B64||window.TEMPLATE_B64==='__TEMPLATE_B64__'){toast('⚠️ Λείπει το template — re-deploy','err');return;}
+  logAction('Εξαγωγή Excel',(STORES[STORE]||{}).label+' · '+ek());
   const k=ek();
   // ΑΣΦΑΛΕΙΑ: αν τα δεδομένα του μήνα δεν είναι στη μνήμη, φόρτωσέ τα ΠΡΙΝ την εξαγωγή
   if((D.days[k]||[]).length===0){
@@ -3729,6 +3890,7 @@ async function doLogin(){
   try{
     await _auth.signInWithEmailAndPassword(email,pwd);
     // το onAuthStateChanged αναλαμβάνει να ανοίξει την εφαρμογή
+    try{ logAction('Σύνδεση','Είσοδος στην εφαρμογή'); }catch(_e){}
   }catch(e){
     err.textContent='Λάθος email ή κωδικός!';
     var p=document.getElementById('loginPwd');if(p){p.value='';p.focus();}
