@@ -1707,6 +1707,8 @@ function fmtDate(s){ if(!s)return '—'; const m=/^(\d{4})-(\d{2})-(\d{2})/.exec
 // Σημερινή ISO (local-time, χωρίς timezone bug) + προ-συμπλήρωση των date πεδίων με «σήμερα» (μόνο αν κενά)
 function _todayISO(){ var d=new Date(),p=function(n){return String(n).padStart(2,'0');}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
 function prefillDates(){ ['tei-d','tpl-d','met-d','bnk-d','exc-d','exe-d'].forEach(function(id){var el=document.getElementById(id); if(el && !el.value) el.value=_todayISO();}); }
+// Ένα κλικ ΟΠΟΥΔΗΠΟΤΕ στο πεδίο ημερομηνίας ανοίγει αμέσως το ημερολόγιο (αλλιώς σε πολλούς browsers θέλει κλικ στο μικρό εικονίδιο)
+document.addEventListener('click',function(e){var t=e.target; if(t&&t.tagName==='INPUT'&&t.type==='date'&&typeof t.showPicker==='function'){try{t.showPicker();}catch(_e){}}});
 function toast(m,t='ok'){const el=document.getElementById('toast');const ic={ok:'✓',err:'✕',info:'ℹ',warn:'⚠'}[t]||'';el.innerHTML='<span class="ti">'+ic+'</span>'+m;el.className='show '+t;setTimeout(()=>el.classList.remove('show'),2600);}
 // ===== ΑΙΣΘΗΤΙΚΑ helpers (καθαρά οπτικά — δεν αγγίζουν υπολογισμούς) =====
 // Animated counter: tween από προηγούμενη τιμή στην target (easeOutCubic). Cache ανά key ώστε re-render χωρίς αλλαγή = χωρίς animation.
