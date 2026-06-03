@@ -186,6 +186,9 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 /* chip επιβεβαίωσης λήξης (φόρμα επιταγής) — store-aware χρώμα */
 .ep-when{margin:2px 14px 12px;display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:24px;background:var(--accent-bg-soft);border:1px solid var(--accent-line);color:var(--accent);font-size:14px;font-weight:700;width:fit-content;}
 .ep-when.empty{background:rgba(133,147,173,.08);border-color:var(--border2);color:var(--muted);font-weight:600;}
+/* inline επεξεργασία ημερομηνίας σε γραμμή πίνακα */
+.rowdate{background:transparent;border:1px solid transparent;color:var(--text);font-family:var(--mono);font-size:13px;padding:3px 5px;border-radius:5px;cursor:pointer;width:120px;max-width:120px;}
+.rowdate:hover,.rowdate:focus{border-color:var(--accent2);background:var(--bg3);outline:none;}
 
 /* === ΣΥΓΚΡΙΣΗ ΜΗΝΑ vs ΠΕΡΣΙ === */
 .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
@@ -1709,6 +1712,21 @@ function _todayISO(){ var d=new Date(),p=function(n){return String(n).padStart(2
 function prefillDates(){ ['tei-d','tpl-d','met-d','bnk-d','exc-d','exe-d'].forEach(function(id){var el=document.getElementById(id); if(el && !el.value) el.value=_todayISO();}); }
 // Ένα κλικ ΟΠΟΥΔΗΠΟΤΕ στο πεδίο ημερομηνίας ανοίγει αμέσως το ημερολόγιο (αλλιώς σε πολλούς browsers θέλει κλικ στο μικρό εικονίδιο)
 document.addEventListener('click',function(e){var t=e.target; if(t&&t.tagName==='INPUT'&&t.type==='date'&&typeof t.showPicker==='function'){try{t.showPicker();}catch(_e){}}});
+// Inline διόρθωση ημερομηνίας ήδη καταχωρημένης γραμμής (κλικ στην ημ/νία του πίνακα → ημερολόγιο → σώζει)
+function editRowDate(section, idx, store, val){
+  if(!val) return;
+  var isPeer = (store && store!==STORE && Dpeer && Dpeer[section]);
+  var arr = isPeer ? ((Dpeer[section]||{})[CM]||[]) : ((D[section]||{})[CM]||[]);
+  if(!arr[idx]) return;
+  arr[idx].date=val;
+  if(section==='trapEisp'||section==='trapPl') renderTrap();
+  else if(section==='metrita') renderMet();
+  else if(section==='bank') renderBnk();
+  else if(section==='exoda') renderExoda();
+  renderMain();
+  if(isPeer) savePeerSection(section); else saveToSheets(section);
+  logAction('Διόρθωση ημ/νίας',section+' → '+fmtDate(val));
+}
 function toast(m,t='ok'){const el=document.getElementById('toast');const ic={ok:'✓',err:'✕',info:'ℹ',warn:'⚠'}[t]||'';el.innerHTML='<span class="ti">'+ic+'</span>'+m;el.className='show '+t;setTimeout(()=>el.classList.remove('show'),2600);}
 // ===== ΑΙΣΘΗΤΙΚΑ helpers (καθαρά οπτικά — δεν αγγίζουν υπολογισμούς) =====
 // Animated counter: tween από προηγούμενη τιμή στην target (easeOutCubic). Cache ανά key ώστε re-render χωρίς αλλαγή = χωρίς animation.
@@ -2797,8 +2815,8 @@ function renderTrap(){
   var hEi=document.getElementById('tEispHead'); if(hEi) hEi.innerHTML=`<tr><th>ΗΜΕΡΟΜΗΝΙΑ</th>${dual?'<th>ΚΑΤΑΣΤΗΜΑ</th>':''}<th>ΠΕΛΑΤΗΣ</th><th class="num">ΠΟΣΟ</th><th></th></tr>`;
   var hPl=document.getElementById('tPlHead'); if(hPl) hPl.innerHTML=`<tr><th>ΗΜΕΡΟΜΗΝΙΑ</th>${dual?'<th>ΚΑΤΑΣΤΗΜΑ</th>':''}<th>ΠΡΟΜΗΘΕΥΤΗΣ</th><th class="num">ΠΟΣΟ</th><th></th></tr>`;
   const cols=dual?3:2;
-  const rowEi=r=>`<tr><td>${fmtDate(r.date)}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.pelatis}</td><td class="pos">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTEisp(${r._idx},'${r._store}')">✕</button></td></tr>`;
-  const rowPl=r=>`<tr><td>${fmtDate(r.date)}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.prom}</td><td class="neg">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTPl(${r._idx},'${r._store}')">✕</button></td></tr>`;
+  const rowEi=r=>`<tr><td><input type="date" class="rowdate" value="${r.date||''}" onchange="editRowDate('trapEisp',${r._idx},'${r._store}',this.value)"></td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.pelatis}</td><td class="pos">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTEisp(${r._idx},'${r._store}')">✕</button></td></tr>`;
+  const rowPl=r=>`<tr><td><input type="date" class="rowdate" value="${r.date||''}" onchange="editRowDate('trapPl',${r._idx},'${r._store}',this.value)"></td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.prom}</td><td class="neg">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTPl(${r._idx},'${r._store}')">✕</button></td></tr>`;
   const subEi=dual?`<tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[STORE]||{}).label}</td><td class="pos">${fmt(teCur)}</td><td></td></tr><tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[peerStore()]||{}).label}</td><td class="pos">${fmt(tePeer)}</td><td></td></tr>`:'';
   const subPl=dual?`<tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[STORE]||{}).label}</td><td class="neg">${fmt(tpCur)}</td><td></td></tr><tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[peerStore()]||{}).label}</td><td class="neg">${fmt(tpPeer)}</td><td></td></tr>`:'';
   document.getElementById('tEispBody').innerHTML=ei.map(rowEi).join('')+(ei.length?`<tr class="tot"><td colspan="${cols}">ΣΥΝΟΛΟ${dual?' (γενικό)':''}</td><td class="pos">${fmt(te)}</td><td></td></tr>${subEi}`:'');
@@ -2841,7 +2859,7 @@ function renderMet(){
   document.getElementById('metCnt').textContent=rows.length;
   var hM=document.getElementById('metHead'); if(hM) hM.innerHTML=`<tr><th>ΗΜΕΡΟΜΗΝΙΑ</th>${dual?'<th>ΚΑΤΑΣΤΗΜΑ</th>':''}<th>ΠΛΗΡΩΜΕΣ ΜΕ ΜΕΤΡΗΤΑ</th><th class="num">ΠΟΣΟ</th><th></th></tr>`;
   const cols=dual?3:2;
-  const row=r=>`<tr><td>${fmtDate(r.date)}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delMet(${r._idx},'${r._store}')">✕</button></td></tr>`;
+  const row=r=>`<tr><td><input type="date" class="rowdate" value="${r.date||''}" onchange="editRowDate('metrita',${r._idx},'${r._store}',this.value)"></td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delMet(${r._idx},'${r._store}')">✕</button></td></tr>`;
   const sub=dual?`<tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[STORE]||{}).label}</td><td class="neg">${fmt(totCur)}</td><td></td></tr><tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[peerStore()]||{}).label}</td><td class="neg">${fmt(totPeer)}</td><td></td></tr>`:'';
   document.getElementById('metBody').innerHTML=rows.map(row).join('')+(rows.length?`<tr class="tot"><td colspan="${cols}">ΣΥΝΟΛΟ${dual?' (γενικό)':''}</td><td class="neg">${fmt(tot)}</td><td></td></tr>${sub}`:'');
 }
@@ -2910,7 +2928,7 @@ function renderBnk(){
   var hB=document.getElementById('bnkHead'); if(hB) hB.innerHTML=`<tr><th>ΗΜΕΡΟΜΗΝΙΑ</th>${dual?'<th>ΚΑΤΑΣΤΗΜΑ</th>':''}<th>ΠΛΗΡΩΜΕΣ ΜΕΣΩ ΤΡΑΠΕΖΑΣ</th><th class="num">ΠΟΣΟ</th><th></th></tr>`;
   const cols=dual?3:2;
   const lblHead=dual?'(γενικό)':(STORES[STORE]||{}).label||'';
-  const row=r=>`<tr><td>${fmtDate(r.date)}</td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delBnk(${r._idx},'${r._store}')">✕</button></td></tr>`;
+  const row=r=>`<tr><td><input type="date" class="rowdate" value="${r.date||''}" onchange="editRowDate('bank',${r._idx},'${r._store}',this.value)"></td>${dual?'<td>'+storeBadge(r._store)+'</td>':''}<td>${r.ait}</td><td class="neg">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delBnk(${r._idx},'${r._store}')">✕</button></td></tr>`;
   const sub=dual?`<tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[STORE]||{}).label}</td><td class="neg">${fmt(totCur)}</td><td></td></tr><tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[peerStore()]||{}).label}</td><td class="neg">${fmt(totPeer)}</td><td></td></tr>`:'';
   document.getElementById('bnkBody').innerHTML=rows.map(row).join('')+(rows.length?`<tr class="tot"><td colspan="${cols}">ΣΥΝΟΛΟ ${lblHead}</td><td class="neg">${fmt(tot)}</td><td></td></tr>${sub}`:'');
 }
@@ -3034,10 +3052,10 @@ function renderExoda(){
   const bv=document.getElementById('exBalance');if(bv){bv.textContent=fmt(bal);bv.style.color=bal<0?'#ff6b6b':'#34d27a';}
   const hero=document.getElementById('exHero');if(hero){hero.classList.toggle('neg',bal<0);}
   const cb=document.getElementById('exCashBody');
-  if(cb) cb.innerHTML=rows.map((r,i)=>r.type==='cash'?`<tr><td>${fmtDate(r.date)}</td><td>${r.desc||'—'}</td><td class="num pos">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delExoda(${i})">✕</button></td></tr>`:'').join('')+(cash.length?`<tr class="tot"><td colspan="2">ΣΥΝΟΛΟ ΜΕΤΡΗΤΩΝ</td><td class="num acc">${fmt(cashTot)}</td><td></td></tr>`:'');
+  if(cb) cb.innerHTML=rows.map((r,i)=>r.type==='cash'?`<tr><td><input type="date" class="rowdate" value="${r.date||''}" onchange="editRowDate('exoda',${i},'',this.value)"></td><td>${r.desc||'—'}</td><td class="num pos">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delExoda(${i})">✕</button></td></tr>`:'').join('')+(cash.length?`<tr class="tot"><td colspan="2">ΣΥΝΟΛΟ ΜΕΤΡΗΤΩΝ</td><td class="num acc">${fmt(cashTot)}</td><td></td></tr>`:'');
   let run=cashTot;
   const eb=document.getElementById('exExpBody');
-  if(eb) eb.innerHTML=rows.map((r,i)=>{ if(r.type!=='exp')return ''; run=Math.round((run-(r.poso||0))*100)/100; return `<tr><td>${fmtDate(r.date)}</td><td>${r.desc||'—'}</td><td class="num neg">${fmt(r.poso)}</td><td class="num" style="color:${run<0?'var(--red)':'var(--muted)'}">${fmt(run)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delExoda(${i})">✕</button></td></tr>`; }).join('')+(exp.length?`<tr class="tot"><td colspan="2">ΤΕΛΙΚΟ ΥΠΟΛΟΙΠΟ</td><td class="num neg">${fmt(expTot)}</td><td class="num acc">${fmt(bal)}</td><td></td></tr>`:'');
+  if(eb) eb.innerHTML=rows.map((r,i)=>{ if(r.type!=='exp')return ''; run=Math.round((run-(r.poso||0))*100)/100; return `<tr><td><input type="date" class="rowdate" value="${r.date||''}" onchange="editRowDate('exoda',${i},'',this.value)"></td><td>${r.desc||'—'}</td><td class="num neg">${fmt(r.poso)}</td><td class="num" style="color:${run<0?'var(--red)':'var(--muted)'}">${fmt(run)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delExoda(${i})">✕</button></td></tr>`; }).join('')+(exp.length?`<tr class="tot"><td colspan="2">ΤΕΛΙΚΟ ΥΠΟΛΟΙΠΟ</td><td class="num neg">${fmt(expTot)}</td><td class="num acc">${fmt(bal)}</td><td></td></tr>`:'');
 }
 
 // ===== ⚡ ΠΡΟΤΥΠΑ ΚΙΝΗΣΕΩΝ (γρήγορη προσθήκη επαναλαμβανόμενων· καθαρά shortcut — δημιουργεί κανονικές εγγραφές) =====
