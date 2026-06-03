@@ -306,6 +306,14 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
 .tpl-foot .tpl-save:hover{color:var(--gold);border-color:var(--gold2);}
 .tpl-foot .tpl-apply{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:11px 22px;border-radius:9px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px var(--accent-bg);}
 .tpl-foot .tpl-apply:hover{filter:brightness(1.1);}
+/* ΝΕΟ (v54): πρότυπα «όλα ενεργά → κλικ για εξαίρεση» */
+.tpl-banner{padding:10px 20px;background:rgba(61,220,151,.07);border-bottom:1px solid var(--border2);font-size:11.5px;color:#bff5dc;line-height:1.5;}
+.tpl-banner b{color:#fff;}
+.tpl-toggle{flex-shrink:0;width:30px;height:30px;border-radius:8px;border:1px solid rgba(61,220,151,.5);background:rgba(61,220,151,.16);color:var(--green-2);font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;}
+.tpl-toggle:hover{filter:brightness(1.15);}
+.tpl-row.excluded{opacity:.5;}
+.tpl-row.excluded .tpl-toggle{border-color:var(--border2);background:var(--bg3);color:var(--muted);}
+.tpl-row.excluded .tpl-name{text-decoration:line-through;color:var(--muted);}
 @media(max-width:640px){.tpl-amt{width:84px;font-size:14px;}.tpl-iban{max-width:120px;}}
 .sl{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;}
 .sl.ok{background:var(--green);box-shadow:0 0 6px var(--green);}.sl.warn{background:var(--yellow);box-shadow:0 0 6px var(--yellow);}.sl.danger{background:var(--red);box-shadow:0 0 6px var(--red);animation:pulse 1.8s var(--ease) infinite;}
@@ -686,8 +694,8 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
       <div class="nav-item" id="alertsTab" data-tab="alerts" onclick="showTab('alerts',this)"><span class="nico">🔔</span>ΕΙΔΟΠΟΙΗΣΕΙΣ</div>
       <div class="nav-sep"></div>
       <div class="nav-item" id="navExcel" onclick="exportCSV()"><span class="nico">📑</span>ΑΝΑΦΟΡΕΣ (Excel)</div>
-      <div class="nav-item" id="navAI" onclick="exportAIReport()" style="background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(59,130,246,.12));border:1px solid rgba(139,92,246,.35);color:#c4b5fd;" title="Εξαγωγή αναλυτικής αναφοράς για ανάλυση με AI"><span class="nico">🤖</span>ΑΝΑΦΟΡΑ AI</div>
-      <div class="nav-item" id="navAudit" data-tab="audit" onclick="showTab('audit',this)" style="background:linear-gradient(135deg,rgba(224,184,75,.16),rgba(212,175,90,.08));border:1px solid rgba(224,184,75,.35);color:#e6c878;" title="Ιστορικό: ποιος χρήστης μπήκε & τι έκανε (μόνο ADMIN)"><span class="nico">📋</span>ΙΣΤΟΡΙΚΟ ΕΝΕΡΓΕΙΩΝ</div>
+      <div class="nav-item" id="navAI" onclick="exportAIReport()" title="Εξαγωγή αναλυτικής αναφοράς για ανάλυση με AI"><span class="nico" style="color:#a87dff;">🤖</span>ΑΝΑΦΟΡΑ AI</div>
+      <div class="nav-item" id="navAudit" data-tab="audit" onclick="showTab('audit',this)" title="Ιστορικό: ποιος χρήστης μπήκε & τι έκανε (μόνο ADMIN)"><span class="nico" style="color:#e6c878;">📋</span>ΙΣΤΟΡΙΚΟ ΕΝΕΡΓΕΙΩΝ</div>
       <div class="nav-item" onclick="window.open('odigies.html','_blank')"><span class="nico">❓</span>ΟΔΗΓΙΕΣ</div>
       <div class="nav-sep" style="margin-top:14px;background:rgba(76,175,125,.3);"></div>
       <div class="nav-grouplabel">🔸 ΑΝΕΞΑΡΤΗΤΟ 2ο ΤΑΜΕΙΟ</div>
@@ -1169,16 +1177,17 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
 <div id="tplModal" class="tpl-overlay">
   <div class="tpl-modal">
     <div class="tpl-head"><h3 id="tplTitle">⚡ Πρότυπα</h3><button class="tpl-x" onclick="closeTpl()" aria-label="Κλείσιμο">✕</button></div>
+    <div class="tpl-banner">✅ <b>Όλα τα πρότυπα θα προστεθούν.</b> Κάνε κλικ σε όποιο <b>ΔΕΝ</b> θες αυτόν τον μήνα για να το εξαιρέσεις (✕). Τα εξαιρεμένα δεν μπαίνουν — δεν υπολογίζονται.</div>
     <div class="tpl-tools">
-      <button onclick="tplSelectAll(true)">☑ Επιλογή όλων</button>
-      <button onclick="tplSelectAll(false)">☐ Καμία</button>
+      <button onclick="tplSetAll(true)">✓ Όλα ενεργά</button>
+      <button onclick="tplSetAll(false)">✕ Εξαίρεση όλων</button>
       <button onclick="tplAddNew()">➕ Νέο πρότυπο</button>
-      <span style="color:var(--muted);margin-left:auto;">Τα ποσά αλλάζουν ελεύθερα ↓</span>
+      <span style="color:var(--muted);margin-left:auto;">Ποσό &amp; περιγραφή αλλάζουν ελεύθερα ↓</span>
     </div>
     <div class="tpl-list" id="tplList"></div>
     <div class="tpl-foot">
       <button class="tpl-save" onclick="tplSaveDefaults()" title="Αποθήκευση ονομάτων/ποσών ως μόνιμα πρότυπα">💾 Αποθήκευση προτύπων</button>
-      <button class="tpl-apply" onclick="tplApplySelected()">➕ Προσθήκη επιλεγμένων στον μήνα</button>
+      <button class="tpl-apply" id="tplApplyBtn" onclick="tplApplySelected()">➕ Προσθήκη στον μήνα</button>
     </div>
   </div>
 </div>
@@ -1270,7 +1279,7 @@ try{ _db.settings({ignoreUndefinedProperties:true}); }catch(e){}
 const USER_CFG={
   'christosroussas@gmail.com':{role:'ADMIN'},
   'afoiroussa@gmail.com':{role:'EMP',store:'LIOSIA',tabs:['main','metrita','exoda'],hideHero:true,funMascot:true},
-  'roussasp@yahoo.gr':{role:'EMP',store:'LOUTRAKI',tabs:['main','metrita','trap','bank','deka5','telos','exoda'],hideHero:true,dualStore:['trap','metrita','bank']},
+  'roussasp@yahoo.gr':{role:'EMP',store:'LOUTRAKI',tabs:['main','metrita','trap','bank','deka5','telos','exoda'],hideHero:true,dualStore:['bank']},
 };
 function userCfg(em){return USER_CFG[(em||'').toLowerCase()]||{role:'EMP',store:'LIOSIA',tabs:['main','metrita','exoda']};}
 function roleForEmail(em){return userCfg(em).role;}
@@ -2964,8 +2973,9 @@ function renderExoda(){
 // ===== ⚡ ΠΡΟΤΥΠΑ ΚΙΝΗΣΕΩΝ (γρήγορη προσθήκη επαναλαμβανόμενων· καθαρά shortcut — δημιουργεί κανονικές εγγραφές) =====
 const TPL_NF={metrita:'desc',bank:'ait',d15:'prom',telos:'name'};
 let _tplCat=null;
+let _tplSkip=new Set();   // refs προτύπων που ΕΞΑΙΡΟΥΝΤΑΙ αυτόν τον μήνα (καθαρίζει σε κάθε άνοιγμα)
 function escAttr(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
-function openTemplates(cat){ _tplCat=cat; renderTplModal(); document.getElementById('tplModal').classList.add('show'); }
+function openTemplates(cat){ _tplCat=cat; _tplSkip=new Set(); renderTplModal(); document.getElementById('tplModal').classList.add('show'); }
 function closeTpl(){ document.getElementById('tplModal').classList.remove('show'); }
 function renderTplModal(){
   const cat=_tplCat, nf=TPL_NF[cat];
@@ -2975,14 +2985,28 @@ function renderTplModal(){
   const hasIban=(cat==='d15'||cat==='telos');
   document.getElementById('tplList').innerHTML = items.length ? items.map(function(it,i){
     const nm=it[nf]||'';
-    return '<div class="tpl-row">'
-      +'<input type="checkbox" class="tpl-chk" data-i="'+i+'">'
+    const off=_tplSkip.has(it);   // εξαιρεμένο;
+    return '<div class="tpl-row'+(off?' excluded':'')+'">'
+      +'<button class="tpl-toggle" onclick="tplToggle('+i+')" title="'+(off?'Κλικ για ενεργοποίηση':'Κλικ για εξαίρεση αυτόν τον μήνα')+'">'+(off?'✕':'✓')+'</button>'
       +'<div class="tpl-info"><div class="tpl-nm"><input type="text" class="tpl-name" data-i="'+i+'" value="'+escAttr(nm)+'"></div>'
       +(hasIban?'<div class="tpl-iban" title="'+escAttr(it.iban||'')+'">'+(it.iban?escAttr(it.iban):'—')+'</div>':'')+'</div>'
       +'<input type="number" class="tpl-amt" data-i="'+i+'" value="'+(it.poso||0)+'" step="0.01">'
-      +'<button class="tpl-del" onclick="tplDelItem('+i+')" title="Διαγραφή προτύπου">✕</button>'
+      +'<button class="tpl-del" onclick="tplDelItem('+i+')" title="Μόνιμη διαγραφή προτύπου">✕</button>'
       +'</div>';
   }).join('') : '<div class="empty-state"><div class="ico">⚡</div><div class="txt">Κανένα πρότυπο</div><div class="sub">Πρόσθεσε με «➕ Νέο πρότυπο»</div></div>';
+  tplUpdateApplyBtn();
+}
+// counter στο κουμπί «Προσθήκη στον μήνα (X από Y)»
+function tplUpdateApplyBtn(){
+  const cat=_tplCat, items=(D.templates&&D.templates[cat])||[];
+  const on=items.filter(function(it){return !_tplSkip.has(it);}).length;
+  const b=document.getElementById('tplApplyBtn'); if(b)b.textContent='➕ Προσθήκη στον μήνα ('+on+' από '+items.length+')';
+}
+function tplToggle(i){
+  tplSyncFromInputs();
+  const cat=_tplCat, it=(D.templates[cat]||[])[i]; if(!it)return;
+  if(_tplSkip.has(it))_tplSkip.delete(it); else _tplSkip.add(it);
+  renderTplModal();
 }
 // διάβασε τα τρέχοντα inputs πίσω στο D.templates (ώστε να μη χαθούν edits σε re-render)
 function tplSyncFromInputs(){
@@ -2990,7 +3014,14 @@ function tplSyncFromInputs(){
   document.querySelectorAll('#tplList .tpl-amt').forEach(function(inp){const i=+inp.dataset.i; if(D.templates[cat][i])D.templates[cat][i].poso=Math.round((parseFloat(inp.value)||0)*100)/100;});
   document.querySelectorAll('#tplList .tpl-name').forEach(function(inp){const i=+inp.dataset.i; if(D.templates[cat][i])D.templates[cat][i][nf]=inp.value.trim();});
 }
-function tplSelectAll(on){ document.querySelectorAll('#tplList .tpl-chk').forEach(function(c){c.checked=on;}); }
+// on=true → όλα ενεργά (καθάρισε εξαιρέσεις)· on=false → εξαίρεσε όλα
+function tplSetAll(on){
+  tplSyncFromInputs();
+  const cat=_tplCat, items=(D.templates&&D.templates[cat])||[];
+  if(on){ items.forEach(function(it){_tplSkip.delete(it);}); }
+  else { items.forEach(function(it){_tplSkip.add(it);}); }
+  renderTplModal();
+}
 function tplAddNew(){
   tplSyncFromInputs();
   const cat=_tplCat, nf=TPL_NF[cat];
@@ -3005,11 +3036,13 @@ function tplDelItem(i){ tplSyncFromInputs(); const cat=_tplCat; if(!D.templates[
 function tplApplySelected(){
   tplSyncFromInputs();
   const cat=_tplCat, k=ek(), isLou=(STORE==='LOUTRAKI');
-  const chks=document.querySelectorAll('#tplList .tpl-chk:checked');
-  if(!chks.length){ toast('Δεν επέλεξες πρότυπα','warn'); return; }
+  const items=(D.templates&&D.templates[cat])||[];
+  // ΟΛΑ τα πρότυπα ΕΚΤΟΣ των εξαιρεμένων (_tplSkip)
+  const sel=items.filter(function(it){return !_tplSkip.has(it);});
+  if(!sel.length){ toast('Όλα τα πρότυπα είναι εξαιρεμένα','warn'); return; }
   ea(D[cat],k); let n=0;
-  chks.forEach(function(c){
-    const i=+c.dataset.i, it=D.templates[cat][i]; if(!it)return; const amt=it.poso||0;
+  sel.forEach(function(it){
+    const amt=it.poso||0;
     if(cat==='metrita') D.metrita[k].push({date:'',ait:it.desc||'',poso:amt});
     else if(cat==='bank') D.bank[k].push({date:'',ait:it.ait||'',poso:amt});
     else if(cat==='d15') D.d15[k].push({cod:'',prom:it.prom||'',iban:it.iban||'',synolo:amt,liosia:isLou?0:amt,loutraki:isLou?amt:0});
@@ -3017,7 +3050,7 @@ function tplApplySelected(){
     n++;
   });
   if(cat==='metrita')renderMet(); else if(cat==='bank')renderBnk(); else if(cat==='d15')renderD5(); else if(cat==='telos')renderTel();
-  renderMain(); saveToSheets(cat); flashOK(); toast(n+' πρότυπα προστέθηκαν ✓','ok'); closeTpl();
+  renderMain(); saveToSheets(cat); flashOK(); logAction('Πρότυπα → μήνα',(({metrita:'Μετρητά',bank:'Τράπεζα',d15:'15ου',telos:'Τέλος'})[cat]||cat)+': +'+n+' κινήσεις'); toast(n+' πρότυπα προστέθηκαν ✓','ok'); closeTpl();
 }
 function tplSaveDefaults(){
   tplSyncFromInputs();
