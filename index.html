@@ -4109,8 +4109,8 @@ async function preloadAllMonths(){
     // φόρτωσε αν λείπουν days Ή αν λείπει το trapEisp (π.χ. prev-month φορτωμένος μόνο με days για carry)
     if(!D.days[k]||D.days[k].length===0||D.trapEisp[k]===undefined)toLoad.push(k);
   });});
-  for(let i=0;i<toLoad.length;i+=3){
-    const batch=toLoad.slice(i,i+3);
+  for(let i=0;i<toLoad.length;i+=10){   // batch 10 (ήταν 3) — λιγότερα σειριακά rounds, ~5× ταχύτερη φόρτωση
+    const batch=toLoad.slice(i,i+10);
     await Promise.all(batch.map(async k=>{
       if(k===CM) return; // διπλός έλεγχος
       try{
