@@ -1062,7 +1062,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
 <div class="panel" id="tab-stats">
   <!-- Sub-tabs -->
   <div style="display:flex;gap:0;border-bottom:1px solid var(--border2);margin-bottom:14px;">
-    <div id="st-tab-overview" onclick="showStatTab('overview')" style="padding:8px 16px;font-size:10px;font-weight:700;cursor:pointer;color:var(--accent);border-bottom:2px solid var(--accent);letter-spacing:.05em;">📈 ΙΣΤΟΡΙΚΟ</div>
+    <div id="st-tab-overview" onclick="showStatTab('overview')" style="padding:8px 16px;font-size:10px;font-weight:700;cursor:pointer;color:var(--accent);border-bottom:2px solid var(--accent);letter-spacing:.05em;">📈 ΙΣΤΟΡΙΚΟ ΤΖΙΡΟΥ</div>
     <div id="st-tab-cashflow" onclick="showStatTab('cashflow')" style="padding:8px 16px;font-size:10px;font-weight:700;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;letter-spacing:.05em;">🔮 CASH FLOW</div>
     <div id="st-tab-compare" onclick="showStatTab('compare')" style="padding:8px 16px;font-size:10px;font-weight:700;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;letter-spacing:.05em;">📅 ΜΗΝΑΣ vs ΠΕΡΣΙ</div>
     <div id="st-tab-analysis" onclick="showStatTab('analysis')" style="padding:8px 16px;font-size:10px;font-weight:700;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;letter-spacing:.05em;">📊 ΑΝΑΛΥΣΗ ΕΤΩΝ</div>
@@ -3512,7 +3512,7 @@ function renderStats(){
 }
 
 // ===== ΙΣΤΟΡΙΚΟ ΕΙΣΠΡΑΞΕΩΝ-ΠΩΛΗΣΕΩΝ (πωλήσεις ταμείου + εισπράξεις εμβασμάτων/τράπεζας) — store-aware =====
-var _rsLoaded=false, _rsChartInst=null;
+var _rsLoadedStore=null, _rsChartInst=null;
 function recvSalesFor(yr,m){
   var key=MONTHS_EL[m-1]+'_'+yr;
   var lh=liveHistFor(yr,m);                                   // ζωντανές καθαρές πωλήσεις (αν υπάρχουν days)
@@ -3554,10 +3554,10 @@ function renderRSChart(activeYears,RS){
 }
 async function renderRecvSales(){
   var body=document.getElementById('rsBody');
-  if(!_rsLoaded){
+  if(_rsLoadedStore!==STORE){   // ξαναφόρτωσε όταν αλλάζει κατάστημα (το setStore καθαρίζει τα ιστορικά)
     if(body)body.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:18px;">Φόρτωση ιστορικών εισπράξεων…</td></tr>';
     try{ await preloadAllMonths(); }catch(e){}
-    _rsLoaded=true;
+    _rsLoadedStore=STORE;
   }
   var curYear=String(new Date().getFullYear());
   var allYears=['2023','2024','2025','2026','2027'];
