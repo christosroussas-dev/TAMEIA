@@ -803,7 +803,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
       <div class="fi"><label>Ημ/νία</label><input type="date" id="tei-d"></div>
       <div class="fi"><label>Πελάτης</label><input type="text" id="tei-p" placeholder="Επωνυμία..."></div>
       <div class="fi"><label>Ποσό (€)</label><input type="number" id="tei-v" step="0.01"></div>
-      <div class="fi store-pick" id="tei-store-w" style="display:none"><label>Κατάστημα</label><select id="tei-store"><option value="LIOSIA">ΛΙΟΣΙΑ</option><option value="LOUTRAKI">ΛΟΥΤΡΑΚΙ</option></select></div>
+      <div class="fi store-pick" id="tei-store-w" style="display:none"><label>Κατάστημα</label><select id="tei-store"><option value="">— Επιλέξτε —</option><option value="LIOSIA">ΛΙΟΣΙΑ</option><option value="LOUTRAKI">ΛΟΥΤΡΑΚΙ</option></select></div>
     </div>
     <button class="btn-add" onclick="addTEisp()">ΚΑΤΑΧΩΡΗΣΗ</button>
     <table><thead id="tEispHead"><tr><th>ΗΜΕΡΟΜΗΝΙΑ</th><th>ΠΕΛΑΤΗΣ</th><th class="num">ΠΟΣΟ</th><th></th></tr></thead><tbody id="tEispBody"></tbody></table>
@@ -814,7 +814,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
       <div class="fi"><label>Ημ/νία</label><input type="date" id="tpl-d"></div>
       <div class="fi"><label>Προμηθευτής</label><input type="text" id="tpl-p" placeholder="Επωνυμία..."></div>
       <div class="fi"><label>Ποσό (€)</label><input type="number" id="tpl-v" step="0.01"></div>
-      <div class="fi store-pick" id="tpl-store-w" style="display:none"><label>Κατάστημα</label><select id="tpl-store"><option value="LIOSIA">ΛΙΟΣΙΑ</option><option value="LOUTRAKI">ΛΟΥΤΡΑΚΙ</option></select></div>
+      <div class="fi store-pick" id="tpl-store-w" style="display:none"><label>Κατάστημα</label><select id="tpl-store"><option value="">— Επιλέξτε —</option><option value="LIOSIA">ΛΙΟΣΙΑ</option><option value="LOUTRAKI">ΛΟΥΤΡΑΚΙ</option></select></div>
     </div>
     <button class="btn-add" onclick="addTPl()">ΚΑΤΑΧΩΡΗΣΗ</button>
     <table><thead id="tPlHead"><tr><th>ΗΜΕΡΟΜΗΝΙΑ</th><th>ΠΡΟΜΗΘΕΥΤΗΣ</th><th class="num">ΠΟΣΟ</th><th></th></tr></thead><tbody id="tPlBody"></tbody></table>
@@ -832,7 +832,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
       <div class="fi"><label>Ημερομηνία</label><input type="date" id="met-d"></div>
       <div class="fi"><label>Πληρωμές με Μετρητά</label><input type="text" id="met-a" placeholder="π.χ. ΧΡΗΣΤΟΣ, ΜΙΣΘΟΣ ΑΛΕΞΑΝΔΡΟΥ..."></div>
       <div class="fi"><label>Ποσό (€)</label><input type="number" id="met-v" step="0.01"></div>
-      <div class="fi store-pick" id="met-store-w" style="display:none"><label>Κατάστημα</label><select id="met-store"><option value="LIOSIA">ΛΙΟΣΙΑ</option><option value="LOUTRAKI">ΛΟΥΤΡΑΚΙ</option></select></div>
+      <div class="fi store-pick" id="met-store-w" style="display:none"><label>Κατάστημα</label><select id="met-store"><option value="">— Επιλέξτε —</option><option value="LIOSIA">ΛΙΟΣΙΑ</option><option value="LOUTRAKI">ΛΟΥΤΡΑΚΙ</option></select></div>
     </div>
     <button class="btn-add" onclick="addMet()">ΚΑΤΑΧΩΡΗΣΗ</button><button class="tpl-btn" onclick="openTemplates('metrita')" title="Γρήγορη προσθήκη επαναλαμβανόμενων">⚡ Πρότυπα</button>
     <table><thead id="metHead"><tr><th>ΗΜΕΡΟΜΗΝΙΑ</th><th>ΠΛΗΡΩΜΕΣ ΜΕ ΜΕΤΡΗΤΑ</th><th class="num">ΠΟΣΟ</th><th></th></tr></thead><tbody id="metBody"></tbody></table>
@@ -850,7 +850,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
       <div class="fi"><label>Ημερομηνία</label><input type="date" id="bnk-d"></div>
       <div class="fi"><label>Πληρωμές μέσω Τράπεζας</label><input type="text" id="bnk-a" placeholder="π.χ. ΕΝΟΙΚΙΟ ΛΙΟΣΙΑ, ΔΕΗ, RLED..."></div>
       <div class="fi"><label>Ποσό (€)</label><input type="number" id="bnk-v" step="0.01"></div>
-      <div class="fi store-pick" id="bnk-store-w" style="display:none"><label>Κατάστημα</label><select id="bnk-store"><option value="LIOSIA">ΛΙΟΣΙΑ</option><option value="LOUTRAKI">ΛΟΥΤΡΑΚΙ</option></select></div>
+      <div class="fi store-pick" id="bnk-store-w" style="display:none"><label>Κατάστημα</label><select id="bnk-store"><option value="">— Επιλέξτε —</option><option value="LIOSIA">ΛΙΟΣΙΑ</option><option value="LOUTRAKI">ΛΟΥΤΡΑΚΙ</option></select></div>
     </div>
     <button class="btn-add" onclick="addBnk()">ΚΑΤΑΧΩΡΗΣΗ</button><button class="tpl-btn" onclick="openTemplates('bank')" title="Γρήγορη προσθήκη επαναλαμβανόμενων">⚡ Πρότυπα</button>
     <table><thead id="bnkHead"><tr><th>ΗΜΕΡΟΜΗΝΙΑ</th><th>ΠΛΗΡΩΜΕΣ ΜΕΣΩ ΤΡΑΠΕΖΑΣ</th><th class="num">ΛΙΟΣΙΑ</th><th></th></tr></thead><tbody id="bnkBody"></tbody></table>
@@ -1063,6 +1063,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
     <div id="st-tab-cashflow" onclick="showStatTab('cashflow')" style="padding:8px 16px;font-size:10px;font-weight:700;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;letter-spacing:.05em;">🔮 CASH FLOW</div>
     <div id="st-tab-compare" onclick="showStatTab('compare')" style="padding:8px 16px;font-size:10px;font-weight:700;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;letter-spacing:.05em;">📅 ΜΗΝΑΣ vs ΠΕΡΣΙ</div>
     <div id="st-tab-analysis" onclick="showStatTab('analysis')" style="padding:8px 16px;font-size:10px;font-weight:700;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;letter-spacing:.05em;">📊 ΑΝΑΛΥΣΗ ΕΤΩΝ</div>
+    <div id="st-tab-recv" onclick="showStatTab('recv')" style="padding:8px 16px;font-size:10px;font-weight:700;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;letter-spacing:.05em;">💶 ΕΙΣΠΡΑΞΕΙΣ-ΠΩΛΗΣΕΙΣ</div>
   </div>
 
   <!-- ΙΣΤΟΡΙΚΟ -->
@@ -1073,6 +1074,17 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
     <div class="tw"><div class="tw-h">Ιστορικό — Αναλυτικός Πίνακας</div>
       <table><thead><tr><th>ΜΗΝΑΣ</th><th>ΕΡΓΑΣΙΜΕΣ</th><th style="text-align:right">ΤΖΙΡΟΣ</th><th style="text-align:right">ΜΕΣΟΣ/ΜΕΡΑ</th><th style="text-align:right">vs ΠΕΡΣΙ</th></tr></thead>
       <tbody id="histBody"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ΙΣΤΟΡΙΚΟ ΕΙΣΠΡΑΞΕΩΝ-ΠΩΛΗΣΕΩΝ -->
+  <div id="st-panel-recv" style="display:none;">
+    <div class="kpis" id="rsKpis"></div>
+    <div class="sh"><div class="st">Εισπράξεις + Πωλήσεις ανά Μήνα — Σύγκριση Ετών</div></div>
+    <div class="tw"><div style="padding:14px;"><div id="rsChart" style="position:relative;height:200px;"><canvas id="rsCanvas"></canvas></div></div></div>
+    <div class="tw"><div class="tw-h">Ιστορικό Εισπράξεων-Πωλήσεων — Αναλυτικός Πίνακας</div>
+      <table><thead><tr><th>ΜΗΝΑΣ</th><th style="text-align:right">ΠΩΛΗΣΕΙΣ</th><th style="text-align:right">ΕΙΣΠΡΑΞΕΙΣ</th><th style="text-align:right">ΣΥΝΟΛΟ</th><th style="text-align:right">vs ΠΕΡΣΙ</th></tr></thead>
+      <tbody id="rsBody"></tbody></table>
     </div>
   </div>
 
@@ -1184,6 +1196,10 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
       <button onclick="tplAddNew()">➕ Νέο πρότυπο</button>
       <span style="color:var(--muted);margin-left:auto;">Ποσό &amp; περιγραφή αλλάζουν ελεύθερα ↓</span>
     </div>
+    <div class="tpl-tools" id="tplDateRow" style="border-top:none;padding-top:2px;">
+      <label style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);">📅 Ημερομηνία κινήσεων</label>
+      <input type="date" id="tplDate" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:7px 11px;border-radius:7px;font-size:14px;font-weight:600;">
+    </div>
     <div class="tpl-list" id="tplList"></div>
     <div class="tpl-foot">
       <button class="tpl-save" onclick="tplSaveDefaults()" title="Αποθήκευση ονομάτων/ποσών ως μόνιμα πρότυπα">💾 Αποθήκευση προτύπων</button>
@@ -1279,7 +1295,7 @@ try{ _db.settings({ignoreUndefinedProperties:true}); }catch(e){}
 const USER_CFG={
   'christosroussas@gmail.com':{role:'ADMIN'},
   'afoiroussa@gmail.com':{role:'EMP',store:'LIOSIA',tabs:['main','metrita','exoda'],hideHero:true,funMascot:true},
-  'roussasp@yahoo.gr':{role:'EMP',store:'LOUTRAKI',tabs:['main','metrita','trap','bank','deka5','telos','exoda'],hideHero:true,dualStore:['bank']},
+  'roussasp@yahoo.gr':{role:'EMP',store:'LOUTRAKI',tabs:['main','metrita','trap','bank','deka5','telos','exoda'],hideHero:true,dualStore:['trap','bank']},
 };
 function userCfg(em){return USER_CFG[(em||'').toLowerCase()]||{role:'EMP',store:'LIOSIA',tabs:['main','metrita','exoda']};}
 function roleForEmail(em){return userCfg(em).role;}
@@ -1523,6 +1539,27 @@ function uiConfirm(msg,opts){
 }
 // Επιβεβαίωση πριν από διαγραφή — κεντρικό helper (async → custom modal)
 function confirmDel(msg){return uiConfirm(msg||'Διαγραφή εγγραφής;',{title:'Επιβεβαίωση διαγραφής',ok:'Διαγραφή',danger:true});}
+// Απλό popup ειδοποίησης (ένα κουμπί «Εντάξει»)
+function uiAlert(msg,opts){
+  opts=opts||{};
+  return new Promise(function(resolve){
+    var ov=document.getElementById('uiModal');
+    if(!ov){ alert(msg); resolve(); return; }
+    var box=document.getElementById('uiModalBox');
+    document.getElementById('uiModalTitle').innerHTML=(opts.icon||'⚠️')+' '+(opts.title||'Προσοχή');
+    document.getElementById('uiModalMsg').textContent=msg||'';
+    var okb=document.getElementById('uiModalOk'), cb=document.getElementById('uiModalCancel');
+    okb.textContent=opts.ok||'Εντάξει'; okb.className='ui-modal-btn primary'; box.className='ui-modal';
+    cb.style.display='none';
+    ov.classList.add('show');
+    var _prevKey=document.onkeydown;
+    function done(){ ov.classList.remove('show'); okb.onclick=null; ov.onclick=null; document.onkeydown=_prevKey; cb.style.display=''; resolve(); }
+    okb.onclick=done;
+    ov.onclick=function(e){ if(e.target===ov) done(); };
+    document.onkeydown=function(e){ if(e.key==='Escape'||e.key==='Enter')done(); };
+    try{okb.focus();}catch(e){}
+  });
+}
 
 // ===== TOP PROGRESS BAR (live ένδειξη φόρτωσης) =====
 var Prog=(function(){
@@ -1581,15 +1618,15 @@ function applyRole(){
   var funM=!!(currentUserCfg&&currentUserCfg.funMascot);
   var exB=document.getElementById('exBadge'); if(exB) exB.style.display=funM?'none':'';
   var exM=document.getElementById('exMascot'); if(exM) exM.style.display=funM?'':'none';
-  // DUAL-STORE: εμφάνισε dropdown ΚΑΤΑΣΤΗΜΑ στις φόρμες των dualStore sections
-  var dualOn=hasDualAny();
+  // DUAL-STORE: dropdown ΚΑΤΑΣΤΗΜΑ ΜΟΝΟ στα dual sections του χρήστη (ανά section, όχι όλα-ή-τίποτα)
+  var _wrapSec={'tei-store-w':'trap','tpl-store-w':'trap','met-store-w':'metrita','bnk-store-w':'bank'};
   ['tei-store-w','tpl-store-w','met-store-w','bnk-store-w'].forEach(function(id){
     var el=document.getElementById(id); if(!el) return;
-    el.style.display=dualOn?'':'none';
+    el.style.display=isDualSec(_wrapSec[id])?'':'none';
   });
-  // Default selection = current STORE
+  // Default: dual section → ΚΕΝΟ (υποχρεωτική συνειδητή επιλογή)· non-dual → τρέχον STORE
   ['tei-store','tpl-store','met-store','bnk-store'].forEach(function(id){
-    var s=document.getElementById(id); if(s) s.value=STORE;
+    var s=document.getElementById(id); if(s) s.value=isDualSec(_STORE_SEL_SEC[id])?'':STORE;
   });
   applyStoreTheme();
   // Αν ο ΕΡΓΑΖΟΜΕΝΟΣ είναι σε μη-επιτρεπτό panel (π.χ. dashboard), στείλ' τον στο ΤΑΜΕΙΟ
@@ -1656,6 +1693,7 @@ async function setStore(s){
   await loadTemplates();
   appReady=true;
   renderAll(); refreshActiveTab();
+  ['tei-store','tpl-store','met-store','bnk-store'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=isDualSec(_STORE_SEL_SEC[id])?'':STORE;});  // sync dropdowns (dual→κενό, αλλιώς STORE)
   toast('Κατάστημα: '+STORES[s].label,'info');
   logAction('Αλλαγή καταστήματος','→ '+(STORES[s].label||s));
 }
@@ -1666,6 +1704,9 @@ function dn(y,mi,d){return DAYS[new Date(y,mi,d).getDay()];}
 function fmt(n){return Number(n||0).toLocaleString('el-GR',{minimumFractionDigits:2,maximumFractionDigits:2})+'€';}
 // Εμφάνιση ημερομηνίας ΗΜΕΡΑ/ΜΗΝΑΣ/ΕΤΟΣ (το storage μένει ISO yyyy-mm-dd για sorting/φίλτρα)
 function fmtDate(s){ if(!s)return '—'; const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(s)); return m?(m[3]+'/'+m[2]+'/'+m[1]):String(s); }
+// Σημερινή ISO (local-time, χωρίς timezone bug) + προ-συμπλήρωση των date πεδίων με «σήμερα» (μόνο αν κενά)
+function _todayISO(){ var d=new Date(),p=function(n){return String(n).padStart(2,'0');}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function prefillDates(){ ['tei-d','tpl-d','met-d','bnk-d','exc-d','exe-d'].forEach(function(id){var el=document.getElementById(id); if(el && !el.value) el.value=_todayISO();}); }
 function toast(m,t='ok'){const el=document.getElementById('toast');const ic={ok:'✓',err:'✕',info:'ℹ',warn:'⚠'}[t]||'';el.innerHTML='<span class="ti">'+ic+'</span>'+m;el.className='show '+t;setTimeout(()=>el.classList.remove('show'),2600);}
 // ===== ΑΙΣΘΗΤΙΚΑ helpers (καθαρά οπτικά — δεν αγγίζουν υπολογισμούς) =====
 // Animated counter: tween από προηγούμενη τιμή στην target (easeOutCubic). Cache ανά key ώστε re-render χωρίς αλλαγή = χωρίς animation.
@@ -1804,7 +1845,7 @@ async function ensureAllEpitages(){
 
 // ===== TABS =====
 function showStatTab(id){
-  ['overview','cashflow','compare','analysis'].forEach(s=>{
+  ['overview','cashflow','compare','analysis','recv'].forEach(s=>{
     const p=document.getElementById('st-panel-'+s);
     const t=document.getElementById('st-tab-'+s);
     if(p) p.style.display=s===id?'block':'none';
@@ -1814,6 +1855,7 @@ function showStatTab(id){
   if(id==='compare') renderCompare();
   if(id==='overview') renderStats();
   if(id==='analysis') renderAnalysis();
+  if(id==='recv') renderRecvSales();
 }
 // Καρτέλες επιτρεπόμενες ανά ρόλο — ο ΕΡΓΑΖΟΜΕΝΟΣ βλέπει ΤΑΜΕΙΟ + ΜΕΤΡΗΤΑ (για καταχώρηση)
 function curTabs(){return (currentUserCfg&&currentUserCfg.tabs)||['main','metrita','exoda'];}
@@ -1840,6 +1882,7 @@ function showTab(id,el){
   if(id==='alerts')runRules();
   if(id==='audit')loadAudit();
   if(id==='main')renderMain();
+  prefillDates();   // προ-συμπλήρωση σημερινής ημ/νίας στα κενά date πεδία
   toggleSidebar(false);                // κλείσε το mobile sidebar
   const c=document.querySelector('.content');if(c)c.scrollTop=0;
 }
@@ -2683,6 +2726,8 @@ function renderCompare(){
 function addTEisp(){
   const d=document.getElementById('tei-d').value, p=document.getElementById('tei-p').value.trim(), v=parseFloat(document.getElementById('tei-v').value)||0;
   if(!p||!v)return;
+  if(!_storeChosen('tei-store'))return;
+  if(!d){uiAlert('Συμπλήρωσε ΗΜΕΡΟΜΗΝΙΑ της κίνησης.',{title:'Λείπει η ημερομηνία',icon:'🗓️'});return;}
   const k=ek();
   const tgt=getFormStore('tei-store');
   if(tgt===STORE){ ea(D.trapEisp,k); D.trapEisp[k].push({date:d,pelatis:p,poso:v}); saveToSheets("trapEisp"); }
@@ -2694,6 +2739,8 @@ function addTEisp(){
 function addTPl(){
   const d=document.getElementById('tpl-d').value, p=document.getElementById('tpl-p').value.trim(), v=parseFloat(document.getElementById('tpl-v').value)||0;
   if(!p||!v)return;
+  if(!_storeChosen('tpl-store'))return;
+  if(!d){uiAlert('Συμπλήρωσε ΗΜΕΡΟΜΗΝΙΑ της κίνησης.',{title:'Λείπει η ημερομηνία',icon:'🗓️'});return;}
   const k=ek();
   const tgt=getFormStore('tpl-store');
   if(tgt===STORE){ ea(D.trapPl,k); D.trapPl[k].push({date:d,prom:p,poso:v}); saveToSheets("trapPl"); }
@@ -2759,6 +2806,8 @@ function renderTrap(){
 function addMet(){
   const d=document.getElementById('met-d').value, a=document.getElementById('met-a').value.trim(), v=parseFloat(document.getElementById('met-v').value)||0;
   if(!a||!v)return;
+  if(!_storeChosen('met-store'))return;
+  if(!d){uiAlert('Συμπλήρωσε ΗΜΕΡΟΜΗΝΙΑ της κίνησης.',{title:'Λείπει η ημερομηνία',icon:'🗓️'});return;}
   const k=ek();
   const tgt=getFormStore('met-store');
   if(tgt===STORE){ ea(D.metrita,k); D.metrita[k].push({date:d,ait:a,poso:v}); saveToSheets("metrita"); }
@@ -2798,6 +2847,8 @@ function renderMet(){
 function addBnk(){
   const d=document.getElementById('bnk-d').value, a=document.getElementById('bnk-a').value.trim(), v=parseFloat(document.getElementById('bnk-v').value)||0;
   if(!a||!v)return;
+  if(!_storeChosen('bnk-store'))return;
+  if(!d){uiAlert('Συμπλήρωσε ΗΜΕΡΟΜΗΝΙΑ της κίνησης.',{title:'Λείπει η ημερομηνία',icon:'🗓️'});return;}
   const k=ek();
   const tgt=getFormStore('bnk-store');
   if(tgt===STORE){ ea(D.bank,k); D.bank[k].push({date:d,ait:a,poso:v}); saveToSheets("bank"); }
@@ -2818,9 +2869,22 @@ async function delBnk(i,st){
   logAction('Διαγραφή πληρωμής (bank)','['+((STORES[st]||{}).label||st)+'] '+((r&&r.ait)||'')+' · '+fmt((r&&r.poso)||0));
 }
 // DUAL-STORE: helpers για add/save στο peer + reading dropdown
+// Το dropdown «Κατάστημα» μετράει ΜΟΝΟ σε dual section για dual χρήστη· αλλιώς ΠΑΝΤΑ το τρέχον STORE
+// (αλλιώς, μετά από αλλαγή καταστήματος του ADMIN, stale dropdown value έστελνε την εγγραφή σε λάθος κατάστημα).
+var _STORE_SEL_SEC={'tei-store':'trap','tpl-store':'trap','met-store':'metrita','bnk-store':'bank'};
 function getFormStore(selId){
+  if(!isDualSec(_STORE_SEL_SEC[selId])) return STORE;
   var s=document.getElementById(selId);
   return (s&&s.value)?s.value:STORE;
+}
+// Σε combined (dual) φόρμα ΠΡΕΠΕΙ να έχει επιλεγεί κατάστημα· αλλιώς popup & άκυρο
+function _storeChosen(selId){
+  var sec=_STORE_SEL_SEC[selId];
+  if(!isDualSec(sec)) return true;                 // non-dual → πάει αυτόματα στο τρέχον κατάστημα
+  var s=document.getElementById(selId);
+  if(s && s.value) return true;
+  uiAlert('Διάλεξε πρώτα ΚΑΤΑΣΤΗΜΑ (ΛΙΟΣΙΑ ή ΛΟΥΤΡΑΚΙ) από το πεδίο «Κατάστημα», και μετά πάτησε ΚΑΤΑΧΩΡΗΣΗ.',{title:'Λείπει το κατάστημα',icon:'🏪'});
+  return false;
 }
 async function savePeerSection(section){
   markSaving(); Prog.start();
@@ -2916,7 +2980,9 @@ function renderTel(){
 // Μία ενότητα D.exoda[k] = πίνακας {type:'cash'|'exp', date, desc, poso}. cash=φλουρί, exp=έξοδα.
 function addExCash(){
   const d=document.getElementById('exc-d').value,a=document.getElementById('exc-a').value.trim(),v=parseFloat(document.getElementById('exc-v').value)||0;
-  if(!v)return;const k=ek();ea(D.exoda,k);
+  if(!v)return;
+  if(!d){uiAlert('Συμπλήρωσε ΗΜΕΡΟΜΗΝΙΑ.',{title:'Λείπει η ημερομηνία',icon:'🗓️'});return;}
+  const k=ek();ea(D.exoda,k);
   D.exoda[k].push({type:'cash',date:d,desc:a,poso:v});
   document.getElementById('exc-a').value='';document.getElementById('exc-v').value='';
   renderExoda();saveToSheets("exoda");flashOK();
@@ -2936,7 +3002,9 @@ function exEmptyPopup(bal){
 function closeExPop(){const ov=document.getElementById('exPop');if(ov)ov.classList.remove('show');}
 function addExExp(){
   const d=document.getElementById('exe-d').value,a=document.getElementById('exe-a').value.trim(),v=parseFloat(document.getElementById('exe-v').value)||0;
-  if(!a||!v)return;const k=ek();ea(D.exoda,k);
+  if(!a||!v)return;
+  if(!d){uiAlert('Συμπλήρωσε ΗΜΕΡΟΜΗΝΙΑ.',{title:'Λείπει η ημερομηνία',icon:'🗓️'});return;}
+  const k=ek();ea(D.exoda,k);
   const prevBal=exBalanceFor(k);
   D.exoda[k].push({type:'exp',date:d,desc:a,poso:v});
   document.getElementById('exe-a').value='';document.getElementById('exe-v').value='';
@@ -2975,7 +3043,7 @@ const TPL_NF={metrita:'desc',bank:'ait',d15:'prom',telos:'name'};
 let _tplCat=null;
 let _tplSkip=new Set();   // refs προτύπων που ΕΞΑΙΡΟΥΝΤΑΙ αυτόν τον μήνα (καθαρίζει σε κάθε άνοιγμα)
 function escAttr(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
-function openTemplates(cat){ _tplCat=cat; _tplSkip=new Set(); renderTplModal(); document.getElementById('tplModal').classList.add('show'); }
+function openTemplates(cat){ _tplCat=cat; _tplSkip=new Set(); var dr=document.getElementById('tplDateRow'); if(dr)dr.style.display=(cat==='metrita'||cat==='bank')?'':'none'; var dt=document.getElementById('tplDate'); if(dt)dt.value=_todayISO(); renderTplModal(); document.getElementById('tplModal').classList.add('show'); }
 function closeTpl(){ document.getElementById('tplModal').classList.remove('show'); }
 function renderTplModal(){
   const cat=_tplCat, nf=TPL_NF[cat];
@@ -3036,6 +3104,7 @@ function tplDelItem(i){ tplSyncFromInputs(); const cat=_tplCat; if(!D.templates[
 function tplApplySelected(){
   tplSyncFromInputs();
   const cat=_tplCat, k=ek(), isLou=(STORE==='LOUTRAKI');
+  const tdate=((document.getElementById('tplDate')||{}).value)||_todayISO();   // ημ/νία κινήσεων (μετρητά/τράπεζα)
   const items=(D.templates&&D.templates[cat])||[];
   // ΟΛΑ τα πρότυπα ΕΚΤΟΣ των εξαιρεμένων (_tplSkip)
   const sel=items.filter(function(it){return !_tplSkip.has(it);});
@@ -3043,8 +3112,8 @@ function tplApplySelected(){
   ea(D[cat],k); let n=0;
   sel.forEach(function(it){
     const amt=it.poso||0;
-    if(cat==='metrita') D.metrita[k].push({date:'',ait:it.desc||'',poso:amt});
-    else if(cat==='bank') D.bank[k].push({date:'',ait:it.ait||'',poso:amt});
+    if(cat==='metrita') D.metrita[k].push({date:tdate,ait:it.desc||'',poso:amt});
+    else if(cat==='bank') D.bank[k].push({date:tdate,ait:it.ait||'',poso:amt});
     else if(cat==='d15') D.d15[k].push({cod:'',prom:it.prom||'',iban:it.iban||'',synolo:amt,liosia:isLou?0:amt,loutraki:isLou?amt:0});
     else if(cat==='telos') D.telos[k].push({kat:'',cod:'',iban:it.iban||'',name:it.name||'',synolo:amt,liosia:isLou?0:amt,loutraki:isLou?amt:0});
     n++;
@@ -3420,6 +3489,77 @@ function renderStats(){
   renderHistChart(activeYears,HISTL);
   const sorted=[...HISTL].sort((a,b)=>b.year!==a.year?b.year.localeCompare(a.year):b.month-a.month);
   document.getElementById('histBody').innerHTML=sorted.map(r=>{const prev=HISTL.find(x=>x.year===String(parseInt(r.year)-1)&&x.month===r.month);const d=prev?((r.total-prev.total)/prev.total*100):null;return`<tr><td><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${COL[r.year]};margin-right:6px;"></span>${MS[r.month]} ${r.year}</td><td class="num">${r.work_days}</td><td class="num">${fmt(r.total)}</td><td class="num">${r.avg_day.toLocaleString('el-GR')}€</td><td class="${d===null?'num':d>=0?'pos':'neg'}">${d===null?'—':(d>=0?'▲':'▼')+Math.abs(d).toFixed(1)+'%'}</td></tr>`;}).join('');
+}
+
+// ===== ΙΣΤΟΡΙΚΟ ΕΙΣΠΡΑΞΕΩΝ-ΠΩΛΗΣΕΩΝ (πωλήσεις ταμείου + εισπράξεις εμβασμάτων/τράπεζας) — store-aware =====
+var _rsLoaded=false, _rsChartInst=null;
+function recvSalesFor(yr,m){
+  var key=MONTHS_EL[m-1]+'_'+yr;
+  var lh=liveHistFor(yr,m);                                   // ζωντανές καθαρές πωλήσεις (αν υπάρχουν days)
+  var hist=curHist().find(function(h){return h.year===String(yr)&&h.month===m;});
+  var sales = lh ? lh.total : (hist?hist.total:0);
+  var eisp=(D&&D.trapEisp&&D.trapEisp[key])||[];              // εισπράξεις εμβάσματα/τράπεζα (τρέχον store)
+  var recv=Math.round(eisp.reduce(function(s,r){return s+(r.poso||0);},0));
+  sales=Math.round(sales||0);
+  if(!sales && !recv) return null;
+  return {year:String(yr), month:m, sales:sales, recv:recv, total:sales+recv};
+}
+function recvSalesAll(){
+  var arr=[], _yMax=Math.max(2027,new Date().getFullYear());
+  for(var y=2023;y<=_yMax;y++){ for(var m=1;m<=12;m++){ var r=recvSalesFor(y,m); if(r)arr.push(r); } }
+  return arr;
+}
+function renderRSChart(activeYears,RS){
+  var cv=document.getElementById('rsCanvas'), host=document.getElementById('rsChart');
+  if(!cv||!host) return;
+  if(typeof Chart==='undefined'){ host.innerHTML='<div class="empty-state"><div class="ico">📊</div><div class="txt">Φόρτωση γραφήματος…</div></div>'; return; }
+  if(!document.getElementById('rsCanvas')){ host.innerHTML='<canvas id="rsCanvas"></canvas>'; }
+  var labels=[1,2,3,4,5,6,7,8,9,10,11,12].map(function(m){return MS[m];});
+  var datasets=activeYears.map(function(yr){
+    return { label:yr,
+      data:[1,2,3,4,5,6,7,8,9,10,11,12].map(function(m){var r=RS.find(function(x){return x.year===yr&&x.month===m;});return r?Math.round(r.total):null;}),
+      backgroundColor:COL[yr]||'#888', borderRadius:5, borderSkipped:false, maxBarThickness:20, categoryPercentage:0.78, barPercentage:0.92 };
+  });
+  var css=getComputedStyle(document.documentElement), muted=(css.getPropertyValue('--muted')||'#8493ad').trim(), grid='rgba(255,255,255,.06)';
+  if(_rsChartInst){ try{_rsChartInst.destroy();}catch(e){} _rsChartInst=null; }
+  _rsChartInst=new Chart(document.getElementById('rsCanvas'),{
+    type:'bar', data:{labels:labels,datasets:datasets},
+    options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{position:'top',labels:{color:muted,boxWidth:12,boxHeight:12,usePointStyle:true,pointStyle:'rectRounded',font:{size:11,weight:'700'}}},
+        tooltip:{ backgroundColor:'rgba(14,22,38,.96)',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#fff',bodyColor:'#cdd6e6',padding:10,cornerRadius:8,
+          callbacks:{label:function(ctx){return ctx.dataset.label+': '+fmt(ctx.parsed.y);}} } },
+      scales:{ x:{grid:{display:false},ticks:{color:muted,font:{size:10}}}, y:{grid:{color:grid},ticks:{color:muted,font:{size:10},callback:function(v){return (v/1000)+'k';}},beginAtZero:true} },
+      animation:{duration:700,easing:'easeOutQuart'} }
+  });
+}
+async function renderRecvSales(){
+  var body=document.getElementById('rsBody');
+  if(!_rsLoaded){
+    if(body)body.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:18px;">Φόρτωση ιστορικών εισπράξεων…</td></tr>';
+    try{ await preloadAllMonths(); }catch(e){}
+    _rsLoaded=true;
+  }
+  var curYear=String(new Date().getFullYear());
+  var allYears=['2023','2024','2025','2026','2027'];
+  var RS=recvSalesAll();
+  var activeYears=allYears.filter(function(yr){return RS.some(function(x){return x.year===yr&&x.total>0;});});
+  if(!activeYears.includes(curYear)) activeYears.push(curYear);
+  var yt={}; activeYears.forEach(function(yr){ yt[yr]=RS.filter(function(r){return r.year===yr;}).reduce(function(s,r){return s+r.total;},0); });
+  document.getElementById('rsKpis').innerHTML=activeYears.map(function(yr){
+    var tot=yt[yr], prevYr=String(parseInt(yr)-1), d=null;
+    if(yt[prevYr]) d=(tot-yt[prevYr])/yt[prevYr]*100;
+    var pct=d!==null?'<div class="ks" style="color:'+(d>=0?'var(--green)':'var(--red)')+'">'+(d>=0?'▲':'▼')+Math.abs(d).toFixed(1)+'% vs πέρσι</div>':'';
+    return '<div class="kpi" style="border-top:2px solid '+(COL[yr]||'#888')+'!important"><div class="kl">'+yr+(yr===curYear?' (εως τωρα)':'')+'</div><div class="kv">'+fmt(tot)+'</div>'+pct+'</div>';
+  }).join('');
+  renderRSChart(activeYears,RS);
+  var sorted=RS.slice().sort(function(a,b){return b.year!==a.year?b.year.localeCompare(a.year):b.month-a.month;});
+  document.getElementById('rsBody').innerHTML=sorted.map(function(r){
+    var prev=RS.find(function(x){return x.year===String(parseInt(r.year)-1)&&x.month===r.month;});
+    var d=prev&&prev.total?((r.total-prev.total)/prev.total*100):null;
+    return '<tr><td><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+(COL[r.year]||'#888')+';margin-right:6px;"></span>'+MS[r.month]+' '+r.year+'</td>'
+      +'<td class="num">'+fmt(r.sales)+'</td><td class="num">'+fmt(r.recv)+'</td><td class="num acc">'+fmt(r.total)+'</td>'
+      +'<td class="'+(d===null?'num':d>=0?'pos':'neg')+'">'+(d===null?'—':(d>=0?'▲':'▼')+Math.abs(d).toFixed(1)+'%')+'</td></tr>';
+  }).join('');
 }
 
 // ΚΑΝΟΝΕΣ
@@ -3886,6 +4026,7 @@ async function initApp(){
   document.querySelector('.btn-add').textContent='ΚΑΤΑΧΩΡΗΣΗ';
   renderAll();renderEpit();runRules();
   setGreeting();
+  prefillDates();   // σημερινή ημ/νία στα date πεδία
   renderDashboard();   // γέμισε την αρχική (default active panel)
 }
 function setGreeting(){
