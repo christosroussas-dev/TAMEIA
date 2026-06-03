@@ -1951,13 +1951,15 @@ function refreshActiveTab(){
   const id=activePanel.id.replace('tab-','');
   if(id==='dashboard') renderDashboard();
   else if(id==='stats'){
-    // Ανανέωσε το ενεργό sub-tab
-    const activeSub=['overview','cashflow','compare'].find(s=>{
+    // Ανανέωσε το ΕΝΕΡΓΟ sub-tab (συμπεριλαμβανομένων analysis & recv — αλλιώς στην αλλαγή καταστήματος έμεναν stale)
+    const activeSub=['overview','cashflow','compare','analysis','recv'].find(s=>{
       const p=document.getElementById('st-panel-'+s);
       return p&&p.style.display!=='none';
     })||'overview';
     if(activeSub==='cashflow') renderCashFlow();
     else if(activeSub==='compare') renderCompare();
+    else if(activeSub==='analysis') renderAnalysis();
+    else if(activeSub==='recv') renderRecvSales();
     else renderStats();
   }
   else if(id==='alerts') runRules();
@@ -4104,7 +4106,8 @@ async function preloadAllMonths(){
   const _pyMax=Math.max(2027,new Date().getFullYear());const years=[];for(let _y=2023;_y<=_pyMax;_y++)years.push(String(_y));const toLoad=[];
   years.forEach(yr=>{MONTHS_EL.forEach(mn=>{const k=mn+'_'+yr;
     if(k===CM) return; // παράλειψε τον τρέχοντα μήνα — έχει ήδη φορτωθεί
-    if(!D.days[k]||D.days[k].length===0)toLoad.push(k);
+    // φόρτωσε αν λείπουν days Ή αν λείπει το trapEisp (π.χ. prev-month φορτωμένος μόνο με days για carry)
+    if(!D.days[k]||D.days[k].length===0||D.trapEisp[k]===undefined)toLoad.push(k);
   });});
   for(let i=0;i<toLoad.length;i+=3){
     const batch=toLoad.slice(i,i+3);
@@ -4121,6 +4124,7 @@ async function preloadAllMonths(){
           if(j.data.telos) Object.assign(D.telos,j.data.telos);
         }
       }catch(e){}
+      if(D.trapEisp[k]===undefined) D.trapEisp[k]=[];   // mark «ελέγχθηκε» (κενό αν ο μήνας δεν έχει εισπράξεις) → δεν ξαναφορτώνεται
     }));
   }
 }
