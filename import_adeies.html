@@ -1,0 +1,152 @@
+<!doctype html><html lang="el"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Εισαγωγή Αδειών — ΑΦΟΙ ΡΟΥΣΣΑ</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<style>
+:root{--bg:#070d1a;--bg2:#0e1626;--bg3:#16203a;--border2:#2a3a5a;--text:#eef2fb;--muted:#8493ad;--accent:#22c55e;--blue:#4d9fff;--red:#e05555;--yellow:#e0b84b;--sans:'IBM Plex Sans',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);padding:28px;font-size:14px;}
+h1{font-size:22px;font-weight:800;margin-bottom:4px;}
+.sub{color:var(--muted);margin-bottom:22px;}
+.box{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:20px;max-width:920px;margin:0 auto 16px;}
+label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px;}
+input,select{background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:11px 13px;border-radius:9px;font-size:15px;font-family:var(--sans);width:100%;}
+.row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;}.row>div{flex:1;min-width:200px;}
+button{background:linear-gradient(135deg,var(--accent),#16a34a);color:#04210f;border:none;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;}
+button.sec{background:var(--bg3);color:var(--text);border:1px solid var(--border2);}
+button:disabled{opacity:.5;cursor:not-allowed;}
+.msg{padding:10px 14px;border-radius:9px;margin-top:10px;font-size:13px;}
+.msg.ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#bff5dc;}
+.msg.err{background:rgba(224,85,85,.1);border:1px solid rgba(224,85,85,.3);color:#ffc9c9;}
+.msg.warn{background:rgba(224,184,75,.1);border:1px solid rgba(224,184,75,.3);color:#f0e2bb;}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+th{font-size:10px;text-transform:uppercase;color:var(--muted);text-align:left;padding:7px 10px;border-bottom:1px solid var(--border2);}
+td{padding:7px 10px;border-bottom:1px solid #1d2942;font-size:13px;}
+.yh{font-size:15px;font-weight:800;color:var(--accent);margin:16px 0 4px;}
+.hidden{display:none;}
+.pill{font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;background:rgba(77,159,255,.15);color:var(--blue);}
+</style></head>
+<body>
+<h1>📥 Εισαγωγή Αδειών Προσωπικού</h1>
+<div class="sub">ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε. — γράφει στο Firestore <code>personnel/{ΚΑΤΑΣΤΗΜΑ}_{ΕΤΟΣ}</code>. Login ADMIN απαιτείται.</div>
+
+<div class="box" id="loginBox">
+  <div class="yh">🔐 Σύνδεση ADMIN</div>
+  <div class="row"><div><label>Email</label><input id="em" type="email" placeholder="christosroussas@gmail.com"></div><div><label>Κωδικός</label><input id="pw" type="password"></div></div>
+  <button onclick="login()">Σύνδεση</button>
+  <div id="loginMsg"></div>
+</div>
+
+<div class="box hidden" id="mainBox">
+  <div class="yh">1️⃣ Επιλογή & Αρχείο</div>
+  <div class="row">
+    <div><label>Κατάστημα</label><select id="store"><option value="LOUTRAKI">🌊 ΛΟΥΤΡΑΚΙ</option><option value="LIOSIA">📍 ΛΙΟΣΙΑ</option></select></div>
+    <div><label>Excel αδειών (.xlsx)</label><input id="file" type="file" accept=".xlsx,.xls"></div>
+  </div>
+  <button class="sec" onclick="readExcel()">📖 Διάβασε &amp; Προεπισκόπηση</button>
+  <span style="margin-left:8px;color:var(--muted);font-size:12px">Συνδεδεμένος: <b id="who"></b></span>
+  <div id="readMsg"></div>
+</div>
+
+<div class="box hidden" id="previewBox">
+  <div class="yh">2️⃣ Προεπισκόπηση</div>
+  <div id="valMsg"></div>
+  <div id="preview"></div>
+  <div style="margin-top:16px;border-top:1px solid var(--border2);padding-top:16px;">
+    <button id="impBtn" onclick="doImport()">🚀 Εισαγωγή στο Firestore</button>
+    <span style="margin-left:10px;color:var(--muted);font-size:12px">⚠️ Αντικαθιστά τα υπάρχοντα δεδομένα αδειών του καταστήματος για τα έτη του Excel.</span>
+    <div id="impMsg"></div>
+  </div>
+</div>
+
+<script>
+var cfg={apiKey:"AIzaSyDvE-jXUzjvmSertOZ2xI-pnMw76S6L2Vc",authDomain:"tameio-afoi-roussa.firebaseapp.com",projectId:"tameio-afoi-roussa",storageBucket:"tameio-afoi-roussa.firebasestorage.app",messagingSenderId:"65747757533",appId:"1:65747757533:web:9dc1d7ee46efbf6c67ee34"};
+firebase.initializeApp(cfg); var auth=firebase.auth(), db=firebase.firestore();
+var PARSED=null, USER=null;
+function $(id){return document.getElementById(id);}
+function login(){
+  $('loginMsg').innerHTML='<div class="msg">Σύνδεση…</div>';
+  auth.signInWithEmailAndPassword($('em').value.trim(),$('pw').value).then(function(c){
+    USER=c.user;
+    if(USER.email!=='christosroussas@gmail.com'){ $('loginMsg').innerHTML='<div class="msg warn">Συνδέθηκες ως '+USER.email+' (όχι ADMIN). Η εισαγωγή ίσως αποτύχει από τους κανόνες.</div>'; }
+    $('loginBox').classList.add('hidden'); $('mainBox').classList.remove('hidden'); $('who').textContent=USER.email;
+  }).catch(function(e){ $('loginMsg').innerHTML='<div class="msg err">Λάθος: '+e.message+'</div>'; });
+}
+function noTone(s){return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");}
+function cstr(v){ if(v==null)return ""; if(v instanceof Date){var p=function(x){return String(x).padStart(2,'0');};return p(v.getDate())+'/'+p(v.getMonth()+1)+'/'+v.getFullYear();} return String(v).trim(); }
+function parseSheet(rows){
+  var hdr=-1,colMA=-1;
+  for(var r=0;r<Math.min(rows.length,8);r++){var row=rows[r]||[];for(var c=0;c<row.length;c++){var v=cstr(row[c]);if(/Ημ\/?νια/i.test(v))hdr=r;if(/^Μ\.?Α$/i.test(v))colMA=c;}if(hdr>-1)break;}
+  if(hdr<0)return [];
+  if(colMA<0){var row=rows[hdr]||[];for(var c=0;c<row.length;c++){if(/^Μ\.?Α$/i.test(cstr(row[c])))colMA=c;}}
+  if(colMA<0)colMA=0;
+  var colName=colMA+1,colPair=colMA+2,emps=[],last=null;
+  for(var r=hdr+1;r<rows.length;r++){
+    var row=rows[r]||[];var name=cstr(row[colName]);var ent=row[colMA];var items=[];
+    for(var c=colPair;c<row.length;c+=2){
+      var dt=cstr(row[c]);var dys=row[c+1];
+      if(!dt)continue;
+      if(noTone(dt).indexOf("υπολοιπ")>-1)break;
+      if(noTone(dt).indexOf("απο ")===0)continue;
+      items.push({date:dt,days:Number(dys)||0});
+    }
+    if(name){last={name:name,entitle:parseInt(ent)||null,items:items};emps.push(last);}
+    else if(last&&items.length){last.items.push.apply(last.items,items);}
+  }
+  return emps;
+}
+function readExcel(){
+  var f=$('file').files[0]; if(!f){ $('readMsg').innerHTML='<div class="msg err">Διάλεξε αρχείο Excel.</div>'; return; }
+  var rd=new FileReader();
+  rd.onload=function(e){
+    try{
+      var wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
+      var out={};
+      wb.SheetNames.forEach(function(nm){ if(!/^20\d\d$/.test(nm.trim()))return; var rows=XLSX.utils.sheet_to_json(wb.Sheets[nm],{header:1,raw:false,defval:""}); out[nm.trim()]=parseSheet(rows); });
+      PARSED=out;
+      renderPreview(out);
+      $('readMsg').innerHTML='<div class="msg ok">✓ Διαβάστηκε. Έτη: '+Object.keys(out).join(', ')+'</div>';
+      $('previewBox').classList.remove('hidden');
+    }catch(err){ $('readMsg').innerHTML='<div class="msg err">Σφάλμα ανάγνωσης: '+err.message+'</div>'; }
+  };
+  rd.readAsArrayBuffer(f);
+}
+function renderPreview(out){
+  var warns=[],html='';
+  Object.keys(out).sort().forEach(function(yr){
+    var emps=out[yr];
+    html+='<div class="yh">'+yr+' — '+emps.length+' εργαζόμενοι</div><table><thead><tr><th>Όνομα</th><th>Μ.Α</th><th>Άδειες</th><th>Πήρε</th><th>Υπόλοιπο</th></tr></thead><tbody>';
+    var seen={};
+    emps.forEach(function(e){
+      var t=(e.items||[]).reduce(function(s,i){return s+(i.days||0);},0);
+      var rem=e.entitle!=null?e.entitle-t:null;
+      if(!e.name)warns.push(yr+': εργαζόμενος χωρίς όνομα');
+      if(seen[e.name])warns.push(yr+': διπλό όνομα «'+e.name+'»'); seen[e.name]=1;
+      if(rem!=null&&rem<0)warns.push(yr+': «'+e.name+'» υπέρβαση ('+t+'/'+e.entitle+')');
+      (e.items||[]).forEach(function(it){if(it.days<0)warns.push(yr+': «'+e.name+'» αρνητικές μέρες');});
+      html+='<tr><td><b>'+(e.name||'—')+'</b></td><td>'+(e.entitle!=null?e.entitle:'<span class="pill">χωρίς</span>')+'</td><td>'+(e.items||[]).length+'</td><td>'+t+'</td><td style="color:'+(rem==null?'var(--muted)':rem<0?'var(--red)':'var(--accent)')+'">'+(rem!=null?rem:'—')+'</td></tr>';
+    });
+    html+='</tbody></table>';
+  });
+  $('preview').innerHTML=html;
+  $('valMsg').innerHTML = warns.length? '<div class="msg warn">⚠ '+warns.length+' προειδοποιήσεις:<br>'+warns.slice(0,12).join('<br>')+(warns.length>12?'<br>…':'')+'</div>' : '<div class="msg ok">✓ Καμία προειδοποίηση — καθαρά δεδομένα.</div>';
+}
+function doImport(){
+  if(!PARSED){return;}
+  var store=$('store').value;
+  $('impBtn').disabled=true; $('impMsg').innerHTML='<div class="msg">Εισαγωγή…</div>';
+  var years=Object.keys(PARSED), jobs=[], cnt=0;
+  years.forEach(function(yr){ var emps=PARSED[yr]; cnt+=emps.length; jobs.push(db.collection('personnel').doc(store+'_'+yr).set({emps:emps})); });
+  Promise.all(jobs).then(function(){
+    // log εισαγωγής
+    return db.collection('leaveImports').add({ts:firebase.firestore.FieldValue.serverTimestamp(),store:store,by:(USER&&USER.email)||'',years:years,employees:cnt,file:($('file').files[0]||{}).name||''});
+  }).then(function(){
+    $('impMsg').innerHTML='<div class="msg ok">✅ Επιτυχία! Εισήχθησαν '+cnt+' εγγραφές εργαζομένων σε '+years.length+' έτη ('+store+'). Άνοιξε την εφαρμογή → 👥 ΠΡΟΣΩΠΙΚΟ.</div>';
+  }).catch(function(e){ $('impMsg').innerHTML='<div class="msg err">❌ Σφάλμα εισαγωγής: '+e.message+' (έλεγξε Firestore rules για personnel/leaveImports).</div>'; $('impBtn').disabled=false; });
+}
+</script>
+</body></html>
