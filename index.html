@@ -431,6 +431,33 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
   .pp-kpi,.pp-side,.pp-alert,#ppBody tr,.active-store-bar .asb-icon,.asb-dot,.pp-side .who-dot,.pp-avatar::after,.pp-usebar>i::after,.pp-usebar>i{animation:none !important;transition:none !important;}
 }
 
+/* ── On-leave banner (right panel) & table chip — v64 ── */
+.pp-on-leave{position:relative;background:linear-gradient(135deg,rgba(245,158,11,.16),rgba(245,158,11,.04));border:1px solid rgba(245,158,11,.42);border-radius:12px;padding:12px 14px;margin-bottom:14px;text-align:center;animation:pp-fadein .3s var(--ease);overflow:hidden;}
+.pp-on-leave::before{content:"";position:absolute;left:-30%;top:-50%;width:80%;height:200%;background:radial-gradient(ellipse at center,rgba(245,158,11,.3),transparent 65%);opacity:.4;pointer-events:none;filter:blur(8px);}
+.pp-on-leave .ttl{font-size:10.5px;font-weight:800;letter-spacing:.08em;color:#f59e0b;margin-bottom:5px;position:relative;text-transform:uppercase;}
+.pp-on-leave .ttl::before{content:"🌴 ";font-size:13px;}
+.pp-on-leave .big{display:flex;align-items:baseline;justify-content:center;gap:6px;position:relative;}
+.pp-on-leave .big .n{font-size:30px;font-weight:900;color:#f59e0b;font-variant-numeric:tabular-nums;line-height:1;text-shadow:0 2px 8px rgba(245,158,11,.45);}
+.pp-on-leave .big .u{font-size:12px;color:#fce5b8;font-weight:700;}
+.pp-on-leave .sub{font-size:11.5px;color:#fce5b8;margin-top:5px;position:relative;line-height:1.4;}
+.pp-on-leave .sub b{color:#ffd589;font-weight:800;}
+.pp-on-leave .rng{font-size:10px;color:rgba(252,229,184,.7);margin-top:3px;position:relative;font-family:var(--mono);}
+.pp-lvchip{display:inline-flex;align-items:center;gap:3px;margin-left:8px;font-size:10px;font-weight:800;padding:2px 8px;border-radius:11px;background:linear-gradient(135deg,rgba(245,158,11,.22),rgba(245,158,11,.1));color:#f59e0b;border:1px solid rgba(245,158,11,.45);box-shadow:0 0 8px rgba(245,158,11,.15);white-space:nowrap;animation:pp-dot-pulse 2.4s infinite;cursor:default;}
+.pp-lvchip::before{content:"🌴";font-size:10px;}
+
+/* ── Premium add-leave modal — v64 ── */
+.pp-lv-modal .pp-lv-form{display:flex;flex-direction:column;gap:14px;}
+.pp-lv-modal .pp-lv-row{display:flex;gap:10px;}
+.pp-lv-modal .pp-lv-fld{flex:1;}
+.pp-lv-modal label.fl{display:block;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;font-weight:700;}
+.pp-lv-modal input.fi{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:10px 12px;border-radius:9px;font-size:14px;font-weight:700;font-family:var(--sans);transition:border-color .2s,box-shadow .2s;}
+.pp-lv-modal input.fi:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg-soft);}
+.pp-lv-modal input.fi.big{font-size:18px;font-weight:900;text-align:center;color:var(--accent);}
+.pp-lv-modal .pp-lv-auto{font-size:11px;color:var(--muted);margin-top:4px;text-align:center;}
+.pp-lv-modal .pp-lv-auto b{color:var(--accent);font-weight:800;}
+.pp-lv-modal .pp-lv-info{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;color:#bff5dc;}
+.pp-lv-modal .pp-lv-range-info{background:rgba(77,159,255,.08);border:1px solid rgba(77,159,255,.3);border-radius:10px;padding:9px 12px;font-size:11.5px;color:#cfe3ff;text-align:center;font-weight:600;}
+
 /* ── Mobile refinements ── */
 @media(max-width:760px){
   .pp-kpis{grid-template-columns:repeat(2,1fr);gap:10px;}
@@ -1440,7 +1467,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
     <div class="right">
       <select class="pp-sel pp-tip" id="ppYear" onchange="loadPersonnel()" data-tip="Έτος αδειών"><option>2022</option><option>2023</option><option>2024</option><option>2025</option><option selected>2026</option><option>2027</option></select>
       <button class="btn-add pp-tip" style="margin:0;" onclick="ppAddEmp()" data-tip="Προσθήκη νέου εργαζομένου στο ενεργό κατάστημα">➕ Νέος εργαζόμενος</button>
-      <button class="btn-add pp-tip" style="margin:0;background:linear-gradient(135deg,#4d9fff,#2f7fe6);box-shadow:none;" onclick="ppImportInfo()" data-tip="Εισαγωγή αδειών από αρχείο Excel">📥 Εισαγωγή Excel</button>
+      <button class="btn-add pp-tip" style="margin:0;background:linear-gradient(135deg,#4d9fff,#2f7fe6);box-shadow:none;" onclick="openExLvModal()" data-tip="Εξαγωγή αδειών σε Excel (για αποστολή στη λογίστρια)">📥 Εξαγωγή Αδειών</button>
       <span class="pp-adminbadge pp-tip" data-tip="Η ενότητα είναι ορατή μόνο σε διαχειριστές">🔒 Μόνο Admin</span>
     </div>
   </div>
@@ -1533,6 +1560,81 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
     <div class="ui-modal-actions">
       <button class="ui-modal-btn ghost" onclick="closeAuditPurge()">Άκυρο</button>
       <button class="ui-modal-btn danger" id="apOk" onclick="doAuditPurge()">Διαγραφή</button>
+    </div>
+  </div>
+</div>
+
+<!-- Εξαγωγή Αδειών σε Excel (για λογιστή) -->
+<div id="exLvModal" class="ui-modal-overlay">
+  <div class="ui-modal" style="max-width:520px;">
+    <div class="ui-modal-title">📥 Εξαγωγή Αδειών — Excel για Λογιστή</div>
+    <div class="ui-modal-msg" style="text-align:left;">
+      <div style="background:rgba(77,159,255,.08);border:1px solid rgba(77,159,255,.25);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12.5px;line-height:1.55;">
+        📋 Παράγει επαγγελματικό Excel με <b>brand ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε.</b> και τον τίτλο ενεργού <b>καταστήματος</b> ώστε να ξεχωρίζει.
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Κατάστημα</div>
+        <div id="exLvStore" style="font-weight:800;font-size:15px;color:var(--accent);">📍 ΑΝΩ ΛΙΟΣΙΑ</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:14px;">
+        <div style="flex:1;">
+          <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Μήνας</div>
+          <select id="exLvMonth" class="pp-sel" style="width:100%;"></select>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Έτος</div>
+          <select id="exLvYear" class="pp-sel" style="width:100%;"></select>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Εύρος αναφοράς</div>
+        <div style="display:flex;gap:8px;">
+          <label class="exlv-opt" style="flex:1;padding:10px 11px;border:1px solid var(--accent-line);border-radius:9px;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;background:var(--accent-bg-soft);">
+            <input type="radio" name="exLvScope" value="month" checked style="accent-color:var(--accent);"> 📆 Μόνο τον μήνα
+          </label>
+          <label class="exlv-opt" style="flex:1;padding:10px 11px;border:1px solid var(--border2);border-radius:9px;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;">
+            <input type="radio" name="exLvScope" value="year" style="accent-color:var(--accent);"> 📅 Όλο το έτος
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="ui-modal-actions">
+      <button class="ui-modal-btn ghost" onclick="closeExLvModal()">Άκυρο</button>
+      <button class="ui-modal-btn primary" id="exLvOk" onclick="doExportLeaves()">📥 Κατέβασμα Excel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Καταχώρηση Άδειας — premium modal (v64, αντικαθιστά τα prompt) -->
+<div id="ppLvAddModal" class="ui-modal-overlay pp-lv-modal">
+  <div class="ui-modal" style="max-width:480px;">
+    <div class="ui-modal-title">➕ Νέα Άδεια <span style="color:var(--accent);font-weight:800;"> · <span id="ppLvName">—</span></span></div>
+    <div class="ui-modal-msg" style="text-align:left;">
+      <div class="pp-lv-form">
+        <div class="pp-lv-info">
+          📅 Επίλεξε ΑΠΟ/ΕΩΣ — οι εργάσιμες ημέρες υπολογίζονται αυτόματα (εξαιρώντας Κυριακές + ελληνικές αργίες). Μπορείς να τις διορθώσεις χειροκίνητα.
+        </div>
+        <div class="pp-lv-row">
+          <div class="pp-lv-fld">
+            <label class="fl">📅 Από</label>
+            <input id="ppLvFrom" type="date" class="fi" oninput="ppLvRecalc()">
+          </div>
+          <div class="pp-lv-fld">
+            <label class="fl">🏁 Έως</label>
+            <input id="ppLvTo" type="date" class="fi" oninput="ppLvRecalc()">
+          </div>
+        </div>
+        <div class="pp-lv-range-info" id="ppLvRangeInfo">— Επίλεξε ημερομηνίες —</div>
+        <div class="pp-lv-fld">
+          <label class="fl">Ημέρες άδειας (εργάσιμες)</label>
+          <input id="ppLvDays" type="number" min="0" step="1" class="fi big">
+          <div class="pp-lv-auto">Αυτόματος υπολογισμός: <b id="ppLvAutoN">0</b> εργάσιμες ημέρες (Κυρ/αργίες εξαιρούνται)</div>
+        </div>
+      </div>
+    </div>
+    <div class="ui-modal-actions">
+      <button class="ui-modal-btn ghost" onclick="closePpLvAdd()">Άκυρο</button>
+      <button class="ui-modal-btn primary" id="ppLvOk" onclick="confirmPpLvAdd()">➕ Καταχώρηση</button>
     </div>
   </div>
 </div>
@@ -4412,7 +4514,9 @@ function renderPersonnel(){
     var dcell=function(iso){return iso?'<span style="font-family:var(--mono);font-size:11.5px;color:var(--text)">'+ppFmt(iso)+'</span>':'<span style="color:var(--muted)">–</span>';};
     var selCls=(_ppSel.store===e._store&&_ppSel.idx===e._idx)?'pp-row-sel':'';
     var sel=' class="'+selCls+'" style="cursor:pointer"';
-    var av='<span class="pp-emp"><span class="av">'+((e.name||'?').charAt(0).toUpperCase())+'</span><span style="font-weight:700">'+(e.name||'—')+'</span></span>';
+    var cur=ppCurrentLeave(e,parseInt(yr));
+    var lvchip=cur?(' <span class="pp-lvchip pp-tip" data-tip="Επιστρέφει '+cur.returnDow+' '+cur.returnDate+'">'+cur.daysUntilReturn+' ημ.</span>'):'';
+    var av='<span class="pp-emp"><span class="av">'+((e.name||'?').charAt(0).toUpperCase())+'</span><span style="font-weight:700">'+(e.name||'—')+'</span>'+lvchip+'</span>';
     return '<tr'+sel+' onclick="ppSelectEmp(\''+e._store+'\','+e._idx+')"><td class="num" style="color:var(--muted)">'+gi+'</td><td>'+av+'</td><td>'+sb+'</td><td class="num">'+(e.entitle!=null?e.entitle:'–')+'</td><td class="num">'+t+'</td><td class="num"><span class="pp-rem" style="color:'+remc+'">'+(rem!=null?rem:'—')+'</span></td><td><div style="display:flex;align-items:center;gap:7px"><div class="pp-usebar"><i style="width:'+up+'%;background:'+upc+'"></i></div><span style="font-size:11px;color:'+upc+';font-weight:700;min-width:30px">'+up+'%</span></div></td><td>'+dcell(ln.last)+'</td><td>'+dcell(ln.next)+'</td><td><span class="pp-badge pp-'+st[0]+'">'+st[1]+'</span></td></tr>';
   }).join('');
   // pagination
@@ -4536,9 +4640,19 @@ function ppRenderSide(){
   var barc=rem==null?'var(--muted)':rem<=0?'var(--red)':rem<5?'#f59e0b':'var(--accent)';
   var ln=ppLastNext(e);
   var hire=e.hireDate?ppFmt(e.hireDate):'—';
+  var cur=ppCurrentLeave(e,parseInt(yr));
+  var leaveBanner=cur?(
+    '<div class="pp-on-leave">'+
+      '<div class="ttl">ΣΕ ΑΔΕΙΑ ΤΩΡΑ</div>'+
+      '<div class="big"><span class="n">'+cur.daysUntilReturn+'</span><span class="u">'+(cur.daysUntilReturn===1?'ημέρα':'ημέρες')+' μέχρι την επιστροφή</span></div>'+
+      '<div class="sub">📅 Επιστρέφει: <b>'+cur.returnDow+', '+cur.returnDate+'</b></div>'+
+      '<div class="rng">Άδεια: '+ppFmt(cur.from)+' → '+ppFmt(cur.to)+' ('+cur.leaveDays+' ημ.)</div>'+
+    '</div>'
+  ):'';
   side.innerHTML='<div class="ttl" style="display:flex;justify-content:space-between;align-items:center">Στοιχεία Εργαζομένου<button onclick="ppDeselect()" title="Κλείσιμο" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;line-height:1">✕</button></div>'+
+    leaveBanner+
     '<div class="pp-avatar">'+((e.name||'?').charAt(0).toUpperCase())+'</div>'+
-    '<div class="who"><span class="who-dot" title="Ενεργός"></span><span class="who-name">'+(e.name||'—')+'</span></div>'+
+    '<div class="who"><span class="who-dot" title="'+(cur?'Σε άδεια':'Ενεργός')+'"'+(cur?' style="background:#f59e0b;color:#f59e0b"':'')+'></span><span class="who-name">'+(e.name||'—')+'</span></div>'+
     '<div class="where">'+((STORES[_ppSel.store]||{}).icon||'')+' '+((STORES[_ppSel.store]||{}).full||_ppSel.store)+'</div>'+
     '<div class="pp-kv"><span>Ημ/νία πρόσληψης</span><b style="font-family:var(--mono);cursor:pointer" onclick="ppSetHire('+_ppSel.idx+')" title="Κλικ για ορισμό">'+hire+' ✎</b></div>'+
     '<div class="pp-kv"><span>Δικαιούμενες ημέρες</span><b>'+(e.entitle!=null?e.entitle:'—')+'</b></div>'+
@@ -4551,7 +4665,7 @@ function ppRenderSide(){
     (rem!=null&&rem<=0?'<div style="margin-top:8px;padding:8px 10px;border-radius:8px;background:rgba(224,85,85,.1);border:1px solid rgba(224,85,85,.3);color:#ffc9c9;font-size:11.5px">⚠️ Έχει εξαντλήσει τις άδειές του</div>':(rem!=null&&rem<5?'<div style="margin-top:8px;padding:8px 10px;border-radius:8px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:#f0e2bb;font-size:11.5px">⚠️ Λίγες μέρες υπόλοιπο ('+rem+')</div>':''))+
     '<h4>Ιστορικό αδειών ('+(e.items||[]).length+')</h4>'+
     ((e.items||[]).length?(e.items||[]).map(function(it,j){var dlbl=(it.from&&it.to&&it.from!==it.to)?(ppFmt(it.from)+' → '+ppFmt(it.to)):(it.date?ppFmt(it.date):'—'); return '<div class="pp-lv"><div class="top"><span>🗓️ '+dlbl+'</span><button class="btn-del" onclick="event.stopPropagation();ppDelLeave('+_ppSel.idx+','+j+')" title="Διαγραφή">✕</button></div><div class="bot"><span>'+(it.days||0)+' ημέρες</span><span class="ok">✓ Ολοκληρωμένη</span></div></div>';}).join(''):'<div style="font-size:12px;color:var(--muted);padding:6px 0">Καμία άδεια ακόμα</div>')+
-    '<button class="addbtn" style="width:100%;background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.4);color:var(--accent);padding:11px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer;margin-top:8px" onclick="ppAddLeave('+_ppSel.idx+')">➕ Νέα Άδεια</button>'+
+    '<button class="addbtn" style="width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#04101f;padding:12px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer;margin-top:8px;box-shadow:0 6px 18px -6px var(--accent-bg-soft);" onclick="openPpLvAdd('+_ppSel.idx+')">➕ Νέα Άδεια</button>'+
     '<button class="addbtn" style="width:100%;background:transparent;border:1px solid var(--border2);color:var(--muted);padding:9px;border-radius:10px;font-weight:700;font-size:11px;cursor:pointer;margin-top:6px" onclick="ppDelEmp('+_ppSel.idx+')">🗑️ Διαγραφή εργαζόμενου</button>';
 }
 function ppSetHire(idx){ var store=_ppSel.store, yr=ppYearVal(), e=(PPDATA[store+'_'+yr]||[])[idx]; if(!e)return; var v=prompt('Ημ/νία πρόσληψης (ηη/μμ/εεεε):', e.hireDate?ppFmt(e.hireDate):''); if(v===null)return; var iso=ppToISO(v); e.hireDate=iso||''; fbSavePersonnel(store,yr); renderPersonnel(); }
@@ -4658,6 +4772,393 @@ function ppFmt(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso||'')); ret
 async function ppDelLeave(empIdx,itemIdx){ var store=_ppSel.store, yr=ppYearVal(), e=(PPDATA[store+'_'+yr]||[])[empIdx]; if(!e||!e.items)return; if(!(await confirmDel('Διαγραφή άδειας: '+((e.items[itemIdx]||{}).date||'')+' ('+((e.items[itemIdx]||{}).days||0)+' ημ.);')))return; e.items.splice(itemIdx,1); fbSavePersonnel(store,yr); logAction('Διαγραφή άδειας',e.name); renderPersonnel(); }
 async function ppDelEmp(idx){ var store=_ppSel.store, yr=ppYearVal(), arr=PPDATA[store+'_'+yr]||[], e=arr[idx]; if(!e)return; if(!(await confirmDel('Διαγραφή εργαζόμενου «'+(e.name||'')+'» και όλων των αδειών του για '+yr+';')))return; arr.splice(idx,1); _ppSel={store:'',idx:-1}; fbSavePersonnel(store,yr); logAction('Διαγραφή εργαζόμενου (άδειες)',e.name); renderPersonnel(); }
 function ppImportInfo(){ try{ window.open('import_adeies.html','_blank'); }catch(e){ uiAlert('Άνοιξε το αρχείο import_adeies.html (login ADMIN → κατάστημα + Excel → Εισαγωγή).',{title:'📥 Εισαγωγή Excel Αδειών',icon:'📥'}); } }
+// ════ Εξαγωγή Αδειών σε Excel (για αποστολή στη λογίστρια) — v63 ════
+function openExLvModal(){
+  if(currentRole!=='ADMIN'){toast&&toast('Μόνο για διαχειριστές','err');return;}
+  var GR=['Ιανουάριος','Φεβρουάριος','Μάρτιος','Απρίλιος','Μάιος','Ιούνιος','Ιούλιος','Αύγουστος','Σεπτέμβριος','Οκτώβριος','Νοέμβριος','Δεκέμβριος'];
+  var m=document.getElementById('exLvMonth');
+  if(m && !m.children.length){ GR.forEach(function(n,i){var o=document.createElement('option');o.value=i+1;o.textContent=n;m.appendChild(o);}); }
+  var y=document.getElementById('exLvYear');
+  if(y && !y.children.length){ for(var yr=2022;yr<=2030;yr++){var o=document.createElement('option');o.value=yr;o.textContent=yr;y.appendChild(o);} }
+  var now=new Date();
+  if(m)m.value=now.getMonth()+1;
+  if(y)y.value=ppYearVal()||now.getFullYear();
+  var st=document.getElementById('exLvStore');
+  if(st){var cfg=STORES[STORE]||{}; st.textContent=(cfg.icon||'📍')+'  '+(cfg.full||cfg.label||STORE);}
+  // Highlight default selected radio visually
+  document.querySelectorAll('input[name="exLvScope"]').forEach(function(r){
+    r.checked=(r.value==='month');
+    var lab=r.closest('label'); if(!lab)return;
+    if(r.checked){ lab.style.background='var(--accent-bg-soft)'; lab.style.borderColor='var(--accent-line)'; }
+    else { lab.style.background='transparent'; lab.style.borderColor='var(--border2)'; }
+    r.onchange=function(){
+      document.querySelectorAll('input[name="exLvScope"]').forEach(function(rr){
+        var ll=rr.closest('label'); if(!ll)return;
+        if(rr.checked){ ll.style.background='var(--accent-bg-soft)'; ll.style.borderColor='var(--accent-line)'; }
+        else { ll.style.background='transparent'; ll.style.borderColor='var(--border2)'; }
+      });
+    };
+  });
+  var mod=document.getElementById('exLvModal'); if(mod)mod.classList.add('show');
+}
+function closeExLvModal(){ var m=document.getElementById('exLvModal'); if(m)m.classList.remove('show'); }
+async function doExportLeaves(){
+  var btn=document.getElementById('exLvOk'); if(btn)btn.disabled=true;
+  try{
+    if(typeof ExcelJS==='undefined'){ toast('ExcelJS δεν φόρτωσε ακόμα — δοκίμασε ξανά','err'); if(btn)btn.disabled=false; return; }
+    var month=parseInt(document.getElementById('exLvMonth').value);
+    var year=parseInt(document.getElementById('exLvYear').value);
+    var scope=(document.querySelector('input[name="exLvScope"]:checked')||{}).value||'month';
+    var store=STORE, cfg=STORES[store]||{};
+    var storeFull=(cfg.full||cfg.label||store).toUpperCase();
+    var storeLabel=(cfg.label||store);
+    var accentDark=store==='LOUTRAKI'?'FF16A34A':'FF2F7FE6';
+    var accentSoft=store==='LOUTRAKI'?'FFE3F7EB':'FFE5EFFC';
+    var GR_FULL=['ΙΑΝΟΥΑΡΙΟΣ','ΦΕΒΡΟΥΑΡΙΟΣ','ΜΑΡΤΙΟΣ','ΑΠΡΙΛΙΟΣ','ΜΑΙΟΣ','ΙΟΥΝΙΟΣ','ΙΟΥΛΙΟΣ','ΑΥΓΟΥΣΤΟΣ','ΣΕΠΤΕΜΒΡΙΟΣ','ΟΚΤΩΒΡΙΟΣ','ΝΟΕΜΒΡΙΟΣ','ΔΕΚΕΜΒΡΙΟΣ'];
+    var GR_SHORT=['ΙΑΝ','ΦΕΒ','ΜΑΡ','ΑΠΡ','ΜΑΙ','ΙΟΥΝ','ΙΟΥΛ','ΑΥΓ','ΣΕΠ','ΟΚΤ','ΝΟΕ','ΔΕΚ'];
+    var monthName=GR_FULL[month-1];
+    var now=new Date();
+    var pad=function(n){return String(n).padStart(2,'0');};
+    var todayLbl=pad(now.getDate())+'/'+pad(now.getMonth()+1)+'/'+now.getFullYear();
+    var emps=PPDATA[store+'_'+year]||[];
+    if(!emps.length){ try{ emps=await fbLoadPersonnel(store,year); PPDATA[store+'_'+year]=emps; }catch(e){} }
+    var monthStart=year+'-'+pad(month)+'-01';
+    var lastDay=new Date(year,month,0).getDate();
+    var monthEnd=year+'-'+pad(month)+'-'+pad(lastDay);
+    var leaveInMonth=function(it){
+      var rg=ppItemRange(it,year); if(!rg) return null;
+      if(rg.to<monthStart||rg.from>monthEnd) return null;
+      var f=rg.from>monthStart?rg.from:monthStart;
+      var t=rg.to<monthEnd?rg.to:monthEnd;
+      if(f>t) return null;
+      return {from:f, to:t, days:ppCalcDays(f,t), full:rg, partial:(rg.from<monthStart||rg.to>monthEnd)};
+    };
+    var BORDER={top:{style:'thin',color:{argb:'FFC8D0DC'}},bottom:{style:'thin',color:{argb:'FFC8D0DC'}},left:{style:'thin',color:{argb:'FFC8D0DC'}},right:{style:'thin',color:{argb:'FFC8D0DC'}}};
+    var BORDER_BOLD={top:{style:'medium',color:{argb:'FF1A2940'}},bottom:{style:'medium',color:{argb:'FF1A2940'}},left:{style:'medium',color:{argb:'FF1A2940'}},right:{style:'medium',color:{argb:'FF1A2940'}}};
+    var wb=new ExcelJS.Workbook();
+    wb.creator='ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε.';
+    wb.company='ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε.';
+    wb.created=new Date();
+    // ── SHEET 1 ──
+    var sheetName=scope==='month'?('Άδειες '+GR_SHORT[month-1]+' '+year):('Σύνολα '+year);
+    var ws=wb.addWorksheet(sheetName,{properties:{tabColor:{argb:accentDark}}, views:[{showGridLines:false}]});
+    ws.columns=[{width:7},{width:34},{width:14},{width:14},{width:11},{width:32}];
+    // Title (brand)
+    ws.mergeCells('A1:F1');
+    var t1=ws.getCell('A1');
+    t1.value='ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε.';
+    t1.font={bold:true, size:20, color:{argb:'FFFFFFFF'}, name:'Calibri'};
+    t1.fill={type:'pattern', pattern:'solid', fgColor:{argb:'FF0D1424'}};
+    t1.alignment={horizontal:'center', vertical:'middle'};
+    ws.getRow(1).height=42;
+    // Store banner
+    ws.mergeCells('A2:F2');
+    var t2=ws.getCell('A2');
+    t2.value=(cfg.icon||'📍')+'    ΚΑΤΑΣΤΗΜΑ:   '+storeFull;
+    t2.font={bold:true, size:14, color:{argb:'FFFFFFFF'}};
+    t2.fill={type:'pattern', pattern:'solid', fgColor:{argb:accentDark}};
+    t2.alignment={horizontal:'center', vertical:'middle'};
+    ws.getRow(2).height=30;
+    // Report subtitle
+    ws.mergeCells('A3:F3');
+    var t3=ws.getCell('A3');
+    t3.value='ΑΝΑΦΟΡΑ ΑΔΕΙΩΝ ΠΡΟΣΩΠΙΚΟΥ — '+(scope==='month'?(monthName+' '+year):('ΕΤΟΣ '+year));
+    t3.font={bold:true, size:12, color:{argb:'FF1A2940'}};
+    t3.fill={type:'pattern', pattern:'solid', fgColor:{argb:accentSoft}};
+    t3.alignment={horizontal:'center', vertical:'middle'};
+    ws.getRow(3).height=22;
+    // Date of issue
+    ws.mergeCells('A4:F4');
+    var t4=ws.getCell('A4');
+    t4.value='Ημερομηνία έκδοσης: '+todayLbl;
+    t4.font={italic:true, size:10, color:{argb:'FF666666'}};
+    t4.alignment={horizontal:'right', vertical:'middle'};
+    ws.getRow(4).height=18;
+    // (Row 5 left blank)
+    var rowIdx=6;
+    // Headers
+    var headers=scope==='month'?['Α/Α','ΟΝΟΜΑΤΕΠΩΝΥΜΟ','ΑΠΟ','ΕΩΣ','ΗΜΕΡΕΣ','ΣΧΟΛΙΑ']:['Α/Α','ΟΝΟΜΑΤΕΠΩΝΥΜΟ','ΔΙΚΑΙΟΥΜΕΝΕΣ','ΛΗΦΘΕΙΣΕΣ','ΥΠΟΛΟΙΠΟ','ΚΑΤΑΣΤΑΣΗ'];
+    var hr=ws.getRow(rowIdx++);
+    headers.forEach(function(h,i){
+      var c=hr.getCell(i+1);
+      c.value=h;
+      c.font={bold:true, size:11, color:{argb:'FFFFFFFF'}};
+      c.fill={type:'pattern', pattern:'solid', fgColor:{argb:'FF334155'}};
+      c.alignment={horizontal:'center', vertical:'middle'};
+      c.border=BORDER_BOLD;
+    });
+    hr.height=26;
+    // Data
+    var count=0, totalDays=0;
+    var alt=function(r){if((r-7)%2===1)[1,2,3,4,5,6].forEach(function(ci){r2c(r,ci).fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF6F8FB'}};});};
+    var r2c=function(r,ci){return ws.getRow(r).getCell(ci);};
+    if(scope==='month'){
+      emps.forEach(function(e){
+        (e.items||[]).forEach(function(it){
+          var m=leaveInMonth(it); if(!m||m.days<=0)return;
+          count++;
+          var r=ws.getRow(rowIdx++);
+          r.getCell(1).value=count;
+          r.getCell(2).value=e.name||'—';
+          r.getCell(3).value=ppFmt(m.from);
+          r.getCell(4).value=ppFmt(m.to);
+          r.getCell(5).value=m.days;
+          r.getCell(6).value=m.partial?('μέρος συνολικής άδειας '+ppFmt(m.full.from)+'→'+ppFmt(m.full.to)+' ('+(it.days||0)+' ημ.)'):'';
+          [1,2,3,4,5,6].forEach(function(ci){
+            var c=r.getCell(ci);
+            c.font={size:11};
+            c.border=BORDER;
+            if(ci===1||ci===3||ci===4||ci===5) c.alignment={horizontal:'center', vertical:'middle'};
+            else c.alignment={vertical:'middle'};
+          });
+          if((count)%2===0)[1,2,3,4,5,6].forEach(function(ci){r.getCell(ci).fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF6F8FB'}};});
+          totalDays+=m.days;
+        });
+      });
+      if(count===0){
+        ws.mergeCells('A'+rowIdx+':F'+rowIdx);
+        var e0=ws.getCell('A'+rowIdx);
+        e0.value='— Καμία άδεια στο διάστημα '+monthName+' '+year+' —';
+        e0.font={italic:true, size:11, color:{argb:'FF888888'}};
+        e0.alignment={horizontal:'center'};
+        e0.border=BORDER;
+        rowIdx++;
+      }
+      rowIdx++;
+      ws.mergeCells('A'+rowIdx+':D'+rowIdx);
+      var tt=ws.getCell('A'+rowIdx);
+      tt.value='ΣΥΝΟΛΟ ΗΜΕΡΩΝ ΑΔΕΙΑΣ';
+      tt.font={bold:true, size:12, color:{argb:'FFFFFFFF'}};
+      tt.fill={type:'pattern', pattern:'solid', fgColor:{argb:accentDark}};
+      tt.alignment={horizontal:'right', vertical:'middle'};
+      tt.border=BORDER_BOLD;
+      var tv=ws.getCell('E'+rowIdx);
+      tv.value=totalDays;
+      tv.font={bold:true, size:14, color:{argb:'FFFFFFFF'}};
+      tv.fill={type:'pattern', pattern:'solid', fgColor:{argb:accentDark}};
+      tv.alignment={horizontal:'center', vertical:'middle'};
+      tv.border=BORDER_BOLD;
+      var tex=ws.getCell('F'+rowIdx);
+      tex.value='ημέρες';
+      tex.font={bold:true, size:11, color:{argb:'FFFFFFFF'}};
+      tex.fill={type:'pattern', pattern:'solid', fgColor:{argb:accentDark}};
+      tex.alignment={horizontal:'left', vertical:'middle'};
+      tex.border=BORDER_BOLD;
+      ws.getRow(rowIdx).height=30;
+    } else {
+      // scope=year — summary
+      var totEnt=0, totTak=0, totRem=0;
+      emps.forEach(function(e){
+        count++;
+        var taken=(e.items||[]).reduce(function(s,it){return s+(+it.days||0);},0);
+        var rem=(e.entitle!=null)?(e.entitle-taken):null;
+        var r=ws.getRow(rowIdx++);
+        r.getCell(1).value=count;
+        r.getCell(2).value=e.name||'—';
+        r.getCell(3).value=e.entitle!=null?e.entitle:'—';
+        r.getCell(4).value=taken;
+        r.getCell(5).value=rem!=null?rem:'—';
+        var status=(rem==null)?'—':(rem<=0?'⚠ Εξαντλημένη':rem<=5?'⚠ Λίγες ημέρες':'✓ Κανονικά');
+        r.getCell(6).value=status;
+        [1,2,3,4,5,6].forEach(function(ci){
+          var c=r.getCell(ci);
+          c.font={size:11};
+          c.border=BORDER;
+          if(ci===1||ci===3||ci===4||ci===5) c.alignment={horizontal:'center', vertical:'middle'};
+          else c.alignment={vertical:'middle'};
+        });
+        if(rem!=null){
+          var clr=rem<=0?'FFFFE5E5':rem<=5?'FFFFF5DD':'';
+          if(clr)r.getCell(6).fill={type:'pattern',pattern:'solid',fgColor:{argb:clr}};
+        }
+        if(count%2===0)[1,2,3,4,5].forEach(function(ci){if(!r.getCell(ci).fill||!r.getCell(ci).fill.fgColor)r.getCell(ci).fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF6F8FB'}};});
+        totEnt+=e.entitle||0; totTak+=taken; totRem+=Math.max(0,rem||0);
+      });
+      if(count===0){
+        ws.mergeCells('A'+rowIdx+':F'+rowIdx);
+        var en=ws.getCell('A'+rowIdx);
+        en.value='— Δεν υπάρχουν εργαζόμενοι για '+year+' —';
+        en.font={italic:true, size:11, color:{argb:'FF888888'}};
+        en.alignment={horizontal:'center'};
+        en.border=BORDER;
+        rowIdx++;
+      }
+      rowIdx++;
+      // Total
+      var tr=ws.getRow(rowIdx);
+      tr.getCell(1).value='';
+      tr.getCell(2).value='ΣΥΝΟΛΟ';
+      tr.getCell(3).value=totEnt;
+      tr.getCell(4).value=totTak;
+      tr.getCell(5).value=totRem;
+      tr.getCell(6).value='';
+      [1,2,3,4,5,6].forEach(function(ci){
+        var c=tr.getCell(ci);
+        c.font={bold:true, size:12, color:{argb:'FFFFFFFF'}};
+        c.fill={type:'pattern', pattern:'solid', fgColor:{argb:accentDark}};
+        c.alignment={horizontal:(ci===2?'right':'center'), vertical:'middle'};
+        c.border=BORDER_BOLD;
+      });
+      tr.height=30;
+      rowIdx+=2;
+      // ── SHEET 2: αναλυτικά ──
+      var ws2=wb.addWorksheet('Αναλυτικά '+year,{properties:{tabColor:{argb:accentDark}}, views:[{showGridLines:false}]});
+      ws2.columns=[{width:7},{width:34},{width:14},{width:14},{width:11}];
+      ws2.mergeCells('A1:E1');
+      var x1=ws2.getCell('A1');
+      x1.value='ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε.';
+      x1.font={bold:true, size:18, color:{argb:'FFFFFFFF'}};
+      x1.fill={type:'pattern', pattern:'solid', fgColor:{argb:'FF0D1424'}};
+      x1.alignment={horizontal:'center', vertical:'middle'};
+      ws2.getRow(1).height=36;
+      ws2.mergeCells('A2:E2');
+      var x2=ws2.getCell('A2');
+      x2.value=(cfg.icon||'📍')+'  '+storeFull+' — ΑΝΑΛΥΤΙΚΕΣ ΑΔΕΙΕΣ '+year;
+      x2.font={bold:true, size:13, color:{argb:'FFFFFFFF'}};
+      x2.fill={type:'pattern', pattern:'solid', fgColor:{argb:accentDark}};
+      x2.alignment={horizontal:'center', vertical:'middle'};
+      ws2.getRow(2).height=26;
+      var hr2=ws2.getRow(4);
+      ['Α/Α','ΟΝΟΜΑΤΕΠΩΝΥΜΟ','ΑΠΟ','ΕΩΣ','ΗΜΕΡΕΣ'].forEach(function(h,i){
+        var c=hr2.getCell(i+1);
+        c.value=h;
+        c.font={bold:true, size:11, color:{argb:'FFFFFFFF'}};
+        c.fill={type:'pattern', pattern:'solid', fgColor:{argb:'FF334155'}};
+        c.alignment={horizontal:'center', vertical:'middle'};
+        c.border=BORDER_BOLD;
+      });
+      hr2.height=24;
+      var ri=5, cnt2=0;
+      emps.forEach(function(e){
+        (e.items||[]).forEach(function(it){
+          cnt2++;
+          var rg=ppItemRange(it,year);
+          var r=ws2.getRow(ri++);
+          r.getCell(1).value=cnt2;
+          r.getCell(2).value=e.name||'—';
+          r.getCell(3).value=rg?ppFmt(rg.from):(it.date||'');
+          r.getCell(4).value=rg?ppFmt(rg.to):(it.date||'');
+          r.getCell(5).value=it.days||0;
+          [1,2,3,4,5].forEach(function(ci){
+            var c=r.getCell(ci);
+            c.font={size:11};
+            c.border=BORDER;
+            if(ci===1||ci===3||ci===4||ci===5) c.alignment={horizontal:'center', vertical:'middle'};
+            else c.alignment={vertical:'middle'};
+          });
+          if(cnt2%2===0)[1,2,3,4,5].forEach(function(ci){r.getCell(ci).fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF6F8FB'}};});
+        });
+      });
+    }
+    // Footer
+    rowIdx+=2;
+    ws.mergeCells('A'+rowIdx+':F'+rowIdx);
+    var ft=ws.getCell('A'+rowIdx);
+    ft.value='Έκδοση: ΤΑΜΕΙΑ ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε. — Διαχείριση Αδειών — '+todayLbl;
+    ft.font={italic:true, size:9, color:{argb:'FF888888'}};
+    ft.alignment={horizontal:'center'};
+    // Download
+    var buf=await wb.xlsx.writeBuffer();
+    var blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;
+    var fname='ΑΔΕΙΕΣ_'+storeLabel+'_'+(scope==='month'?GR_SHORT[month-1]+'_':'ΕΤΟΣ_')+year+'.xlsx';
+    a.download=fname;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(url);},800);
+    closeExLvModal();
+    if(typeof flashOK==='function')flashOK();
+    toast('✓ Λήψη: '+fname,'ok');
+    logAction('Εξαγωγή Αδειών (Excel)','['+storeLabel+'] '+(scope==='month'?monthName+' '+year:'Έτος '+year)+' · '+(scope==='month'?totalDays+' ημ.':count+' εργ.'));
+  }catch(err){
+    console.error(err);
+    toast('Σφάλμα εξαγωγής: '+err.message,'err');
+  }
+  if(btn)btn.disabled=false;
+}
+
+// ════ v64: premium modal καταχώρησης άδειας + "επιστρέφει σε X ημέρες" ════
+var _ppLvCtx={empIdx:-1};
+var PP_DOW=['Κυριακή','Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο'];
+function _ppToday(){var d=new Date(),p=function(x){return String(x).padStart(2,'0');};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());}
+// Επιστρέφει info άδειας που "τρέχει" σήμερα για εργαζόμενο e (στο επιλεγμένο έτος yr)
+function ppCurrentLeave(e,yr){
+  if(!e||!e.items||!e.items.length)return null;
+  var today=new Date(); var P=function(x){return String(x).padStart(2,'0');};
+  var todayISO=today.getFullYear()+'-'+P(today.getMonth()+1)+'-'+P(today.getDate());
+  // start-of-day για ακριβή υπολογισμό diff
+  var t0=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+  for(var i=0;i<e.items.length;i++){
+    var rg=ppItemRange(e.items[i],yr); if(!rg)continue;
+    if(rg.from<=todayISO && todayISO<=rg.to){
+      // Επόμενη εργάσιμη μετά το rg.to (skipping Sundays + ελληνικές αργίες)
+      var parts=rg.to.split('-');
+      var ret=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
+      ret.setDate(ret.getDate()+1);
+      var guard=0;
+      while(guard++<21){
+        var iso=ret.getFullYear()+'-'+P(ret.getMonth()+1)+'-'+P(ret.getDate());
+        var hol=false; try{ hol=(typeof isGreekHoliday==='function')&&isGreekHoliday(iso); }catch(_){}
+        if(ret.getDay()!==0 && !hol) break;
+        ret.setDate(ret.getDate()+1);
+      }
+      var retISO=ret.getFullYear()+'-'+P(ret.getMonth()+1)+'-'+P(ret.getDate());
+      var daysUntil=Math.max(1,Math.round((ret-t0)/86400000));
+      return {onLeave:true, from:rg.from, to:rg.to, returnISO:retISO, returnDate:ppFmt(retISO), returnDow:PP_DOW[ret.getDay()], daysUntilReturn:daysUntil, leaveDays:e.items[i].days||ppCalcDays(rg.from,rg.to)};
+    }
+  }
+  return null;
+}
+function openPpLvAdd(idx){
+  if(currentRole!=='ADMIN')return;
+  var store=_ppSel.store, yr=ppYearVal(), e=(PPDATA[store+'_'+yr]||[])[idx]; if(!e)return;
+  _ppLvCtx={empIdx:idx};
+  document.getElementById('ppLvName').textContent=e.name||'—';
+  var iso=_ppToday();
+  document.getElementById('ppLvFrom').value=iso;
+  document.getElementById('ppLvTo').value=iso;
+  ppLvRecalc();
+  document.getElementById('ppLvAddModal').classList.add('show');
+  setTimeout(function(){var f=document.getElementById('ppLvFrom'); if(f&&typeof f.showPicker==='function'){try{f.focus();}catch(_){}}},80);
+}
+function closePpLvAdd(){var m=document.getElementById('ppLvAddModal'); if(m)m.classList.remove('show');}
+function ppLvRecalc(){
+  var fEl=document.getElementById('ppLvFrom'), tEl=document.getElementById('ppLvTo');
+  if(!fEl||!tEl)return;
+  var f=fEl.value, t=tEl.value;
+  var info=document.getElementById('ppLvRangeInfo');
+  if(!f){if(info)info.textContent='— Επίλεξε ΑΠΟ —';return;}
+  if(!t||t<f){tEl.value=f; t=f;}
+  var auto=ppCalcDays(f,t);
+  document.getElementById('ppLvAutoN').textContent=auto;
+  document.getElementById('ppLvDays').value=auto;
+  // Range info
+  var fp=f.split('-'), tp=t.split('-');
+  var fd=new Date(+fp[0],+fp[1]-1,+fp[2]), td=new Date(+tp[0],+tp[1]-1,+tp[2]);
+  var calDays=Math.round((td-fd)/86400000)+1;
+  if(info){
+    if(f===t){ info.innerHTML='📅 <b>'+PP_DOW[fd.getDay()]+'</b>, '+ppFmt(f)+' · μονοήμερη'; }
+    else { info.innerHTML='📅 '+PP_DOW[fd.getDay()]+' '+ppFmt(f)+' → '+PP_DOW[td.getDay()]+' '+ppFmt(t)+' · <b>'+calDays+'</b> ημερολογιακές'; }
+  }
+}
+function confirmPpLvAdd(){
+  var store=_ppSel.store, yr=ppYearVal(), e=(PPDATA[store+'_'+yr]||[])[_ppLvCtx.empIdx]; if(!e){toast('Δεν βρέθηκε ο εργαζόμενος','err');return;}
+  var f=document.getElementById('ppLvFrom').value, t=document.getElementById('ppLvTo').value;
+  var days=parseInt(document.getElementById('ppLvDays').value,10);
+  if(!f||!t){toast('Λείπουν ημερομηνίες','err');return;}
+  if(t<f){toast('Η ΕΩΣ πρέπει να είναι ≥ ΑΠΟ','err');return;}
+  if(isNaN(days)||days<=0){toast('Οι ημέρες πρέπει να είναι >0','err');return;}
+  e.items=e.items||[];
+  var disp=f===t?ppFmt(f):(ppFmt(f)+' – '+ppFmt(t));
+  e.items.push({date:f, days:days, from:f, to:t});
+  fbSavePersonnel(store,yr);
+  logAction('Νέα άδεια','['+((STORES[store]||{}).label||store)+'] '+e.name+' · '+disp+' ('+days+' ημ.)');
+  closePpLvAdd();
+  if(typeof flashOK==='function')flashOK();
+  toast('✓ Καταχωρήθηκε άδεια ('+days+' ημ.)','ok');
+  renderPersonnel();
+}
 
 async function exportCSV(){
   if(typeof ExcelJS==='undefined'){toast('Φόρτωση βιβλιοθήκης…','info');setTimeout(exportCSV,1500);return;}
