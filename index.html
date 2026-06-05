@@ -265,6 +265,32 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 .pp-emp .av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04210f;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .pp-ring{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .pp-ring span{width:34px;height:34px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--accent);}
+/* view toggle (Dashboard / Ημερολόγιο) */
+.pp-views{display:inline-flex;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:3px;gap:2px;}
+.pp-views button{background:none;border:none;color:var(--muted);font-weight:700;font-size:12px;padding:7px 13px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:5px;}
+.pp-views button.on{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04210f;}
+/* Ημερολόγιο Αδειών */
+.pp-calbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.pp-calnav{display:flex;align-items:center;gap:10px;}
+.pp-calnav button{width:34px;height:34px;border-radius:9px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:16px;font-weight:800;cursor:pointer;}
+.pp-calnav .mlbl{font-size:16px;font-weight:800;min-width:170px;text-align:center;}
+.pp-calleg{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);align-items:center;}
+.pp-calleg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+.pp-calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+.pp-caldow{text-align:center;font-size:11px;font-weight:800;color:var(--muted);padding:6px 0;text-transform:uppercase;letter-spacing:.5px;}
+.pp-calcell{min-height:96px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:6px 7px;display:flex;flex-direction:column;gap:3px;transition:.15s;}
+.pp-calcell.empty{background:transparent;border-color:transparent;}
+.pp-calcell.sun{background:rgba(224,85,85,.05);border-color:rgba(224,85,85,.18);}
+.pp-calcell.hol{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.22);}
+.pp-calcell.today{box-shadow:inset 0 0 0 2px var(--accent);}
+.pp-calcell .dn{font-size:12px;font-weight:800;color:var(--text);display:flex;justify-content:space-between;align-items:center;}
+.pp-calcell .dn .hb{font-size:8.5px;font-weight:700;color:#f59e0b;}
+.pp-calcell.sun .dn{color:var(--red-2);}
+.pp-calchip{font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+.pp-calchip.lio{background:rgba(77,159,255,.18);color:#9cc6ff;}
+.pp-calchip.lou{background:rgba(34,197,94,.18);color:#7ee2a8;}
+.pp-calmore{font-size:9.5px;color:var(--muted);font-weight:700;}
+.pp-calcell .cnt{margin-top:auto;font-size:9px;color:var(--muted);}
 
 /* === ΣΥΓΚΡΙΣΗ ΜΗΝΑ vs ΠΕΡΣΙ === */
 .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
@@ -346,7 +372,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
 .ui-modal{background:var(--bg2);border:1px solid var(--border2);border-top:3px solid var(--accent);border-radius:16px;padding:24px 26px;max-width:390px;width:100%;box-shadow:var(--shadow-lg);}
 .ui-modal.danger{border-top-color:var(--red);}
 .ui-modal-title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:11px;display:flex;align-items:center;gap:9px;}
-.ui-modal-msg{font-size:13.5px;color:var(--muted);line-height:1.55;margin-bottom:22px;word-break:break-word;}
+.ui-modal-msg{font-size:13.5px;color:var(--muted);line-height:1.55;margin-bottom:22px;word-break:break-word;white-space:pre-line;}
 .ui-modal-actions{display:flex;gap:10px;justify-content:flex-end;}
 .ui-modal-btn{padding:11px 22px;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;border:1px solid transparent;transition:filter .15s,border-color .15s,color .15s,transform .1s;}
 .ui-modal-btn:active{transform:translateY(1px);}
@@ -1261,6 +1287,13 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
       <span class="pp-adminbadge">🔒 Μόνο Admin</span>
     </div>
   </div>
+  <div style="display:flex;justify-content:center;margin-bottom:16px;">
+    <div class="pp-views">
+      <button id="ppViewDash" class="on" onclick="ppShowView('dash')">📊 Dashboard</button>
+      <button id="ppViewCal" onclick="ppShowView('cal')">🗓️ Ημερολόγιο Αδειών</button>
+    </div>
+  </div>
+  <div id="ppDashView">
   <div class="pp-kpis" id="ppKpis"></div>
   <div class="pp-main">
     <div class="tw">
@@ -1279,6 +1312,14 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
     <div class="tw"><div class="tw-h" id="ppBarH">📊 Άδειες ανά μήνα</div><div style="padding:14px;"><div style="height:190px;position:relative;"><canvas id="ppBar"></canvas></div></div></div>
     <div class="tw"><div class="tw-h" id="ppRemBarH">👤 Υπόλοιπα ανά εργαζόμενο</div><div style="padding:14px;"><div style="height:190px;position:relative;"><canvas id="ppRemBar"></canvas></div></div></div>
     <div class="tw"><div class="tw-h" id="ppDonH">🏪 Σύγκριση &amp; Κατάσταση</div><div style="padding:14px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;"><div style="width:118px;height:118px;flex-shrink:0;"><canvas id="ppDon"></canvas></div><div class="pp-legend" id="ppLeg"></div></div></div>
+  </div>
+  </div><!-- /ppDashView -->
+  <div id="ppCalView" style="display:none;">
+    <div class="pp-calbar">
+      <div class="pp-calnav"><button onclick="ppCalNav(-1)" title="Προηγούμενος μήνας">‹</button><span class="mlbl" id="ppCalLbl">—</span><button onclick="ppCalNav(1)" title="Επόμενος μήνας">›</button></div>
+      <div class="pp-calleg"><span><i class="lio" style="background:#4d9fff"></i>Λιόσια</span><span><i class="lou" style="background:#22c55e"></i>Λουτράκι</span><span><i style="background:rgba(245,158,11,.55)"></i>Αργία</span><span><i style="background:rgba(224,85,85,.5)"></i>Κυριακή</span></div>
+    </div>
+    <div class="pp-calgrid" id="ppCalGrid"></div>
   </div>
 </div>
 
@@ -4115,8 +4156,93 @@ function renderPersonnel(){
       pag.innerHTML='<span>Σύνολο: <b style="color:var(--text)">'+rows.length+'</b> · σελ. '+ppPage+'/'+totalPages+'</span><div class="pgbtns"><button onclick="ppGo('+(ppPage-1)+')" '+(ppPage<=1?'disabled':'')+'>‹</button>'+btns+'<button onclick="ppGo('+(ppPage+1)+')" '+(ppPage>=totalPages?'disabled':'')+'>›</button></div>'; }
   }
   ppRenderSide(); ppRenderCharts(all); ppRenderAlerts(all); ppRenderSum(all,totEnt,totTak,totRem);
+  if(ppView==='cal')renderPpCalendar();
 }
 function ppGo(p){ ppPage=p; renderPersonnel(); }
+// ════ ΗΜΕΡΟΛΟΓΙΟ ΑΔΕΙΩΝ ════
+var ppView='dash', ppCalMonth=(new Date()).getMonth();
+var PP_MONTHS_FULL=['Ιανουάριος','Φεβρουάριος','Μάρτιος','Απρίλιος','Μάιος','Ιούνιος','Ιούλιος','Αύγουστος','Σεπτέμβριος','Οκτώβριος','Νοέμβριος','Δεκέμβριος'];
+function ppShowView(v){
+  ppView=v;
+  var bd=document.getElementById('ppViewDash'), bc=document.getElementById('ppViewCal');
+  if(bd)bd.classList.toggle('on',v==='dash'); if(bc)bc.classList.toggle('on',v==='cal');
+  var dash=document.getElementById('ppDashView'), cal=document.getElementById('ppCalView');
+  if(dash)dash.style.display=(v==='dash')?'':'none';
+  if(cal)cal.style.display=(v==='cal')?'':'none';
+  if(v==='cal')renderPpCalendar();
+}
+function ppCalNav(d){ ppCalMonth+=d; if(ppCalMonth<0)ppCalMonth=0; if(ppCalMonth>11)ppCalMonth=11; renderPpCalendar(); }
+// εύρος άδειας {from,to} ISO από item — πιάνει from/to, ISO, «3-8/1/2026», «05/01-09/01», «10/04/2026»
+function ppItemRange(it,dy){
+  if(!it)return null;
+  if(it.from)return {from:it.from,to:it.to||it.from};
+  var s=String(it.date||'').trim(); if(!s)return null;
+  var P=function(x){return String(x).padStart(2,'0');}, ISO=function(y,m,d){return y+'-'+P(m)+'-'+P(d);};
+  var yy=function(v){v=+v;return v<100?2000+v:v;};
+  var Y=parseInt(dy)||(new Date()).getFullYear(); var ym=s.match(/(20\d\d)/); if(ym)Y=+ym[1];
+  var m;
+  if((m=s.match(/^(\d{4})-(\d{2})-(\d{2})/)))return {from:m[0],to:m[0]};                                  // ISO
+  if((m=s.match(/^(\d{1,2})\s*-\s*(\d{1,2})\s*[\/.]\s*(\d{1,2})(?:\s*[\/.]\s*(\d{2,4}))?/))){             // 3-8/1/2026
+    var mo=+m[3], y=m[4]?yy(m[4]):Y; return {from:ISO(y,mo,+m[1]),to:ISO(y,mo,+m[2])}; }
+  if((m=s.match(/^(\d{1,2})\s*[\/.]\s*(\d{1,2})\s*-\s*(\d{1,2})\s*[\/.]\s*(\d{1,2})(?:\s*[\/.]\s*(\d{2,4}))?/))){ // 05/01-09/01
+    var y2=m[5]?yy(m[5]):Y; return {from:ISO(y2,+m[2],+m[1]),to:ISO(y2,+m[4],+m[3])}; }
+  if((m=s.match(/^(\d{1,2})\s*[\/.]\s*(\d{1,2})\s*[\/.]\s*(\d{2,4})/))){ var y3=yy(m[3]); return {from:ISO(y3,+m[2],+m[1]),to:ISO(y3,+m[2],+m[1])}; } // 10/04/2026
+  var f=ppItemISO(it); return f?{from:f,to:f}:null;
+}
+// χάρτης: κάθε ISO ημέρα → [{name,store}] σε άδεια (σέβεται φίλτρο καταστήματος)
+function ppLeaveMap(yr,mon){
+  var map={}, P=function(x){return String(x).padStart(2,'0');};
+  ppAllEmps().forEach(function(e){
+    (e.items||[]).forEach(function(it){
+      var rg=ppItemRange(it,yr); if(!rg)return;
+      var f=rg.from, t=rg.to;
+      var d1=new Date(f), d2=new Date(t);
+      if(isNaN(d1))return; if(isNaN(d2)||d2<d1)d2=new Date(d1);
+      var cur=new Date(d1), guard=0;
+      while(cur<=d2 && guard++<400){
+        if(cur.getFullYear()===yr && cur.getMonth()===mon){
+          var key=cur.getFullYear()+'-'+P(cur.getMonth()+1)+'-'+P(cur.getDate());
+          (map[key]=map[key]||[]).push({name:e.name||'—',store:e._store});
+        }
+        cur.setDate(cur.getDate()+1);
+      }
+    });
+  });
+  return map;
+}
+function renderPpCalendar(){
+  if(currentRole!=='ADMIN')return;
+  var grid=document.getElementById('ppCalGrid'); if(!grid)return;
+  var yr=parseInt(ppYearVal()), mon=ppCalMonth, P=function(x){return String(x).padStart(2,'0');};
+  var lbl=document.getElementById('ppCalLbl'); if(lbl)lbl.textContent=PP_MONTHS_FULL[mon]+' '+yr;
+  var map=ppLeaveMap(yr,mon);
+  var first=new Date(yr,mon,1), dim=new Date(yr,mon+1,0).getDate();
+  var lead=(first.getDay()+6)%7; // Δευτέρα=0
+  var today=new Date(), tIso=today.getFullYear()+'-'+P(today.getMonth()+1)+'-'+P(today.getDate());
+  var dows=['Δε','Τρ','Τε','Πε','Πα','Σα','Κυ'];
+  var html=dows.map(function(d){return '<div class="pp-caldow">'+d+'</div>';}).join('');
+  for(var i=0;i<lead;i++)html+='<div class="pp-calcell empty"></div>';
+  for(var day=1;day<=dim;day++){
+    var dt=new Date(yr,mon,day), dow=dt.getDay();
+    var iso=yr+'-'+P(mon+1)+'-'+P(day);
+    var hol=false; try{ hol=(typeof isGreekHoliday==='function')&&isGreekHoliday(iso); }catch(e){}
+    var cls='pp-calcell'+(dow===0?' sun':'')+(hol?' hol':'')+(iso===tIso?' today':'');
+    var people=map[iso]||[];
+    var chips=people.slice(0,3).map(function(p){ return '<div class="pp-calchip '+(p.store==='LOUTRAKI'?'lou':'lio')+'" title="'+p.name+(p.store==='LOUTRAKI'?' · Λουτράκι':' · Λιόσια')+'" onclick="ppCalDay(\''+iso+'\')">'+p.name+'</div>'; }).join('');
+    var more=people.length>3?'<div class="pp-calmore" onclick="ppCalDay(\''+iso+'\')">+'+(people.length-3)+' ακόμα</div>':'';
+    var cnt=people.length?'<div class="cnt">'+people.length+' σε άδεια</div>':'';
+    html+='<div class="'+cls+'"><div class="dn">'+day+(hol?'<span class="hb">ΑΡΓΙΑ</span>':'')+'</div>'+chips+more+cnt+'</div>';
+  }
+  grid.innerHTML=html;
+}
+function ppCalDay(iso){
+  var yr=parseInt(ppYearVal()), mon=ppCalMonth;
+  var people=(ppLeaveMap(yr,mon)[iso])||[];
+  var d=ppFmt(iso);
+  if(!people.length){ uiAlert('Καμία άδεια στις '+d,{title:'🗓️ '+d,icon:'🗓️'}); return; }
+  var list=people.map(function(p){return (p.store==='LOUTRAKI'?'🌊 ':'📍 ')+p.name;}).join('\n');
+  uiAlert(people.length+' σε άδεια:\n\n'+list,{title:'🗓️ '+d,icon:'🗓️'});
+}
 function ppRenderAlerts(all){
   var box=document.getElementById('ppAlerts'); if(!box)return;
   var zero=all.filter(function(e){return e.entitle!=null&&(e.entitle-ppTaken(e))<=0;}).length;
