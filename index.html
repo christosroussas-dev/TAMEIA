@@ -4292,22 +4292,100 @@ function renderPersonnel(){
   // sparkline series
   var sAll=ppMonthlySeries(all), sL=ppMonthlySeries(liosia), sLou=ppMonthlySeries(lout);
   var cum=0, sTak=sAll.map(function(v){cum+=v;return cum;}); var sRem=sTak.map(function(v){return Math.max(0,totEnt-v);});
-  var K=function(id,ic,val,lab,cmp,spark,vc){ return '<div class="pp-kpi"><div class="kr"><div class="pp-ic '+ic+'">'+'</div><div style="flex:1;min-width:0"><div class="v" id="'+id+'"'+(vc?' style="color:'+vc+'"':'')+'>0</div><div class="l">'+lab+'</div></div></div>'+(cmp?'<div class="cmp '+cmp.cls+'">'+cmp.txt+'</div>':'')+(spark||'')+'</div>'; };
-  // χρησιμοποιούμε εικονίδια ως background του pp-ic μέσω textContent
+  // ════ Operational KPIs (v62) — focus σε action items, όχι σύνολα ════
+  var _todayD=new Date(), P=function(x){return String(x).padStart(2,'0');};
+  var _todayISO=_todayD.getFullYear()+'-'+P(_todayD.getMonth()+1)+'-'+P(_todayD.getDate());
+  var sy=parseInt(yr)||(new Date()).getFullYear();
+  var _jan1=new Date(sy,0,1);
+  var dayOfYr=(_todayD.getFullYear()===sy)?Math.max(1,Math.floor((_todayD-_jan1)/86400000)+1):(_todayD.getFullYear()>sy?365:0);
+  var yearFrac=Math.min(1,dayOfYr/365);
+  // Σε άδεια σήμερα + ονόματα
+  var onLeaveNames=[];
+  all.forEach(function(e){
+    (e.items||[]).forEach(function(it){
+      var rg=ppItemRange(it,sy); if(!rg)return;
+      if(rg.from<=_todayISO && _todayISO<=rg.to) onLeaveNames.push(e.name||'—');
+    });
+  });
+  var nOnLeave=onLeaveNames.length;
+  // Επόμενη άδεια
+  var upcomingArr=[];
+  all.forEach(function(e){
+    (e.items||[]).forEach(function(it){
+      var rg=ppItemRange(it,sy); if(!rg)return;
+      if(rg.from>_todayISO) upcomingArr.push({name:e.name||'—',from:rg.from,days:it.days||0});
+    });
+  });
+  upcomingArr.sort(function(a,b){return a.from.localeCompare(b.from);});
+  var nextLeave=upcomingArr[0]||null;
+  var nextDays=nextLeave?Math.max(0,Math.ceil((new Date(nextLeave.from)-_todayD)/86400000)):0;
+  // TOP χρήστης
+  var topUser=null,topPctVal=-1;
+  all.forEach(function(e){
+    if(!e.entitle)return;
+    var p=ppTaken(e)/e.entitle*100;
+    if(p>topPctVal){topPctVal=p;topUser=e;}
+  });
+  var topPctNum=Math.round(Math.max(0,topPctVal));
+  var topUserSpark=topUser?ppMonthlySeries([topUser]):[0,0,0,0,0,0,0,0,0,0,0,0];
+  // Σε κίνδυνο (≤5 υπολ.)
+  var atRisk=all.filter(function(e){
+    if(e.entitle==null)return false;
+    var rem=e.entitle-ppTaken(e);
+    return rem>=0 && rem<=5;
+  });
+  var nAtRisk=atRisk.length;
+  var atRiskTip=atRisk.map(function(e){return e.name+' ('+(e.entitle-ppTaken(e))+')';}).join(', ');
+  // Πρόβλεψη χρήσης Δεκεμβρίου (με τον τρέχοντα ρυθμό)
+  var projUsagePct=null;
+  if(yearFrac>0 && totEnt>0){
+    var projTaken=totTak/yearFrac;
+    projUsagePct=Math.min(150,Math.round(projTaken/totEnt*100));
+  }
+  // Αχρησιμοποίητες ημέρες στο τέλος έτους (πρόβλεψη)
+  var projUnusedTotal=0, unusedDetail=[];
+  if(yearFrac>0){
+    all.forEach(function(e){
+      if(!e.entitle)return;
+      var t=ppTaken(e),projT=t/yearFrac,uu=e.entitle-projT;
+      if(uu>0){projUnusedTotal+=uu; if(uu>=3)unusedDetail.push(e.name+' ~'+Math.round(uu));}
+    });
+  }
+  projUnusedTotal=Math.round(projUnusedTotal);
+  // Συνολική χρήση % vs πέρσι
+  var pctNow=totEnt?Math.round(totTak/totEnt*100):0;
+  var pTaken=pAll.reduce(function(s,e){return s+ppTaken(e);},0);
+  var pPctLast=pEnt?Math.round(pTaken/pEnt*100):0;
+  var cmpUsage=ppChg(pctNow,pPctLast);
+  var trunc=function(s,n){s=String(s||'');return s.length>n?s.slice(0,n-1)+'…':s;};
+  var escH=function(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+  var GR_MN=['Ιαν','Φεβ','Μαρ','Απρ','Μάι','Ιουν','Ιουλ','Αυγ','Σεπ','Οκτ','Νοε','Δεκ'];
+  var nextDateLbl=nextLeave?(function(){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(nextLeave.from);return m?(m[3]+'/'+m[2]):'';})():'';
+  // K με προαιρετικό tip (data-tip για CSS tooltip)
+  var K=function(id,ic,val,lab,cmp,spark,vc,tip){
+    var cls='pp-kpi'+(tip?' pp-tip':'');
+    var attr=tip?(' data-tip="'+escH(tip)+'"'):'';
+    return '<div class="'+cls+'"'+attr+'><div class="kr"><div class="pp-ic '+ic+'"></div><div style="flex:1;min-width:0"><div class="v" id="'+id+'"'+(vc?' style="color:'+vc+'"':'')+'>0</div><div class="l">'+lab+'</div></div></div>'+(cmp?'<div class="cmp '+cmp.cls+'">'+cmp.txt+'</div>':'')+(spark||'')+'</div>';
+  };
   document.getElementById('ppKpis').innerHTML=
     K('pk1','c1',nTot,'ΕΡΓΑΖΟΜΕΝΟΙ ('+((STORES[STORE]||{}).label||STORE)+')',cTot,ppSpark(sAll,'#4d9fff'))+
-    K('pk2','c1',nL,'ΕΡΓΑΖΟΜΕΝΟΙ ΛΙΟΣΙΩΝ',{cls:'nu',txt:(nGrand?Math.round(nL/nGrand*100):0)+'% επιχείρησης'},ppSpark(sL,'#4d9fff'),'#4d9fff')+
-    K('pk3','c4',nLou,'ΕΡΓΑΖΟΜΕΝΟΙ ΛΟΥΤΡΑΚΙΟΥ',{cls:'nu',txt:(nGrand?Math.round(nLou/nGrand*100):0)+'% επιχείρησης'},ppSpark(sLou,'#22c55e'),'#22c55e')+
-    K('pk4','c2',totEnt,'ΔΙΚΑΙΟΥΜΕΝΕΣ ΗΜΕΡΕΣ',cEnt,ppSpark(sAll,'#a87dff'),'#a87dff')+
-    K('pk5','c3',totTak,'ΗΜΕΡΕΣ ΠΟΥ ΛΗΦΘΗΚΑΝ',{cls:(pct>0?'up':'nu'),txt:pct+'% του συνόλου'},ppSpark(sTak,'#f59e0b'),'#f59e0b')+
-    K('pk6','c4',totRem,'ΥΠΟΛΟΙΠΟ ΗΜΕΡΩΝ',{cls:'up',txt:remPct+'% του συνόλου'},ppSpark(sRem,'#22c55e'),'#22c55e')+
-    '<div class="pp-kpi"><div class="kr"><div class="pp-ic c1"></div><div style="flex:1;min-width:0"><div class="v" id="pk7" data-suf="">0</div><div class="l">ΜΕΣΟΣ ΥΠΟΛΟΙΠΟ</div></div></div><div class="cmp nu">ημέρες ανά εργαζόμενο</div></div>'+
-    '<div class="pp-kpi"><div class="kr"><div class="pp-ring" style="background:conic-gradient(var(--accent) '+(pct*3.6)+'deg,var(--bg3) 0)"><span id="pk8">0%</span></div><div style="flex:1;min-width:0"><div class="l">ΠΟΣΟΣΤΟ ΧΡΗΣΗΣ</div><div class="cmp nu" style="margin-top:2px">ποσοστό αδειών</div></div></div></div>';
-  // εικονίδια στα pp-ic
-  var ics=['👥','📍','🌊','📅','💼','📈','🧮'], ie=document.querySelectorAll('#ppKpis .pp-ic'); ['👥','📍','🌊','📅','💼','📈','🧮'].forEach(function(em,i){ if(ie[i])ie[i].textContent=em; });
-  ppAnim(document.getElementById('pk1'),nTot); ppAnim(document.getElementById('pk2'),nL); ppAnim(document.getElementById('pk3'),nLou); ppAnim(document.getElementById('pk4'),totEnt); ppAnim(document.getElementById('pk5'),totTak); ppAnim(document.getElementById('pk6'),totRem);
-  var pk7=document.getElementById('pk7'); if(pk7){pk7.textContent=avgRem.toFixed(1);}
-  var pk8=document.getElementById('pk8'); if(pk8){ppAnim(pk8,pct); pk8.dataset.suf='%';}
+    K('pk2',nOnLeave?'c3':'c2',nOnLeave,'ΣΕ ΑΔΕΙΑ ΣΗΜΕΡΑ',{cls:nOnLeave?'dn':'up',txt:nOnLeave?'· '+trunc(onLeaveNames.join(', '),24):'✓ Όλοι παρόντες'},'',nOnLeave?'#f59e0b':'#22c55e',nOnLeave?('Σε άδεια σήμερα: '+onLeaveNames.join(', ')):'Όλοι οι εργαζόμενοι παρόντες σήμερα')+
+    K('pk3','c4',nextLeave?nextDays:0,'ΕΠΟΜΕΝΗ ΑΔΕΙΑ (ημέρες)',{cls:'nu',txt:nextLeave?'· '+trunc(nextLeave.name,18)+(nextDateLbl?' · '+nextDateLbl:''):'καμία προγραμματισμένη'},'','#a87dff',nextLeave?(nextLeave.name+' — από '+nextLeave.from+' ('+nextLeave.days+' ημέρες)'):'Δεν υπάρχει προγραμματισμένη μελλοντική άδεια')+
+    K('pk4','c3',topUser?topPctNum:0,'TOP ΧΡΗΣΗ',{cls:'nu',txt:topUser?'· '+trunc(topUser.name,18)+' ('+ppTaken(topUser)+'/'+topUser.entitle+')':'—'},ppSpark(topUserSpark,'#f59e0b'),'#f59e0b',topUser?(topUser.name+' — '+ppTaken(topUser)+'/'+topUser.entitle+' ημέρες ('+topPctNum+'%)'):'Καμία χρήση αδειών')+
+    K('pk5',nAtRisk?'c3':'c2',nAtRisk,'ΣΕ ΚΙΝΔΥΝΟ ΕΞΑΝΤΛΗΣΗΣ',{cls:nAtRisk?'dn':'up',txt:nAtRisk?'≤ 5 ημέρες υπόλοιπο':'✓ Κανείς κοντά σε εξάντληση'},'',nAtRisk?'#f59e0b':'#22c55e',nAtRisk?('Με ≤5 ημέρες υπόλοιπο: '+atRiskTip):'Όλοι έχουν επαρκές υπόλοιπο αδειών')+
+    K('pk6','c2',projUsagePct!=null?projUsagePct:0,'ΠΡΟΒΛ. ΧΡΗΣΗ ΔΕΚ',{cls:(projUsagePct||0)>100?'dn':'up',txt:projUsagePct==null?'χωρίς δεδομένα':(projUsagePct>100?'⚠ υπέρβαση κατά '+(projUsagePct-100)+'%':'με τον τρέχοντα ρυθμό')},ppSpark(sTak,'#22c55e'),'#22c55e','Βάσει τρέχοντος ρυθμού: '+totTak+' ημέρες σε '+dayOfYr+' ημέρες έτους → πρόβλεψη '+(projUsagePct||0)+'% στις 31/12')+
+    K('pk7','c4',projUnusedTotal,'ΑΧΡΗΣΙΜΟΠ. ΣΤΟ ΤΕΛΟΣ ΕΤΟΥΣ',{cls:projUnusedTotal>10?'dn':'nu',txt:projUnusedTotal>0?'ημέρες θα μείνουν αδιάθετες':'✓ θα αξιοποιηθούν όλες'},'','#a87dff',projUnusedTotal>0?('Πρόβλεψη αδιάθετων: '+(unusedDetail.length?unusedDetail.join(', '):'συνολικά '+projUnusedTotal+' ημέρες')):'Με τον τρέχοντα ρυθμό, οι άδειες θα αξιοποιηθούν πλήρως')+
+    '<div class="pp-kpi pp-tip" data-tip="'+pctNow+'% χρήση φέτος '+(pPctLast?'(πέρσι '+pPctLast+'%)':'')+'"><div class="kr"><div class="pp-ring" style="background:conic-gradient(var(--accent) '+(pctNow*3.6)+'deg,var(--bg3) 0)"><span id="pk8">0%</span></div><div style="flex:1;min-width:0"><div class="l">ΣΥΝΟΛΙΚΗ ΧΡΗΣΗ</div><div class="cmp '+cmpUsage.cls+'" style="margin-top:2px">'+cmpUsage.txt+'</div></div></div></div>';
+  // εικονίδια στα pp-ic (7 cards K, το 8ο είναι ring χωρίς .pp-ic)
+  var ie=document.querySelectorAll('#ppKpis .pp-ic'); ['👥','🌴','📅','🔥','⚠️','🎯','💎'].forEach(function(em,i){ if(ie[i])ie[i].textContent=em; });
+  ppAnim(document.getElementById('pk1'),nTot);
+  ppAnim(document.getElementById('pk2'),nOnLeave);
+  ppAnim(document.getElementById('pk3'),nextLeave?nextDays:0); var pk3=document.getElementById('pk3'); if(pk3)pk3.dataset.suf='';
+  ppAnim(document.getElementById('pk4'),topUser?topPctNum:0); var pk4=document.getElementById('pk4'); if(pk4)pk4.dataset.suf='%';
+  ppAnim(document.getElementById('pk5'),nAtRisk);
+  ppAnim(document.getElementById('pk6'),projUsagePct!=null?projUsagePct:0); var pk6=document.getElementById('pk6'); if(pk6)pk6.dataset.suf='%';
+  ppAnim(document.getElementById('pk7'),projUnusedTotal);
+  var pk8=document.getElementById('pk8'); if(pk8){ppAnim(pk8,pctNow); pk8.dataset.suf='%';}
   // ── Πίνακας (φίλτρα + pagination) ──
   var fT=((document.getElementById('ppSearch')||{}).value||'').toLowerCase().trim();
   var fS=(document.getElementById('ppStatusF')||{}).value||'';
