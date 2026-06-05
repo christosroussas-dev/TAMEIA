@@ -1487,9 +1487,9 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
     <div><div class="t">🏖️ Dashboard Προσωπικού &amp; Αδειών</div><div class="s" id="ppStoreLbl">Συνολική εικόνα προσωπικού και αδειών</div></div>
     <div class="right">
       <select class="pp-sel pp-tip" id="ppYear" onchange="loadPersonnel()" data-tip="Έτος αδειών"><option>2022</option><option>2023</option><option>2024</option><option>2025</option><option selected>2026</option><option>2027</option></select>
-      <button class="btn-add pp-tip" style="margin:0;" onclick="ppAddEmp()" data-tip="Προσθήκη νέου εργαζομένου στο ενεργό κατάστημα">➕ Νέος εργαζόμενος</button>
-      <button class="btn-add pp-tip" style="margin:0;background:linear-gradient(135deg,#4d9fff,#2f7fe6);box-shadow:none;" onclick="openExLvModal()" data-tip="Εξαγωγή αδειών σε Excel (για αποστολή στη λογίστρια)">📥 Εξαγωγή Αδειών</button>
-      <span class="pp-adminbadge pp-tip" data-tip="Η ενότητα είναι ορατή μόνο σε διαχειριστές">🔒 Μόνο Admin</span>
+      <button id="ppHeadAdd" class="btn-add pp-tip" style="margin:0;" onclick="ppAddEmp()" data-tip="Προσθήκη νέου εργαζομένου στο ενεργό κατάστημα">➕ Νέος εργαζόμενος</button>
+      <button id="ppHeadExport" class="btn-add pp-tip" style="margin:0;background:linear-gradient(135deg,#4d9fff,#2f7fe6);box-shadow:none;" onclick="openExLvModal()" data-tip="Εξαγωγή αδειών σε Excel (για αποστολή στη λογίστρια)">📥 Εξαγωγή Αδειών</button>
+      <span id="ppHeadAdminBadge" class="pp-adminbadge pp-tip" data-tip="Δικαιώματα προσβασης στην ενότητα">🔒 Μόνο Admin</span>
     </div>
   </div>
   <div style="display:flex;justify-content:center;margin-bottom:16px;">
@@ -1750,8 +1750,8 @@ try{ _db.settings({ignoreUndefinedProperties:true}); }catch(e){}
 // store = σε ποιο κατάστημα «δένει» ο εργαζόμενος · tabs = ποιες καρτέλες βλέπει · hideHero = κρύβει το ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ.
 const USER_CFG={
   'christosroussas@gmail.com':{role:'ADMIN'},
-  'afoiroussa@gmail.com':{role:'EMP',store:'LIOSIA',tabs:['main','metrita','exoda'],hideHero:true,funMascot:true},
-  'roussasp@yahoo.gr':{role:'EMP',store:'LOUTRAKI',tabs:['main','metrita','trap','bank','deka5','telos','exoda'],hideHero:true,dualStore:['trap','bank']},
+  'afoiroussa@gmail.com':{role:'EMP',store:'LIOSIA',tabs:['main','metrita','exoda','personnel'],hideHero:true,funMascot:true},
+  'roussasp@yahoo.gr':{role:'EMP',store:'LOUTRAKI',tabs:['main','metrita','trap','bank','deka5','telos','exoda','personnel'],hideHero:true,dualStore:['trap','bank'],personnelView:'all'},
 };
 function userCfg(em){return USER_CFG[(em||'').toLowerCase()]||{role:'EMP',store:'LIOSIA',tabs:['main','metrita','exoda']};}
 function roleForEmail(em){return userCfg(em).role;}
@@ -2058,7 +2058,16 @@ function applyRole(){
   var navExcel=document.getElementById('navExcel');if(navExcel)navExcel.style.display=isAdmin?'':'none';
   var navAI=document.getElementById('navAI');if(navAI)navAI.style.display=isAdmin?'':'none';
   var navAudit=document.getElementById('navAudit');if(navAudit)navAudit.style.display=isAdmin?'':'none';
-  var navPersonnel=document.getElementById('navPersonnel');if(navPersonnel)navPersonnel.style.display=isAdmin?'':'none';
+  var navPersonnel=document.getElementById('navPersonnel');if(navPersonnel)navPersonnel.style.display=(isAdmin||isTabAllowed('personnel'))?'':'none';
+  // Personnel head action buttons (admin-only για mutations· export ορατό σε όλους)
+  var ppHA=document.getElementById('ppHeadAdd'); if(ppHA)ppHA.style.display=isAdmin?'':'none';
+  var ppHE=document.getElementById('ppHeadExport'); if(ppHE)ppHE.style.display=(isAdmin||isTabAllowed('personnel'))?'':'none';
+  var ppHB=document.getElementById('ppHeadAdminBadge');
+  if(ppHB){
+    if(isAdmin){ ppHB.style.background=''; ppHB.style.color=''; ppHB.style.borderColor=''; ppHB.textContent='🔒 Μόνο Admin'; ppHB.style.display=''; }
+    else if(isTabAllowed('personnel')){ ppHB.style.background='rgba(77,159,255,.16)'; ppHB.style.color='#4d9fff'; ppHB.style.border='1px solid rgba(77,159,255,.4)'; ppHB.textContent='👁 Προβολή μόνο'; ppHB.style.display=''; }
+    else ppHB.style.display='none';
+  }
   // Top bar buttons (ΑΠΟΘ/ΦΟΡΤ) μόνο admin
   document.querySelectorAll('.btn').forEach(function(b){
     var txt=b.textContent||'';
@@ -4402,25 +4411,34 @@ function ppMonthlySeries(all){ return [1,2,3,4,5,6,7,8,9,10,11,12].map(function(
 async function fbLoadPersonnel(store,year){ try{ var s=await _db.collection('personnel').doc(store+'_'+year).get(); return (s.exists&&Array.isArray(s.data().emps))?s.data().emps:[]; }catch(e){ return []; } }
 function fbSavePersonnel(store,year){ var key=store+'_'+year; markSaving&&markSaving(); return _db.collection('personnel').doc(key).set({emps:PPDATA[key]||[]}).then(function(){markSaved&&markSaved();}).catch(function(){markDirty&&markDirty();}); }
 async function loadPersonnel(){
-  if(currentRole!=='ADMIN')return;
+  if(!ppCanView())return;
   var yr=ppYearVal(), body=document.getElementById('ppBody');
   if(body)body.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px;">Φόρτωση προσωπικού…</td></tr>';
-  await Promise.all(['LIOSIA','LOUTRAKI'].map(async function(st){ PPDATA[st+'_'+yr]=await fbLoadPersonnel(st,yr); }));
+  await Promise.all(ppVisibleStores().map(async function(st){ PPDATA[st+'_'+yr]=await fbLoadPersonnel(st,yr); }));
   _ppSel={store:'',idx:-1};
   renderPersonnel();
 }
 function ppTaken(e){return (e.items||[]).reduce(function(s,i){return s+(+i.days||0);},0);}
 function ppStatus(e){ if(e.departed)return['left','Αποχώρησε']; if(e.entitle==null)return['na','—']; if(!e.items||!e.items.length)return['none','Χωρίς άδεια']; var r=e.entitle-ppTaken(e); return r<=0?['low','Εξαντλημένες']:r<5?['warn','Προσοχή']:['ok','Κανονικά']; }
 function ppMonthOf(it){ if(it.from){var m=/-(\d{2})-/.exec(it.from);if(m)return +m[1];} var d=String(it.date||''); var iso=/^(\d{4})-(\d{2})/.exec(d); if(iso)return +iso[2]; var p=d.split('/'); if(p.length>=2&&+p[1])return +p[1]; return 0; }
-function ppAllEmps(){ var yr=ppYearVal(), arr=[]; (PPDATA[STORE+'_'+yr]||[]).forEach(function(e,i){ arr.push(Object.assign({},e,{_store:STORE,_idx:i})); }); return arr; }
+// v67: ορατά καταστήματα ανά χρήστη (ADMIN+roussasp=και τα 2 · afoiroussa=μόνο Λιόσια)
+function ppVisibleStores(){
+  if(currentRole==='ADMIN') return ['LIOSIA','LOUTRAKI'];
+  if(currentUserCfg && currentUserCfg.personnelView==='all') return ['LIOSIA','LOUTRAKI'];
+  return [(currentUserCfg && currentUserCfg.store)||STORE||'LIOSIA'];
+}
+function ppCanView(){ return currentRole==='ADMIN' || (currentUserCfg && (currentUserCfg.tabs||[]).indexOf('personnel')>=0); }
+function ppCanEdit(){ return currentRole==='ADMIN'; }
+function ppAllEmps(){ var yr=ppYearVal(), stores=ppVisibleStores(), arr=[]; stores.forEach(function(st){ (PPDATA[st+'_'+yr]||[]).forEach(function(e,i){ arr.push(Object.assign({},e,{_store:st,_idx:i})); }); }); return arr; }
 function ppAnim(el,to){ if(!el)return; var t0=null; function fr(ts){ if(!t0)t0=ts; var p=Math.min(1,(ts-t0)/750); el.textContent=Math.round(to*(1-Math.pow(1-p,3)))+(el.dataset.suf||''); if(p<1)requestAnimationFrame(fr); } requestAnimationFrame(fr); }
 // εργάσιμες ημέρες Από–Έως (όχι Κυριακές, όχι ελληνικές αργίες)
 function ppCalcDays(from,to){ if(!from||!to)return 0; var d1=new Date(from),d2=new Date(to); if(isNaN(d1)||isNaN(d2)||d2<d1)return 0; var n=0,cur=new Date(d1),P=function(x){return String(x).padStart(2,'0');}; var guard=0; while(cur<=d2&&guard++<400){ var dow=cur.getDay(); var iso=cur.getFullYear()+'-'+P(cur.getMonth()+1)+'-'+P(cur.getDate()); var hol=false; try{ hol=(typeof isGreekHoliday==='function')&&isGreekHoliday(iso); }catch(e){} if(dow!==0&&!hol)n++; cur.setDate(cur.getDate()+1); } return n; }
 function ppChg(cur,prev){ if(prev==null||prev===0){ return cur>0?{cls:'up',txt:'↗ νέο φέτος'}:{cls:'nu',txt:'→ —'}; } var p=Math.round((cur-prev)/prev*100); return p>0?{cls:'up',txt:'↗ '+p+'% από πέρσι'}:p<0?{cls:'dn',txt:'↘ '+Math.abs(p)+'% από πέρσι'}:{cls:'nu',txt:'→ ίδιο με πέρσι'}; }
 function renderPersonnel(){
-  if(currentRole!=='ADMIN')return;
+  if(!ppCanView())return;
   var yr=ppYearVal();
-  var lbl=document.getElementById('ppStoreLbl'); if(lbl)lbl.textContent=((STORES[STORE]||{}).full||STORE)+' · έτος '+yr;
+  var stores=ppVisibleStores(), multiStore=(stores.length>1);
+  var lbl=document.getElementById('ppStoreLbl'); if(lbl)lbl.textContent=multiStore?('Όλα τα καταστήματα · έτος '+yr):(((STORES[stores[0]]||{}).full||stores[0])+' · έτος '+yr);
   var all=ppAllEmps();
   // KPI εργαζομένων ανά κατάστημα: cross-store visibility (διάβαζε από PPDATA, όχι από all)
   var liosia=(PPDATA['LIOSIA_'+yr]||[]).map(function(e,i){return Object.assign({},e,{_store:'LIOSIA',_idx:i});});
@@ -4517,7 +4535,7 @@ function renderPersonnel(){
     return '<div class="'+cls+'"'+attr+'><div class="kr"><div class="pp-ic '+ic+'"></div><div style="flex:1;min-width:0"><div class="v" id="'+id+'"'+(vc?' style="color:'+vc+'"':'')+'>0</div><div class="l">'+lab+'</div></div></div>'+(cmp?'<div class="cmp '+cmp.cls+'">'+cmp.txt+'</div>':'')+(spark||'')+'</div>';
   };
   document.getElementById('ppKpis').innerHTML=
-    K('pk1','c1',nTot,'ΕΡΓΑΖΟΜΕΝΟΙ ('+((STORES[STORE]||{}).label||STORE)+')',cTot,ppSpark(sAll,'#4d9fff'))+
+    K('pk1','c1',nTot,multiStore?'ΣΥΝΟΛΟ ΕΡΓΑΖΟΜΕΝΩΝ':'ΕΡΓΑΖΟΜΕΝΟΙ ('+((STORES[stores[0]]||{}).label||stores[0])+')',cTot,ppSpark(sAll,'#4d9fff'))+
     K('pk2',nOnLeave?'c3':'c2',nOnLeave,'ΣΕ ΑΔΕΙΑ ΣΗΜΕΡΑ',{cls:nOnLeave?'dn':'up',txt:nOnLeave?'· '+trunc(onLeaveNames.join(', '),24):'✓ Όλοι παρόντες'},'',nOnLeave?'#f59e0b':'#22c55e',nOnLeave?('Σε άδεια σήμερα: '+onLeaveNames.join(', ')):'Όλοι οι εργαζόμενοι παρόντες σήμερα')+
     K('pk3','c4',nextLeave?nextDays:0,'ΕΠΟΜΕΝΗ ΑΔΕΙΑ (ημέρες)',{cls:'nu',txt:nextLeave?'· '+trunc(nextLeave.name,18)+(nextDateLbl?' · '+nextDateLbl:''):'καμία προγραμματισμένη'},'','#a87dff',nextLeave?(nextLeave.name+' — από '+nextLeave.from+' ('+nextLeave.days+' ημέρες)'):'Δεν υπάρχει προγραμματισμένη μελλοντική άδεια')+
     K('pk4','c3',topUser?topPctNum:0,'TOP ΧΡΗΣΗ',{cls:'nu',txt:topUser?'· '+trunc(topUser.name,18)+' ('+ppTaken(topUser)+'/'+topUser.entitle+')':'—'},ppSpark(topUserSpark,'#f59e0b'),'#f59e0b',topUser?(topUser.name+' — '+ppTaken(topUser)+'/'+topUser.entitle+' ημέρες ('+topPctNum+'%)'):'Καμία χρήση αδειών')+
@@ -4631,7 +4649,7 @@ function ppLeaveMap(yr,mon){
   return map;
 }
 function renderPpCalendar(){
-  if(currentRole!=='ADMIN')return;
+  if(!ppCanView())return;
   var grid=document.getElementById('ppCalGrid'); if(!grid)return;
   var yr=parseInt(ppYearVal()), mon=ppCalMonth, P=function(x){return String(x).padStart(2,'0');};
   var lbl=document.getElementById('ppCalLbl'); if(lbl)lbl.textContent=PP_MONTHS_FULL[mon]+' '+yr;
@@ -4692,6 +4710,7 @@ function ppRenderSide(){
   var hire=e.hireDate?ppFmt(e.hireDate):'—';
   var cur=ppCurrentLeave(e,parseInt(yr));
   var dep=!!e.departed;
+  var canEdit=ppCanEdit();
   var leaveBanner=cur?(
     '<div class="pp-on-leave">'+
       '<div class="ttl">ΣΕ ΑΔΕΙΑ ΤΩΡΑ</div>'+
@@ -4704,7 +4723,7 @@ function ppRenderSide(){
     '<div class="pp-depart-banner">'+
       '<div class="ttl">Αποχωρημένος</div>'+
       '<div class="when">Από <b>'+ppFmt(e.departed)+'</b></div>'+
-      '<button class="restore" onclick="ppRestoreEmp('+_ppSel.idx+')">🔄 Επαναφορά</button>'+
+      (ppCanEdit()?'<button class="restore" onclick="ppRestoreEmp('+_ppSel.idx+')">🔄 Επαναφορά</button>':'')+
     '</div>'
   ):'';
   var dotColor=dep?'#a87dff':(cur?'#f59e0b':'');
@@ -4715,7 +4734,7 @@ function ppRenderSide(){
     '<div class="pp-avatar"'+(dep?' style="filter:grayscale(.5);opacity:.85;"':'')+'>'+((e.name||'?').charAt(0).toUpperCase())+'</div>'+
     '<div class="who"><span class="who-dot" title="'+dotTitle+'"'+(dotColor?' style="background:'+dotColor+';color:'+dotColor+'"':'')+'></span><span class="who-name">'+(e.name||'—')+'</span></div>'+
     '<div class="where">'+((STORES[_ppSel.store]||{}).icon||'')+' '+((STORES[_ppSel.store]||{}).full||_ppSel.store)+'</div>'+
-    '<div class="pp-kv"><span>Ημ/νία πρόσληψης</span><b style="font-family:var(--mono);cursor:pointer" onclick="ppSetHire('+_ppSel.idx+')" title="Κλικ για ορισμό">'+hire+' ✎</b></div>'+
+    '<div class="pp-kv"><span>Ημ/νία πρόσληψης</span><b style="font-family:var(--mono);'+(canEdit?'cursor:pointer':'')+'"'+(canEdit?' onclick="ppSetHire('+_ppSel.idx+')" title="Κλικ για ορισμό"':'')+'>'+hire+(canEdit?' ✎':'')+'</b></div>'+
     '<div class="pp-kv"><span>Δικαιούμενες ημέρες</span><b>'+(e.entitle!=null?e.entitle:'—')+'</b></div>'+
     '<div class="pp-kv"><span>Ληφθείσες ημέρες</span><b style="color:#f59e0b">'+t+'</b></div>'+
     '<div class="pp-kv"><span>Υπόλοιπο ημερών</span><b style="color:'+(rem==null?'var(--muted)':rem<=0?'var(--red-2)':'var(--green-2)')+'">'+(rem!=null?rem:'—')+'</b></div>'+
@@ -4725,14 +4744,16 @@ function ppRenderSide(){
     '<div class="pp-prog"><i style="width:'+pct+'%;background:'+barc+'"></i></div><div style="font-size:10px;color:var(--muted);text-align:right">'+pct+'% χρήση</div>'+
     (rem!=null&&rem<=0?'<div style="margin-top:8px;padding:8px 10px;border-radius:8px;background:rgba(224,85,85,.1);border:1px solid rgba(224,85,85,.3);color:#ffc9c9;font-size:11.5px">⚠️ Έχει εξαντλήσει τις άδειές του</div>':(rem!=null&&rem<5?'<div style="margin-top:8px;padding:8px 10px;border-radius:8px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:#f0e2bb;font-size:11.5px">⚠️ Λίγες μέρες υπόλοιπο ('+rem+')</div>':''))+
     '<h4>Ιστορικό αδειών ('+(e.items||[]).length+')</h4>'+
-    ((e.items||[]).length?(e.items||[]).map(function(it,j){var dlbl=(it.from&&it.to&&it.from!==it.to)?(ppFmt(it.from)+' → '+ppFmt(it.to)):(it.date?ppFmt(it.date):'—'); return '<div class="pp-lv"><div class="top"><span>🗓️ '+dlbl+'</span><button class="btn-del" onclick="event.stopPropagation();ppDelLeave('+_ppSel.idx+','+j+')" title="Διαγραφή">✕</button></div><div class="bot"><span>'+(it.days||0)+' ημέρες</span><span class="ok">✓ Ολοκληρωμένη</span></div></div>';}).join(''):'<div style="font-size:12px;color:var(--muted);padding:6px 0">Καμία άδεια ακόμα</div>')+
-    (dep
-      ? '<button class="addbtn" style="width:100%;background:rgba(168,125,255,.12);border:1px solid rgba(168,125,255,.35);color:#a87dff;padding:11px;border-radius:10px;font-weight:800;font-size:13px;cursor:default;margin-top:8px" disabled title="Δεν επιτρέπεται καταχώρηση άδειας για αποχωρημένο">🚪 Αποχωρημένος — Δεν επιτρέπεται νέα άδεια</button>'
-      : '<button class="addbtn" style="width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#04101f;padding:12px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer;margin-top:8px;box-shadow:0 6px 18px -6px var(--accent-bg-soft);" onclick="openPpLvAdd('+_ppSel.idx+')">➕ Νέα Άδεια</button>')+
-    (dep
-      ? ''
-      : '<button class="addbtn depart" style="width:100%;padding:10px;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;margin-top:6px;" onclick="openPpDepartModal('+_ppSel.idx+')">🚪 Σήμανση Αποχώρησης</button>')+
-    '<button class="addbtn danger-soft" style="width:100%;border-radius:10px;font-weight:700;cursor:pointer;margin-top:6px;" onclick="ppDelEmp('+_ppSel.idx+')" title="ΜΟΝΟ για διορθώσεις (π.χ. λάθος καταχώρηση) — προτίμησε «Αποχώρηση» για κανονική έξοδο από την επιχείρηση">🗑️ Πλήρης διαγραφή (μόνο για διορθώσεις)</button>';
+    ((e.items||[]).length?(e.items||[]).map(function(it,j){var dlbl=(it.from&&it.to&&it.from!==it.to)?(ppFmt(it.from)+' → '+ppFmt(it.to)):(it.date?ppFmt(it.date):'—'); return '<div class="pp-lv"><div class="top"><span>🗓️ '+dlbl+'</span>'+(canEdit?'<button class="btn-del" onclick="event.stopPropagation();ppDelLeave('+_ppSel.idx+','+j+')" title="Διαγραφή">✕</button>':'')+'</div><div class="bot"><span>'+(it.days||0)+' ημέρες</span><span class="ok">✓ Ολοκληρωμένη</span></div></div>';}).join(''):'<div style="font-size:12px;color:var(--muted);padding:6px 0">Καμία άδεια ακόμα</div>')+
+    (canEdit
+      ? ((dep
+          ? '<button class="addbtn" style="width:100%;background:rgba(168,125,255,.12);border:1px solid rgba(168,125,255,.35);color:#a87dff;padding:11px;border-radius:10px;font-weight:800;font-size:13px;cursor:default;margin-top:8px" disabled title="Δεν επιτρέπεται καταχώρηση άδειας για αποχωρημένο">🚪 Αποχωρημένος — Δεν επιτρέπεται νέα άδεια</button>'
+          : '<button class="addbtn" style="width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#04101f;padding:12px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer;margin-top:8px;box-shadow:0 6px 18px -6px var(--accent-bg-soft);" onclick="openPpLvAdd('+_ppSel.idx+')">➕ Νέα Άδεια</button>')+
+        (dep
+          ? ''
+          : '<button class="addbtn depart" style="width:100%;padding:10px;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;margin-top:6px;" onclick="openPpDepartModal('+_ppSel.idx+')">🚪 Σήμανση Αποχώρησης</button>')+
+        '<button class="addbtn danger-soft" style="width:100%;border-radius:10px;font-weight:700;cursor:pointer;margin-top:6px;" onclick="ppDelEmp('+_ppSel.idx+')" title="ΜΟΝΟ για διορθώσεις (π.χ. λάθος καταχώρηση) — προτίμησε «Αποχώρηση» για κανονική έξοδο από την επιχείρηση">🗑️ Πλήρης διαγραφή (μόνο για διορθώσεις)</button>')
+      : '<div style="margin-top:10px;padding:9px 11px;border-radius:9px;background:rgba(77,159,255,.08);border:1px dashed rgba(77,159,255,.35);color:#9cc6ff;font-size:11.5px;text-align:center;">👁 Προβολή μόνο — οι αλλαγές γίνονται από τον διαχειριστή</div>');
 }
 function ppSetHire(idx){ var store=_ppSel.store, yr=ppYearVal(), e=(PPDATA[store+'_'+yr]||[])[idx]; if(!e)return; var v=prompt('Ημ/νία πρόσληψης (ηη/μμ/εεεε):', e.hireDate?ppFmt(e.hireDate):''); if(v===null)return; var iso=ppToISO(v); e.hireDate=iso||''; fbSavePersonnel(store,yr); renderPersonnel(); }
 function ppRenderCharts(all){
