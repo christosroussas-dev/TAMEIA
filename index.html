@@ -265,6 +265,12 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 .pp-emp .av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04210f;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .pp-ring{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .pp-ring span{width:34px;height:34px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--accent);}
+/* inline-editable κελιά (15ου/Τέλος ΛΙΟΣΙΑ/ΛΟΥΤΡΑΚΙ) */
+.edit-cell{cursor:pointer;transition:.12s;}
+.edit-cell:hover{background:rgba(200,168,75,.12);box-shadow:inset 0 0 0 1px var(--accent);}
+.edit-cell .pen{opacity:.3;font-size:9px;margin-left:4px;}
+.edit-cell:hover .pen{opacity:.9;}
+.edit-cell input{width:88px;padding:4px 6px;border:1px solid var(--accent);border-radius:6px;background:var(--bg3);color:var(--text);font-size:12px;text-align:right;font-family:var(--mono);}
 /* view toggle (Dashboard / Ημερολόγιο) */
 .pp-views{display:inline-flex;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:3px;gap:2px;}
 .pp-views button{background:none;border:none;color:var(--muted);font-weight:700;font-size:12px;padding:7px 13px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:5px;}
@@ -3122,7 +3128,7 @@ async function delD5(idx){
 function renderD5(){
   const k=ek();const rows=D.d15[k]||[];const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);const totS=rows.reduce((s,r)=>s+(r.synolo||0),0),totK=rows.reduce((s,r)=>s+(r.loutraki||0),0);
   document.getElementById('d5Tot').textContent=fmt(tot);document.getElementById('d5Cnt').textContent=rows.length;
-  document.getElementById('d5Body').innerHTML=rows.map((r,i)=>`<tr><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td>${r.prom}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td class="num">${r.synolo?fmt(r.synolo):'—'}</td><td class="acc">${fmt(r.liosia)}</td><td class="num" style="color:var(--muted)">${r.loutraki?fmt(r.loutraki):'—'}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delD5(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="3">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
+  document.getElementById('d5Body').innerHTML=rows.map((r,i)=>`<tr><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td>${r.prom}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td class="num">${r.synolo?fmt(r.synolo):'—'}</td><td class="acc edit-cell" title="Κλικ για επεξεργασία ΛΙΟΣΙΑ" onclick="editShareCell(event,'d15',${i},'liosia')">${fmt(r.liosia)}<span class="pen">✎</span></td><td class="num edit-cell" style="color:var(--muted)" title="Κλικ για επεξεργασία ΛΟΥΤΡΑΚΙ" onclick="editShareCell(event,'d15',${i},'loutraki')">${r.loutraki?fmt(r.loutraki):'0,00'}<span class="pen">✎</span></td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delD5(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="3">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
 }
 
 function addTel(){
@@ -3147,9 +3153,37 @@ function renderTel(){
   const k=ek();const rows=D.telos[k]||[];const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);const totS=rows.reduce((s,r)=>s+(r.synolo||0),0),totK=rows.reduce((s,r)=>s+(r.loutraki||0),0);
   document.getElementById('telTot').textContent=fmt(tot);document.getElementById('telCnt').textContent=rows.length;
   const kb=kt=>`<span style="font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(200,168,75,.12);color:var(--accent)">${kt}</span>`;
-  document.getElementById('telBody').innerHTML=rows.map((r,i)=>`<tr><td>${kb(r.kat)}</td><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td>${r.name}</td><td class="num">${r.synolo?fmt(r.synolo):'—'}</td><td class="acc">${fmt(r.liosia)}</td><td class="num" style="color:var(--muted)">${r.loutraki?fmt(r.loutraki):'—'}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTel(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="4">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
+  document.getElementById('telBody').innerHTML=rows.map((r,i)=>`<tr><td>${kb(r.kat)}</td><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td>${r.name}</td><td class="num">${r.synolo?fmt(r.synolo):'—'}</td><td class="acc edit-cell" title="Κλικ για επεξεργασία ΛΙΟΣΙΑ" onclick="editShareCell(event,'telos',${i},'liosia')">${fmt(r.liosia)}<span class="pen">✎</span></td><td class="num edit-cell" style="color:var(--muted)" title="Κλικ για επεξεργασία ΛΟΥΤΡΑΚΙ" onclick="editShareCell(event,'telos',${i},'loutraki')">${r.loutraki?fmt(r.loutraki):'0,00'}<span class="pen">✎</span></td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTel(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="4">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
 }
 
+// ===== Inline επεξεργασία ΛΙΟΣΙΑ/ΛΟΥΤΡΑΚΙ στα 15ου & Τέλος (κλικ → input → save) =====
+function _shareArr(sec){const k=ek();return (sec==='d15'?D.d15:D.telos)[k];}
+function editShareCell(ev,sec,idx,field){
+  ev.stopPropagation();
+  const td=ev.currentTarget; if(td.querySelector('input'))return;
+  const arr=_shareArr(sec); if(!arr||!arr[idx])return;
+  const cur=Math.round((+arr[idx][field]||0)*100)/100;
+  td.innerHTML='<input type="number" step="0.01" inputmode="decimal" value="'+cur+'">';
+  const inp=td.querySelector('input'); inp.focus(); inp.select();
+  let done=false;
+  const fin=function(save){ if(done)return; done=true; if(save)commitShare(sec,idx,field,parseFloat(inp.value)); else (sec==='d15'?renderD5():renderTel()); };
+  inp.onblur=function(){fin(true);};
+  inp.onkeydown=function(e){ if(e.key==='Enter'){e.preventDefault();inp.blur();} else if(e.key==='Escape'){done=true;(sec==='d15'?renderD5():renderTel());} };
+}
+function commitShare(sec,idx,field,val){
+  if(isNaN(val)||val<0)val=0; val=Math.round(val*100)/100;
+  const arr=_shareArr(sec); if(!arr||!arr[idx]){ (sec==='d15'?renderD5():renderTel()); return; }
+  const row=arr[idx], old=Math.round((+row[field]||0)*100)/100;
+  if(val===old){ (sec==='d15'?renderD5():renderTel()); return; }   // καμία αλλαγή
+  row[field]=val;
+  row.synolo=Math.round(((+row.liosia||0)+(+row.loutraki||0))*100)/100;   // ΣΥΝΟΛΟ = ΛΙΟΣΙΑ + ΛΟΥΤΡΑΚΙ
+  const nm=row.prom||row.name||'';
+  logAction(sec==='d15'?'Διόρθωση 15ου':'Διόρθωση Τέλους', nm+' · '+(field==='liosia'?'ΛΙΟΣΙΑ':'ΛΟΥΤΡΑΚΙ')+' '+fmt(old)+' → '+fmt(val)+' (νέο σύνολο '+fmt(row.synolo)+')');
+  if(sec==='d15')renderD5(); else renderTel();
+  renderMain();                 // ξαναϋπολογισμός ΥΠΟΛΟΙΠΟΥ (calcYP χρησιμοποιεί .liosia)
+  saveToSheets(sec);            // αποθήκευση στο κοινό doc (15ου/Τέλος)
+  flashOK&&flashOK();
+}
 // ===== #7: ΚΑΘΗΜΕΡΙΝΑ ΕΞΟΔΑ (petty cash / δεύτερο ταμείο) — ανά κατάστημα/μήνα, αυτόνομο =====
 // Μία ενότητα D.exoda[k] = πίνακας {type:'cash'|'exp', date, desc, poso}. cash=φλουρί, exp=έξοδα.
 function addExCash(){
