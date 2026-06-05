@@ -1286,7 +1286,6 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
   <div class="pp-head">
     <div><div class="t">🏖️ Dashboard Προσωπικού &amp; Αδειών</div><div class="s" id="ppStoreLbl">Συνολική εικόνα προσωπικού και αδειών</div></div>
     <div class="right">
-      <select class="pp-sel" id="ppStoreF" onchange="renderPersonnel()"><option value="">🏪 Όλα τα καταστήματα</option><option value="LIOSIA">📍 Λιόσια</option><option value="LOUTRAKI">🌊 Λουτράκι</option></select>
       <select class="pp-sel" id="ppYear" onchange="loadPersonnel()"><option>2022</option><option>2023</option><option>2024</option><option>2025</option><option selected>2026</option><option>2027</option></select>
       <button class="btn-add" style="margin:0;" onclick="ppAddEmp()">➕ Νέος εργαζόμενος</button>
       <button class="btn-add" style="margin:0;background:linear-gradient(135deg,#4d9fff,#2f7fe6);box-shadow:none;" onclick="ppImportInfo()">📥 Εισαγωγή Excel</button>
@@ -2121,6 +2120,7 @@ function refreshActiveTab(){
     else renderStats();
   }
   else if(id==='alerts') runRules();
+  else if(id==='personnel') renderPersonnel();
 }
 function autoInitNewMonth(v){
   const hasData=(D.days[v]||[]).length>0||(D.bank[v]||[]).length>0||(D.metrita[v]||[]).length>0;
@@ -4114,26 +4114,27 @@ async function loadPersonnel(){
 function ppTaken(e){return (e.items||[]).reduce(function(s,i){return s+(+i.days||0);},0);}
 function ppStatus(e){ if(e.entitle==null)return['na','—']; if(!e.items||!e.items.length)return['none','Χωρίς άδεια']; var r=e.entitle-ppTaken(e); return r<=0?['low','Εξαντλημένες']:r<5?['warn','Προσοχή']:['ok','Κανονικά']; }
 function ppMonthOf(it){ if(it.from){var m=/-(\d{2})-/.exec(it.from);if(m)return +m[1];} var d=String(it.date||''); var iso=/^(\d{4})-(\d{2})/.exec(d); if(iso)return +iso[2]; var p=d.split('/'); if(p.length>=2&&+p[1])return +p[1]; return 0; }
-function ppAllEmps(){ var yr=ppYearVal(), sf=(document.getElementById('ppStoreF')||{}).value||'', stores=sf?[sf]:['LIOSIA','LOUTRAKI'], arr=[]; stores.forEach(function(st){ (PPDATA[st+'_'+yr]||[]).forEach(function(e,i){ arr.push(Object.assign({},e,{_store:st,_idx:i})); }); }); return arr; }
+function ppAllEmps(){ var yr=ppYearVal(), arr=[]; (PPDATA[STORE+'_'+yr]||[]).forEach(function(e,i){ arr.push(Object.assign({},e,{_store:STORE,_idx:i})); }); return arr; }
 function ppAnim(el,to){ if(!el)return; var t0=null; function fr(ts){ if(!t0)t0=ts; var p=Math.min(1,(ts-t0)/750); el.textContent=Math.round(to*(1-Math.pow(1-p,3)))+(el.dataset.suf||''); if(p<1)requestAnimationFrame(fr); } requestAnimationFrame(fr); }
 // εργάσιμες ημέρες Από–Έως (όχι Κυριακές, όχι ελληνικές αργίες)
 function ppCalcDays(from,to){ if(!from||!to)return 0; var d1=new Date(from),d2=new Date(to); if(isNaN(d1)||isNaN(d2)||d2<d1)return 0; var n=0,cur=new Date(d1),P=function(x){return String(x).padStart(2,'0');}; var guard=0; while(cur<=d2&&guard++<400){ var dow=cur.getDay(); var iso=cur.getFullYear()+'-'+P(cur.getMonth()+1)+'-'+P(cur.getDate()); var hol=false; try{ hol=(typeof isGreekHoliday==='function')&&isGreekHoliday(iso); }catch(e){} if(dow!==0&&!hol)n++; cur.setDate(cur.getDate()+1); } return n; }
 function ppChg(cur,prev){ if(prev==null||prev===0){ return cur>0?{cls:'up',txt:'↗ νέο φέτος'}:{cls:'nu',txt:'→ —'}; } var p=Math.round((cur-prev)/prev*100); return p>0?{cls:'up',txt:'↗ '+p+'% από πέρσι'}:p<0?{cls:'dn',txt:'↘ '+Math.abs(p)+'% από πέρσι'}:{cls:'nu',txt:'→ ίδιο με πέρσι'}; }
 function renderPersonnel(){
   if(currentRole!=='ADMIN')return;
-  var yr=ppYearVal(), sf=(document.getElementById('ppStoreF')||{}).value||'';
-  var lbl=document.getElementById('ppStoreLbl'); if(lbl)lbl.textContent=(sf?(STORES[sf]||{}).full:'Όλα τα καταστήματα')+' · έτος '+yr;
+  var yr=ppYearVal();
+  var lbl=document.getElementById('ppStoreLbl'); if(lbl)lbl.textContent=((STORES[STORE]||{}).full||STORE)+' · έτος '+yr;
   var all=ppAllEmps();
-  var liosia=all.filter(function(e){return e._store==='LIOSIA';}), lout=all.filter(function(e){return e._store==='LOUTRAKI';});
-  var nL=liosia.length, nLou=lout.length, nTot=all.length;
+  // KPI εργαζομένων ανά κατάστημα: cross-store visibility (διάβαζε από PPDATA, όχι από all)
+  var liosia=(PPDATA['LIOSIA_'+yr]||[]).map(function(e,i){return Object.assign({},e,{_store:'LIOSIA',_idx:i});});
+  var lout=(PPDATA['LOUTRAKI_'+yr]||[]).map(function(e,i){return Object.assign({},e,{_store:'LOUTRAKI',_idx:i});});
+  var nL=liosia.length, nLou=lout.length, nGrand=nL+nLou, nTot=all.length;
   var totEnt=all.reduce(function(s,e){return s+(e.entitle||0);},0);
   var totTak=all.reduce(function(s,e){return s+ppTaken(e);},0);
   var totRem=all.reduce(function(s,e){return s+(e.entitle!=null?Math.max(0,e.entitle-ppTaken(e)):0);},0);
   var pct=totEnt?Math.round(totTak/totEnt*100):0, remPct=totEnt?Math.round(totRem/totEnt*100):0;
   var avgRem=nTot?(totRem/nTot):0;
-  // περσινά (για συγκρίσεις)
-  var py=String(parseInt(yr)-1), pStores=sf?[sf]:['LIOSIA','LOUTRAKI'], pAll=[];
-  pStores.forEach(function(st){ (PPDATA[st+'_'+py]||[]).forEach(function(e){ pAll.push(e); }); });
+  // περσινά (για συγκρίσεις) — μόνο ενεργό κατάστημα
+  var py=String(parseInt(yr)-1), pAll=(PPDATA[STORE+'_'+py]||[]);
   var pTot=pAll.length, pEnt=pAll.reduce(function(s,e){return s+(e.entitle||0);},0);
   var cTot=ppChg(nTot,pTot), cEnt=ppChg(totEnt,pEnt);
   // sparkline series
@@ -4142,9 +4143,9 @@ function renderPersonnel(){
   var K=function(id,ic,val,lab,cmp,spark,vc){ return '<div class="pp-kpi"><div class="kr"><div class="pp-ic '+ic+'">'+'</div><div style="flex:1;min-width:0"><div class="v" id="'+id+'"'+(vc?' style="color:'+vc+'"':'')+'>0</div><div class="l">'+lab+'</div></div></div>'+(cmp?'<div class="cmp '+cmp.cls+'">'+cmp.txt+'</div>':'')+(spark||'')+'</div>'; };
   // χρησιμοποιούμε εικονίδια ως background του pp-ic μέσω textContent
   document.getElementById('ppKpis').innerHTML=
-    K('pk1','c1',nTot,'ΣΥΝΟΛΟ ΕΡΓΑΖΟΜΕΝΩΝ',cTot,ppSpark(sAll,'#4d9fff'))+
-    K('pk2','c1',nL,'ΕΡΓΑΖΟΜΕΝΟΙ ΛΙΟΣΙΩΝ',{cls:'nu',txt:(nTot?Math.round(nL/nTot*100):0)+'% του συνόλου'},ppSpark(sL,'#4d9fff'),'#4d9fff')+
-    K('pk3','c4',nLou,'ΕΡΓΑΖΟΜΕΝΟΙ ΛΟΥΤΡΑΚΙΟΥ',{cls:'nu',txt:(nTot?Math.round(nLou/nTot*100):0)+'% του συνόλου'},ppSpark(sLou,'#22c55e'),'#22c55e')+
+    K('pk1','c1',nTot,'ΕΡΓΑΖΟΜΕΝΟΙ ('+((STORES[STORE]||{}).label||STORE)+')',cTot,ppSpark(sAll,'#4d9fff'))+
+    K('pk2','c1',nL,'ΕΡΓΑΖΟΜΕΝΟΙ ΛΙΟΣΙΩΝ',{cls:'nu',txt:(nGrand?Math.round(nL/nGrand*100):0)+'% επιχείρησης'},ppSpark(sL,'#4d9fff'),'#4d9fff')+
+    K('pk3','c4',nLou,'ΕΡΓΑΖΟΜΕΝΟΙ ΛΟΥΤΡΑΚΙΟΥ',{cls:'nu',txt:(nGrand?Math.round(nLou/nGrand*100):0)+'% επιχείρησης'},ppSpark(sLou,'#22c55e'),'#22c55e')+
     K('pk4','c2',totEnt,'ΔΙΚΑΙΟΥΜΕΝΕΣ ΗΜΕΡΕΣ',cEnt,ppSpark(sAll,'#a87dff'),'#a87dff')+
     K('pk5','c3',totTak,'ΗΜΕΡΕΣ ΠΟΥ ΛΗΦΘΗΚΑΝ',{cls:(pct>0?'up':'nu'),txt:pct+'% του συνόλου'},ppSpark(sTak,'#f59e0b'),'#f59e0b')+
     K('pk6','c4',totRem,'ΥΠΟΛΟΙΠΟ ΗΜΕΡΩΝ',{cls:'up',txt:remPct+'% του συνόλου'},ppSpark(sRem,'#22c55e'),'#22c55e')+
@@ -4331,11 +4332,12 @@ function ppRenderCharts(all){
   var col=_ppSel.store==='LOUTRAKI'?'#22c55e':'#4d9fff';
   if(emp){ ppRenderChartsEmp(emp,col,barH,remH,donH); return; }
   // ── ΣΥΝΟΛΙΚΗ ΕΙΚΟΝΑ (κανείς επιλεγμένος) ──
-  if(barH)barH.innerHTML='📊 Άδειες ανά μήνα <span style="color:var(--muted);font-weight:400">(όλοι)</span>';
-  if(remH)remH.innerHTML='👤 Υπόλοιπα ανά εργαζόμενο';
+  if(barH)barH.innerHTML='📊 Άδειες ανά μήνα <span style="color:var(--muted);font-weight:400">(σύγκριση καταστημάτων)</span>';
+  if(remH)remH.innerHTML='👤 Υπόλοιπα ανά εργαζόμενο <span style="color:var(--muted);font-weight:400">('+((STORES[STORE]||{}).label||STORE)+')</span>';
   if(donH)donH.innerHTML='🏪 Σύγκριση &amp; Κατάσταση';
   var mfn=function(list){return [1,2,3,4,5,6,7,8,9,10,11,12].map(function(m){var s=0;list.forEach(function(e){(e.items||[]).forEach(function(it){if(ppMonthOf(it)===m)s+=(+it.days||0);});});return s;});};
-  var liosia=all.filter(function(e){return e._store==='LIOSIA';}), lout=all.filter(function(e){return e._store==='LOUTRAKI';});
+  // cross-store comparison: διάβασε από PPDATA και τα 2 (η `all` έχει μόνο ενεργό STORE)
+  var liosia=(PPDATA['LIOSIA_'+yr]||[]), lout=(PPDATA['LOUTRAKI_'+yr]||[]);
   var byL=mfn(liosia), byLou=mfn(lout);
   var bc=document.getElementById('ppBar'); if(bc){ if(_ppBar){try{_ppBar.destroy();}catch(e){}}
     var ds=[]; if(liosia.length)ds.push({label:'Λιόσια',data:byL,backgroundColor:'#4d9fff',borderRadius:4,maxBarThickness:18,stack:'s'});
@@ -4396,8 +4398,7 @@ function ppRenderSum(all,totEnt,totTak,totRem){
 }
 function ppAddEmp(){
   if(currentRole!=='ADMIN')return;
-  var sf=(document.getElementById('ppStoreF')||{}).value;
-  var store=sf|| (STORE) ; if(!sf){ store=STORE; }
+  var store=STORE;
   var name=prompt('Όνομα εργαζόμενου (κατάστημα: '+((STORES[store]||{}).full||store)+'):'); if(!name)return; name=name.trim(); if(!name)return;
   var yr=ppYearVal();
   // Μ.Α auto από περσινό
@@ -4407,7 +4408,6 @@ function ppAddEmp(){
   var key=store+'_'+yr; if(!PPDATA[key])PPDATA[key]=[];
   PPDATA[key].push({name:name, entitle:ent, items:[]});
   fbSavePersonnel(store,yr); logAction('Νέος εργαζόμενος (άδειες)','['+((STORES[store]||{}).label||store)+'] '+name+' · Μ.Α '+(ent||'—'));
-  if(!sf){document.getElementById('ppStoreF').value=store;}
   _ppSel={store:store,idx:PPDATA[key].length-1}; renderPersonnel();
 }
 function ppAddLeave(idx){
