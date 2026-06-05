@@ -298,6 +298,155 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 .pp-calmore{font-size:9.5px;color:var(--muted);font-weight:700;}
 .pp-calcell .cnt{margin-top:auto;font-size:9px;color:var(--muted);}
 
+/* ════════════════════════════════════════════════════════════
+   v61 — PREMIUM PERSONNEL DASHBOARD (UI/UX upgrade)
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Animations ── */
+@keyframes pp-fadein{from{opacity:0}to{opacity:1}}
+@keyframes pp-slideup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pp-pin-bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-3px) rotate(2deg)}}
+@keyframes pp-dot-pulse{0%,100%{box-shadow:0 0 0 0 currentColor,0 0 8px currentColor}50%{box-shadow:0 0 0 6px transparent,0 0 12px currentColor}}
+@keyframes pp-shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+@keyframes pp-bar-grow{from{width:0 !important}}
+@keyframes pp-halo-rot{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+/* ── Premium global store bar ── */
+.active-store-bar{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--accent-bg) 0%,rgba(11,19,34,.78) 80%);backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);border:1px solid var(--accent-line);box-shadow:0 10px 28px -14px var(--accent-bg-soft),inset 0 1px 0 rgba(255,255,255,.06);}
+.active-store-bar::before{content:"";position:absolute;left:-15%;top:-60%;width:55%;height:220%;background:radial-gradient(ellipse at center,var(--accent-bg-soft),transparent 65%);opacity:.55;pointer-events:none;filter:blur(8px);}
+.active-store-bar::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.55;}
+.active-store-bar .asb-icon{animation:pp-pin-bob 2.4s ease-in-out infinite;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:11px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),0 4px 12px -4px var(--accent-bg-soft);font-size:21px;}
+.asb-meta{display:flex;flex-direction:column;gap:1px;}
+.asb-sub{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.01em;display:inline-flex;align-items:center;gap:6px;}
+.asb-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);color:var(--accent);box-shadow:0 0 8px currentColor;display:inline-block;animation:pp-dot-pulse 2s infinite;}
+
+/* ── Premium KPI cards ── */
+.pp-kpis{animation:pp-fadein .35s var(--ease);}
+.pp-kpi{position:relative;background:
+  linear-gradient(160deg,rgba(20,28,46,.96),rgba(11,19,34,.96)) padding-box,
+  linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.02) 50%,rgba(255,255,255,.08)) border-box;
+  border:1px solid transparent;backdrop-filter:blur(6px);overflow:hidden;
+  box-shadow:0 10px 26px -14px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.04);
+  transition:transform .22s var(--ease),box-shadow .25s var(--ease);
+  animation:pp-slideup .4s var(--ease) both;}
+.pp-kpi::after{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(circle at 50% 0%,var(--accent-bg-soft),transparent 60%);opacity:0;transition:opacity .35s;pointer-events:none;}
+.pp-kpi:hover{transform:translateY(-4px);box-shadow:0 18px 38px -16px var(--accent-bg-soft),0 8px 18px -10px rgba(0,0,0,.5);}
+.pp-kpi:hover::after{opacity:.6;}
+.pp-kpi:nth-child(1){animation-delay:.02s}
+.pp-kpi:nth-child(2){animation-delay:.06s}
+.pp-kpi:nth-child(3){animation-delay:.10s}
+.pp-kpi:nth-child(4){animation-delay:.14s}
+.pp-kpi:nth-child(5){animation-delay:.18s}
+.pp-kpi:nth-child(6){animation-delay:.22s}
+.pp-kpi:nth-child(7){animation-delay:.26s}
+.pp-kpi:nth-child(8){animation-delay:.30s}
+.pp-ic{box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),0 6px 18px -6px currentColor;transition:transform .22s var(--ease),box-shadow .22s;}
+.pp-kpi:hover .pp-ic{transform:scale(1.08) rotate(-3deg);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 8px 22px -4px currentColor;}
+.pp-kpi .v{background:linear-gradient(180deg,#fff,#cfd8e6);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-.02em;}
+.pp-spark{filter:drop-shadow(0 1px 3px currentColor);}
+
+/* ── Tools / filters / search ── */
+.pp-tools{background:linear-gradient(180deg,rgba(13,19,33,.55),transparent);}
+.pp-search{transition:border-color .22s,box-shadow .22s,background .22s;background:linear-gradient(180deg,rgba(13,19,33,.6),rgba(13,19,33,.35));}
+.pp-search::placeholder{color:rgba(133,147,173,.7);}
+.pp-search:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg-soft),inset 0 0 0 1px var(--accent-line);background:rgba(13,19,33,.7);}
+.pp-sel{transition:border-color .22s,box-shadow .22s,background .22s;}
+.pp-sel:hover{border-color:var(--accent-line);}
+.pp-sel:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg-soft);}
+
+/* ── Premium table rows ── */
+#ppBody tr{transition:background .18s var(--ease),box-shadow .18s,transform .12s;animation:pp-fadein .28s var(--ease) both;}
+#ppBody tr:nth-child(1){animation-delay:.02s}#ppBody tr:nth-child(2){animation-delay:.05s}
+#ppBody tr:nth-child(3){animation-delay:.08s}#ppBody tr:nth-child(4){animation-delay:.11s}
+#ppBody tr:nth-child(5){animation-delay:.14s}#ppBody tr:nth-child(6){animation-delay:.17s}
+#ppBody tr:nth-child(7){animation-delay:.20s}#ppBody tr:nth-child(8){animation-delay:.23s}
+#ppBody tr:hover{background:rgba(255,255,255,.025);}
+.pp-row-sel{background:linear-gradient(90deg,var(--accent-bg-soft),transparent 75%) !important;box-shadow:inset 4px 0 0 var(--accent),0 6px 18px -10px var(--accent-bg-soft) !important;}
+.pp-emp .av{box-shadow:0 5px 14px -4px var(--accent-bg-soft),inset 0 0 0 1px rgba(255,255,255,.1),inset 0 -2px 4px rgba(0,0,0,.25);transition:transform .25s var(--ease);}
+#ppBody tr:hover .pp-emp .av{transform:scale(1.1) rotate(-3deg);}
+.pp-usebar{box-shadow:inset 0 1px 2px rgba(0,0,0,.5);position:relative;overflow:hidden;}
+.pp-usebar>i{position:relative;transition:width .9s cubic-bezier(.22,1,.36,1);box-shadow:0 0 10px currentColor;animation:pp-bar-grow .9s cubic-bezier(.22,1,.36,1);}
+.pp-usebar>i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);background-size:200% 100%;animation:pp-shimmer 2.2s linear infinite;}
+
+/* ── Premium badges (with icon dot) ── */
+.pp-badge{display:inline-flex;align-items:center;gap:5px;}
+.pp-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 6px currentColor;}
+.pp-stbadge{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:5px;font-size:9.5px;letter-spacing:.01em;}
+
+/* ── Premium right side panel ── */
+.pp-side{background:linear-gradient(180deg,rgba(20,28,46,.96),rgba(11,19,34,.96)) padding-box,linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.02)) border-box;border:1px solid transparent;box-shadow:0 12px 32px -16px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.04);animation:pp-slideup .35s var(--ease);}
+.pp-avatar{position:relative;width:78px;height:78px;font-size:30px;box-shadow:0 12px 28px -8px var(--accent-bg-soft),inset 0 -3px 8px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.18);}
+.pp-avatar::after{content:"";position:absolute;inset:-5px;border-radius:50%;background:conic-gradient(from 0deg,var(--accent),var(--accent2),var(--accent));opacity:.3;filter:blur(7px);z-index:-1;animation:pp-halo-rot 12s linear infinite;}
+.pp-side .who{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:3px;}
+.pp-side .who-name{font-size:17px;font-weight:800;}
+.pp-side .who-dot{width:8px;height:8px;border-radius:50%;background:var(--green-2);color:var(--green-2);box-shadow:0 0 8px currentColor;animation:pp-dot-pulse 2s infinite;display:inline-block;}
+.pp-kv{transition:background .15s;padding:9px 4px;border-bottom:1px solid var(--border);}
+.pp-kv:hover{background:rgba(255,255,255,.02);border-radius:6px;}
+.pp-kv span:first-child{color:var(--muted);}
+
+/* ── Timeline leave history ── */
+.pp-lv{position:relative;background:linear-gradient(135deg,rgba(255,255,255,.035),rgba(255,255,255,.01));border:1px solid var(--border);padding:9px 11px 9px 26px;border-radius:9px;transition:transform .15s var(--ease),border-color .18s,box-shadow .18s;}
+.pp-lv::before{content:"";position:absolute;left:12px;top:18px;bottom:18px;width:2px;background:linear-gradient(180deg,var(--accent),transparent);}
+.pp-lv::after{content:"";position:absolute;left:8px;top:14px;width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px currentColor;}
+.pp-lv:hover{transform:translateX(2px);border-color:var(--accent-line);box-shadow:0 6px 16px -10px var(--accent-bg-soft);}
+.pp-lv .btn-del{background:transparent !important;border:none;color:var(--muted);cursor:pointer;opacity:.45;transition:opacity .2s,color .2s,transform .15s;font-size:13px;line-height:1;padding:2px 5px;}
+.pp-lv .btn-del:hover{opacity:1;color:var(--red-2);transform:scale(1.15);}
+.pp-side .addbtn{transition:transform .15s,box-shadow .2s,background .2s;}
+.pp-side .addbtn:hover{transform:translateY(-1px);box-shadow:0 8px 22px -8px var(--accent-bg-soft);}
+
+/* ── Bottom alerts as health indicators ── */
+.pp-alert{position:relative;overflow:hidden;cursor:default;transition:transform .2s var(--ease),box-shadow .25s;animation:pp-slideup .3s var(--ease) both;}
+.pp-alert:nth-child(1){animation-delay:.04s}.pp-alert:nth-child(2){animation-delay:.08s}
+.pp-alert:nth-child(3){animation-delay:.12s}.pp-alert:nth-child(4){animation-delay:.16s}
+.pp-alert::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:currentColor;opacity:.6;}
+.pp-alert::after{content:"";position:absolute;right:-30%;top:-50%;width:80%;height:200%;background:radial-gradient(ellipse at center,currentColor,transparent 65%);opacity:.05;pointer-events:none;}
+.pp-alert:hover{transform:translateY(-2px);box-shadow:0 12px 26px -14px currentColor;}
+.pp-alert .an{font-size:22px;filter:drop-shadow(0 2px 4px currentColor);flex-shrink:0;}
+
+/* ── Admin badge premium ── */
+.pp-adminbadge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,rgba(168,125,255,.22),rgba(168,125,255,.06));box-shadow:inset 0 0 0 1px rgba(168,125,255,.45),0 4px 12px -6px rgba(168,125,255,.4);position:relative;cursor:default;}
+.pp-adminbadge::before{content:"";width:6px;height:6px;border-radius:50%;background:#a87dff;box-shadow:0 0 6px #a87dff;}
+
+/* ── CSS-only tooltip system ── */
+.pp-tip{position:relative;}
+.pp-tip:hover::after{content:attr(data-tip);position:absolute;left:50%;top:calc(100% + 9px);transform:translateX(-50%);background:linear-gradient(180deg,#0d1424,#0a1120);color:#e8eefb;padding:7px 12px;border-radius:8px;font-size:11px;font-weight:600;white-space:nowrap;border:1px solid var(--border);box-shadow:0 10px 26px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.04);z-index:1200;pointer-events:none;animation:pp-fadein .18s;letter-spacing:.01em;}
+.pp-tip:hover::before{content:"";position:absolute;left:50%;top:calc(100% + 3px);transform:translateX(-50%);border:6px solid transparent;border-bottom-color:#0d1424;z-index:1201;pointer-events:none;}
+
+/* ── Pagination buttons hover ── */
+.pp-pag button{transition:transform .15s,background .18s,border-color .18s;}
+.pp-pag button:hover:not(:disabled):not(.on){border-color:var(--accent-line);transform:translateY(-1px);}
+
+/* ── Views toggle premium ── */
+.pp-views{box-shadow:inset 0 1px 2px rgba(0,0,0,.3);}
+.pp-views button{transition:color .18s,background .18s;}
+.pp-views button:not(.on):hover{color:var(--text);background:rgba(255,255,255,.04);}
+.pp-views button.on{box-shadow:0 4px 14px -4px var(--accent-bg-soft),inset 0 1px 0 rgba(255,255,255,.18);}
+
+/* ── Header buttons hierarchy ── */
+.pp-head .right .btn-add{transition:transform .15s,box-shadow .2s,filter .18s;}
+.pp-head .right .btn-add:hover{transform:translateY(-1px);filter:brightness(1.08);box-shadow:0 8px 22px -8px var(--accent-bg-soft);}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion:reduce){
+  .pp-kpi,.pp-side,.pp-alert,#ppBody tr,.active-store-bar .asb-icon,.asb-dot,.pp-side .who-dot,.pp-avatar::after,.pp-usebar>i::after,.pp-usebar>i{animation:none !important;transition:none !important;}
+}
+
+/* ── Mobile refinements ── */
+@media(max-width:760px){
+  .pp-kpis{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .pp-kpi{padding:13px 12px;}
+  .pp-kpi .v{font-size:24px;}
+  .pp-kpi .l{font-size:9.5px;}
+  .pp-ic{width:42px;height:42px;font-size:19px;border-radius:11px;}
+  .pp-head .right{width:100%;justify-content:flex-start;}
+  .pp-head .right .btn-add{flex:1;min-width:130px;}
+  .pp-tools{padding:11px 12px;}
+  .pp-search{font-size:14px;padding:10px 12px;}
+  .pp-avatar{width:64px;height:64px;font-size:25px;}
+  .pp-side{padding:14px;}
+  .pp-alerts{grid-template-columns:1fr;gap:9px;}
+}
+
 /* === ΣΥΓΚΡΙΣΗ ΜΗΝΑ vs ΠΕΡΣΙ === */
 .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
 .comp-card{background:linear-gradient(158deg,#1b2438,#141b2b);border:1px solid var(--border2);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-sm);transition:transform .18s var(--ease),box-shadow .2s;}
@@ -850,7 +999,10 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
 <!-- ΕΝΕΡΓΟ ΚΑΤΑΣΤΗΜΑ — banner οπτικού διαχωρισμού (χρώμα/label ανά κατάστημα, applyStoreTheme) -->
 <div class="active-store-bar" id="activeStoreBar">
   <span class="asb-icon" id="asbIcon">📍</span>
-  <span class="asb-text">ΚΑΤΑΣΤΗΜΑ: <b id="asbLabel">ΑΝΩ ΛΙΟΣΙΑ</b></span>
+  <div class="asb-meta">
+    <span class="asb-text">ΚΑΤΑΣΤΗΜΑ: <b id="asbLabel">ΑΝΩ ΛΙΟΣΙΑ</b></span>
+    <span class="asb-sub"><span class="asb-dot"></span><span id="asbSub">Ενεργή προβολή · συγχρονισμένο</span></span>
+  </div>
   <span class="asb-emoji" id="asbEmoji">🏪</span>
 </div>
 
@@ -1286,10 +1438,10 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
   <div class="pp-head">
     <div><div class="t">🏖️ Dashboard Προσωπικού &amp; Αδειών</div><div class="s" id="ppStoreLbl">Συνολική εικόνα προσωπικού και αδειών</div></div>
     <div class="right">
-      <select class="pp-sel" id="ppYear" onchange="loadPersonnel()"><option>2022</option><option>2023</option><option>2024</option><option>2025</option><option selected>2026</option><option>2027</option></select>
-      <button class="btn-add" style="margin:0;" onclick="ppAddEmp()">➕ Νέος εργαζόμενος</button>
-      <button class="btn-add" style="margin:0;background:linear-gradient(135deg,#4d9fff,#2f7fe6);box-shadow:none;" onclick="ppImportInfo()">📥 Εισαγωγή Excel</button>
-      <span class="pp-adminbadge">🔒 Μόνο Admin</span>
+      <select class="pp-sel pp-tip" id="ppYear" onchange="loadPersonnel()" data-tip="Έτος αδειών"><option>2022</option><option>2023</option><option>2024</option><option>2025</option><option selected>2026</option><option>2027</option></select>
+      <button class="btn-add pp-tip" style="margin:0;" onclick="ppAddEmp()" data-tip="Προσθήκη νέου εργαζομένου στο ενεργό κατάστημα">➕ Νέος εργαζόμενος</button>
+      <button class="btn-add pp-tip" style="margin:0;background:linear-gradient(135deg,#4d9fff,#2f7fe6);box-shadow:none;" onclick="ppImportInfo()" data-tip="Εισαγωγή αδειών από αρχείο Excel">📥 Εισαγωγή Excel</button>
+      <span class="pp-adminbadge pp-tip" data-tip="Η ενότητα είναι ορατή μόνο σε διαχειριστές">🔒 Μόνο Admin</span>
     </div>
   </div>
   <div style="display:flex;justify-content:center;margin-bottom:16px;">
@@ -1822,11 +1974,11 @@ function applyStoreTheme(){
   // Banner ΕΝΕΡΓΟ ΚΑΤΑΣΤΗΜΑ (έντονος οπτικός διαχωρισμός ανά κατάστημα)
   var bar=document.getElementById('activeStoreBar');
   if(bar){
-    bar.style.background='linear-gradient(135deg,'+hexA(cfg.accent,.20)+','+hexA(cfg.accent,.05)+')';
-    bar.style.borderColor=hexA(cfg.accent,.55);
+    // background & border χρωματίζονται από CSS μέσω var(--accent-*) — δεν χρειάζονται inline override
     var ic=document.getElementById('asbIcon'); if(ic) ic.textContent=cfg.icon||'📍';
     var lb=document.getElementById('asbLabel'); if(lb){ lb.textContent=cfg.full||cfg.label; lb.style.color=cfg.accent; }
     var em=document.getElementById('asbEmoji'); if(em) em.textContent=cfg.icon||'🏪';
+    var sub=document.getElementById('asbSub'); if(sub){ sub.textContent=(cfg.label==='ΛΟΥΤΡΑΚΙ'?'Ενεργή προβολή Λουτρακίου · live':'Ενεργή προβολή Λιόσιας · live'); }
   }
   updateStoreSwitchUI();
 }
@@ -4180,7 +4332,8 @@ function renderPersonnel(){
     var remc=rem==null?'var(--muted)':rem<=0?'var(--red-2)':rem<5?'#f59e0b':'var(--green-2)';
     var ln=ppLastNext(e);
     var dcell=function(iso){return iso?'<span style="font-family:var(--mono);font-size:11.5px;color:var(--text)">'+ppFmt(iso)+'</span>':'<span style="color:var(--muted)">–</span>';};
-    var sel=(_ppSel.store===e._store&&_ppSel.idx===e._idx)?' style="background:rgba(34,197,94,.09);box-shadow:inset 3px 0 0 var(--accent);cursor:pointer"':' style="cursor:pointer"';
+    var selCls=(_ppSel.store===e._store&&_ppSel.idx===e._idx)?'pp-row-sel':'';
+    var sel=' class="'+selCls+'" style="cursor:pointer"';
     var av='<span class="pp-emp"><span class="av">'+((e.name||'?').charAt(0).toUpperCase())+'</span><span style="font-weight:700">'+(e.name||'—')+'</span></span>';
     return '<tr'+sel+' onclick="ppSelectEmp(\''+e._store+'\','+e._idx+')"><td class="num" style="color:var(--muted)">'+gi+'</td><td>'+av+'</td><td>'+sb+'</td><td class="num">'+(e.entitle!=null?e.entitle:'–')+'</td><td class="num">'+t+'</td><td class="num"><span class="pp-rem" style="color:'+remc+'">'+(rem!=null?rem:'—')+'</span></td><td><div style="display:flex;align-items:center;gap:7px"><div class="pp-usebar"><i style="width:'+up+'%;background:'+upc+'"></i></div><span style="font-size:11px;color:'+upc+';font-weight:700;min-width:30px">'+up+'%</span></div></td><td>'+dcell(ln.last)+'</td><td>'+dcell(ln.next)+'</td><td><span class="pp-badge pp-'+st[0]+'">'+st[1]+'</span></td></tr>';
   }).join('');
@@ -4290,10 +4443,10 @@ function ppRenderAlerts(all){
   var availTxt = avail==='good'?'Καλή':avail==='mid'?'Μέτρια':'Χαμηλή';
   var availCls = avail==='good'?'green':avail==='mid'?'amber':'red';
   box.innerHTML=
-    '<div class="pp-alert '+(zero?'red':'green')+'"><span class="an">'+(zero?'⚠️':'✅')+'</span><span>'+(zero?zero+' εργαζόμενοι με μηδενικό υπόλοιπο':'Κανείς χωρίς υπόλοιπο')+'</span></div>'+
-    '<div class="pp-alert '+(low?'amber':'green')+'"><span class="an">'+(low?'⏳':'✅')+'</span><span>'+(low?low+' εργαζόμενοι με ≤ 5 ημέρες':'Όλοι έχουν επαρκές υπόλοιπο')+'</span></div>'+
-    '<div class="pp-alert '+(overlaps?'amber':'blue')+'"><span class="an">'+(overlaps?'🔀':'🗓️')+'</span><span>'+(overlaps?overlaps+' επικαλυπτόμενες άδειες':'Δεν υπάρχουν επικαλυπτόμενες άδειες')+'</span></div>'+
-    '<div class="pp-alert '+availCls+'"><span class="an">👥</span><span>Διαθεσιμότητα προσωπικού: '+availTxt+'</span></div>';
+    '<div class="pp-alert pp-tip '+(zero?'red':'green')+'" data-tip="'+(zero?'Εξαντλημένα υπόλοιπα — απαιτείται προσοχή':'Όλοι έχουν υπόλοιπο αδειών')+'"><span class="an">'+(zero?'⚠️':'✅')+'</span><span>'+(zero?zero+' εργαζόμενοι με μηδενικό υπόλοιπο':'Κανείς χωρίς υπόλοιπο')+'</span></div>'+
+    '<div class="pp-alert pp-tip '+(low?'amber':'green')+'" data-tip="'+(low?'Εργαζόμενοι κοντά στην εξάντληση':'Επαρκές απόθεμα αδειών')+'"><span class="an">'+(low?'⏳':'✅')+'</span><span>'+(low?low+' εργαζόμενοι με ≤ 5 ημέρες':'Όλοι έχουν επαρκές υπόλοιπο')+'</span></div>'+
+    '<div class="pp-alert pp-tip '+(overlaps?'amber':'blue')+'" data-tip="'+(overlaps?'Δύο ή περισσότεροι εργαζόμενοι σε άδεια ταυτόχρονα':'Καμία χρονική σύγκρουση αδειών')+'"><span class="an">'+(overlaps?'🔀':'🗓️')+'</span><span>'+(overlaps?overlaps+' επικαλυπτόμενες άδειες':'Δεν υπάρχουν επικαλυπτόμενες άδειες')+'</span></div>'+
+    '<div class="pp-alert pp-tip '+availCls+'" data-tip="Συνολική αξιολόγηση βάσει υπολοίπων ('+availTxt.toLowerCase()+')"><span class="an">👥</span><span>Διαθεσιμότητα προσωπικού: '+availTxt+'</span></div>';
 }
 function ppSelectEmp(store,idx){ _ppSel={store:store,idx:idx}; renderPersonnel(); }
 function ppDeselect(){ _ppSel={store:'',idx:-1}; renderPersonnel(); }
@@ -4307,7 +4460,7 @@ function ppRenderSide(){
   var hire=e.hireDate?ppFmt(e.hireDate):'—';
   side.innerHTML='<div class="ttl" style="display:flex;justify-content:space-between;align-items:center">Στοιχεία Εργαζομένου<button onclick="ppDeselect()" title="Κλείσιμο" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;line-height:1">✕</button></div>'+
     '<div class="pp-avatar">'+((e.name||'?').charAt(0).toUpperCase())+'</div>'+
-    '<div class="who">'+(e.name||'—')+' <span style="font-size:10px;font-weight:800;padding:3px 8px;border-radius:10px;background:rgba(34,197,94,.16);color:var(--green-2);vertical-align:middle">● Ενεργός</span></div>'+
+    '<div class="who"><span class="who-dot" title="Ενεργός"></span><span class="who-name">'+(e.name||'—')+'</span></div>'+
     '<div class="where">'+((STORES[_ppSel.store]||{}).icon||'')+' '+((STORES[_ppSel.store]||{}).full||_ppSel.store)+'</div>'+
     '<div class="pp-kv"><span>Ημ/νία πρόσληψης</span><b style="font-family:var(--mono);cursor:pointer" onclick="ppSetHire('+_ppSel.idx+')" title="Κλικ για ορισμό">'+hire+' ✎</b></div>'+
     '<div class="pp-kv"><span>Δικαιούμενες ημέρες</span><b>'+(e.entitle!=null?e.entitle:'—')+'</b></div>'+
