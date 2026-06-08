@@ -3449,7 +3449,7 @@ async function delD5(idx){
 function renderD5(){
   const k=ek();const rows=D.d15[k]||[];const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);const totS=rows.reduce((s,r)=>s+(r.synolo||0),0),totK=rows.reduce((s,r)=>s+(r.loutraki||0),0);
   document.getElementById('d5Tot').textContent=fmt(tot);document.getElementById('d5Cnt').textContent=rows.length;
-  document.getElementById('d5Body').innerHTML=rows.map((r,i)=>`<tr><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td>${r.prom}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td class="num">${r.synolo?fmt(r.synolo):'—'}</td><td class="acc edit-cell" title="Κλικ για επεξεργασία ΛΙΟΣΙΑ" onclick="editShareCell(event,'d15',${i},'liosia')">${fmt(r.liosia)}<span class="pen">✎</span></td><td class="num edit-cell" style="color:var(--muted)" title="Κλικ για επεξεργασία ΛΟΥΤΡΑΚΙ" onclick="editShareCell(event,'d15',${i},'loutraki')">${r.loutraki?fmt(r.loutraki):'0,00'}<span class="pen">✎</span></td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delD5(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="3">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
+  document.getElementById('d5Body').innerHTML=rows.map((r,i)=>`<tr><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td>${r.prom}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td class="num edit-cell" title="Κλικ για επεξεργασία ΣΥΝΟΛΟ" onclick="editShareCell(event,'d15',${i},'synolo')">${r.synolo?fmt(r.synolo):'0,00'}<span class="pen">✎</span></td><td class="acc" title="Αυτόματο: Σύνολο − Λουτράκι">${fmt(r.liosia)}</td><td class="num edit-cell" style="color:var(--muted)" title="Κλικ για επεξεργασία ΛΟΥΤΡΑΚΙ" onclick="editShareCell(event,'d15',${i},'loutraki')">${r.loutraki?fmt(r.loutraki):'0,00'}<span class="pen">✎</span></td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delD5(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="3">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
 }
 
 function addTel(){
@@ -3474,7 +3474,7 @@ function renderTel(){
   const k=ek();const rows=D.telos[k]||[];const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);const totS=rows.reduce((s,r)=>s+(r.synolo||0),0),totK=rows.reduce((s,r)=>s+(r.loutraki||0),0);
   document.getElementById('telTot').textContent=fmt(tot);document.getElementById('telCnt').textContent=rows.length;
   const kb=kt=>`<span style="font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(200,168,75,.12);color:var(--accent)">${kt}</span>`;
-  document.getElementById('telBody').innerHTML=rows.map((r,i)=>`<tr><td>${kb(r.kat)}</td><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td>${r.name}</td><td class="num">${r.synolo?fmt(r.synolo):'—'}</td><td class="acc edit-cell" title="Κλικ για επεξεργασία ΛΙΟΣΙΑ" onclick="editShareCell(event,'telos',${i},'liosia')">${fmt(r.liosia)}<span class="pen">✎</span></td><td class="num edit-cell" style="color:var(--muted)" title="Κλικ για επεξεργασία ΛΟΥΤΡΑΚΙ" onclick="editShareCell(event,'telos',${i},'loutraki')">${r.loutraki?fmt(r.loutraki):'0,00'}<span class="pen">✎</span></td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTel(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="4">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
+  document.getElementById('telBody').innerHTML=rows.map((r,i)=>`<tr><td>${kb(r.kat)}</td><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td>${r.name}</td><td class="num edit-cell" title="Κλικ για επεξεργασία ΣΥΝΟΛΟ" onclick="editShareCell(event,'telos',${i},'synolo')">${r.synolo?fmt(r.synolo):'0,00'}<span class="pen">✎</span></td><td class="acc" title="Αυτόματο: Σύνολο − Λουτράκι">${fmt(r.liosia)}</td><td class="num edit-cell" style="color:var(--muted)" title="Κλικ για επεξεργασία ΛΟΥΤΡΑΚΙ" onclick="editShareCell(event,'telos',${i},'loutraki')">${r.loutraki?fmt(r.loutraki):'0,00'}<span class="pen">✎</span></td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTel(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="4">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
 }
 
 // ===== Inline επεξεργασία ΛΙΟΣΙΑ/ΛΟΥΤΡΑΚΙ στα 15ου & Τέλος (κλικ → input → save) =====
@@ -3497,9 +3497,10 @@ function commitShare(sec,idx,field,val){
   const row=arr[idx], old=Math.round((+row[field]||0)*100)/100;
   if(val===old){ (sec==='d15'?renderD5():renderTel()); return; }   // καμία αλλαγή
   row[field]=val;
-  row.synolo=Math.round(((+row.liosia||0)+(+row.loutraki||0))*100)/100;   // ΣΥΝΟΛΟ = ΛΙΟΣΙΑ + ΛΟΥΤΡΑΚΙ
+  row.liosia=Math.round(((+row.synolo||0)-(+row.loutraki||0))*100)/100;   // ΛΙΟΣΙΑ = ΣΥΝΟΛΟ − ΛΟΥΤΡΑΚΙ (αυτόματο, #2 — ίδιο με επιταγές/φόρμα)
   const nm=row.prom||row.name||'';
-  logAction(sec==='d15'?'Διόρθωση 15ου':'Διόρθωση Τέλους', nm+' · '+(field==='liosia'?'ΛΙΟΣΙΑ':'ΛΟΥΤΡΑΚΙ')+' '+fmt(old)+' → '+fmt(val)+' (νέο σύνολο '+fmt(row.synolo)+')');
+  const _flbl=field==='synolo'?'ΣΥΝΟΛΟ':(field==='loutraki'?'ΛΟΥΤΡΑΚΙ':'ΛΙΟΣΙΑ');
+  logAction(sec==='d15'?'Διόρθωση 15ου':'Διόρθωση Τέλους', nm+' · '+_flbl+' '+fmt(old)+' → '+fmt(val)+' (ΛΙΟΣΙΑ '+fmt(row.liosia)+')');
   if(sec==='d15')renderD5(); else renderTel();
   renderMain();                 // ξαναϋπολογισμός ΥΠΟΛΟΙΠΟΥ (calcYP χρησιμοποιεί .liosia)
   saveToSheets(sec);            // αποθήκευση στο κοινό doc (15ου/Τέλος)
@@ -3572,7 +3573,18 @@ const TPL_NF={metrita:'desc',bank:'ait',d15:'prom',telos:'name'};
 let _tplCat=null;
 let _tplSkip=new Set();   // refs προτύπων που ΕΞΑΙΡΟΥΝΤΑΙ αυτόν τον μήνα (καθαρίζει σε κάθε άνοιγμα)
 function escAttr(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
-function openTemplates(cat){ _tplCat=cat; _tplSkip=new Set(); var dr=document.getElementById('tplDateRow'); if(dr)dr.style.display=(cat==='metrita'||cat==='bank')?'':'none'; var dt=document.getElementById('tplDate'); if(dt)dt.value=_todayISO(); renderTplModal(); document.getElementById('tplModal').classList.add('show'); }
+// Ταξινόμηση προτύπων αλφαβητικά (ελληνικό locale)· κενά ονόματα στο τέλος. Καθαρά reorder — δεν αγγίζει ποσά/calcYP.
+function tplSortCat(cat){
+  if(!D.templates||!Array.isArray(D.templates[cat]))return;
+  const nf=TPL_NF[cat]||'name';
+  D.templates[cat].sort(function(a,b){
+    const an=((a&&a[nf])||'').toString().trim().toUpperCase();
+    const bn=((b&&b[nf])||'').toString().trim().toUpperCase();
+    if(!an&&!bn)return 0; if(!an)return 1; if(!bn)return -1;
+    return an.localeCompare(bn,'el');
+  });
+}
+function openTemplates(cat){ _tplCat=cat; _tplSkip=new Set(); tplSortCat(cat); var dr=document.getElementById('tplDateRow'); if(dr)dr.style.display=(cat==='metrita'||cat==='bank')?'':'none'; var dt=document.getElementById('tplDate'); if(dt)dt.value=_todayISO(); renderTplModal(); document.getElementById('tplModal').classList.add('show'); }
 function closeTpl(){ document.getElementById('tplModal').classList.remove('show'); }
 function renderTplModal(){
   const cat=_tplCat, nf=TPL_NF[cat];
@@ -3653,6 +3665,7 @@ function tplApplySelected(){
 function tplSaveDefaults(){
   tplSyncFromInputs();
   const cat=_tplCat;
+  tplSortCat(cat);   // αλφαβητική σειρά πριν την αποθήκευση (ώστε νέα πρότυπα να μπαίνουν στη σωστή θέση)
   markSaving&&markSaving();
   fbSaveTemplatesCat(cat).then(function(){ markSaved&&markSaved(); toast('Πρότυπα αποθηκεύτηκαν ✓','ok'); }).catch(function(){ markDirty&&markDirty(); toast('Σφάλμα αποθήκευσης προτύπων','err'); });
   renderTplModal();
