@@ -3446,10 +3446,19 @@ async function delD5(idx){
   saveToSheets("d15");
   logAction('Διαγραφή 15ου',((r&&r.prom)||'')+' · '+fmt((r&&r.liosia)||0));
 }
+// Σειρά εμφάνισης αλφαβητικά (ΜΟΝΟ display — επιστρέφει indices του ΑΡΧΙΚΟΥ array ώστε edit/del να δείχνουν σωστά). Κενά ονόματα στο τέλος.
+function _alphaIdx(rows,field){
+  return rows.map(function(_,i){return i;}).sort(function(a,b){
+    var an=((rows[a]&&rows[a][field])||'').toString().trim().toUpperCase();
+    var bn=((rows[b]&&rows[b][field])||'').toString().trim().toUpperCase();
+    if(!an&&!bn)return 0; if(!an)return 1; if(!bn)return -1;
+    return an.localeCompare(bn,'el');
+  });
+}
 function renderD5(){
   const k=ek();const rows=D.d15[k]||[];const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);const totS=rows.reduce((s,r)=>s+(r.synolo||0),0),totK=rows.reduce((s,r)=>s+(r.loutraki||0),0);
   document.getElementById('d5Tot').textContent=fmt(tot);document.getElementById('d5Cnt').textContent=rows.length;
-  document.getElementById('d5Body').innerHTML=rows.map((r,i)=>`<tr><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td>${r.prom}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td class="num edit-cell" title="Κλικ για επεξεργασία ΣΥΝΟΛΟ" onclick="editShareCell(event,'d15',${i},'synolo')">${r.synolo?fmt(r.synolo):'0,00'}<span class="pen">✎</span></td><td class="acc" title="Αυτόματο: Σύνολο − Λουτράκι">${fmt(r.liosia)}</td><td class="num edit-cell" style="color:var(--muted)" title="Κλικ για επεξεργασία ΛΟΥΤΡΑΚΙ" onclick="editShareCell(event,'d15',${i},'loutraki')">${r.loutraki?fmt(r.loutraki):'0,00'}<span class="pen">✎</span></td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delD5(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="3">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
+  document.getElementById('d5Body').innerHTML=_alphaIdx(rows,'prom').map(function(i){const r=rows[i];return `<tr><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td>${r.prom}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td class="num edit-cell" title="Κλικ για επεξεργασία ΣΥΝΟΛΟ" onclick="editShareCell(event,'d15',${i},'synolo')">${r.synolo?fmt(r.synolo):'0,00'}<span class="pen">✎</span></td><td class="acc" title="Αυτόματο: Σύνολο − Λουτράκι">${fmt(r.liosia)}</td><td class="num edit-cell" style="color:var(--muted)" title="Κλικ για επεξεργασία ΛΟΥΤΡΑΚΙ" onclick="editShareCell(event,'d15',${i},'loutraki')">${r.loutraki?fmt(r.loutraki):'0,00'}<span class="pen">✎</span></td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delD5(${i})">✕</button></td></tr>`;}).join('')+(rows.length?`<tr class="tot"><td colspan="3">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
 }
 
 function addTel(){
@@ -3474,7 +3483,7 @@ function renderTel(){
   const k=ek();const rows=D.telos[k]||[];const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);const totS=rows.reduce((s,r)=>s+(r.synolo||0),0),totK=rows.reduce((s,r)=>s+(r.loutraki||0),0);
   document.getElementById('telTot').textContent=fmt(tot);document.getElementById('telCnt').textContent=rows.length;
   const kb=kt=>`<span style="font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(200,168,75,.12);color:var(--accent)">${kt}</span>`;
-  document.getElementById('telBody').innerHTML=rows.map((r,i)=>`<tr><td>${kb(r.kat)}</td><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td>${r.name}</td><td class="num edit-cell" title="Κλικ για επεξεργασία ΣΥΝΟΛΟ" onclick="editShareCell(event,'telos',${i},'synolo')">${r.synolo?fmt(r.synolo):'0,00'}<span class="pen">✎</span></td><td class="acc" title="Αυτόματο: Σύνολο − Λουτράκι">${fmt(r.liosia)}</td><td class="num edit-cell" style="color:var(--muted)" title="Κλικ για επεξεργασία ΛΟΥΤΡΑΚΙ" onclick="editShareCell(event,'telos',${i},'loutraki')">${r.loutraki?fmt(r.loutraki):'0,00'}<span class="pen">✎</span></td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTel(${i})">✕</button></td></tr>`).join('')+(rows.length?`<tr class="tot"><td colspan="4">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
+  document.getElementById('telBody').innerHTML=_alphaIdx(rows,'name').map(function(i){const r=rows[i];return `<tr><td>${kb(r.kat)}</td><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td>${r.name}</td><td class="num edit-cell" title="Κλικ για επεξεργασία ΣΥΝΟΛΟ" onclick="editShareCell(event,'telos',${i},'synolo')">${r.synolo?fmt(r.synolo):'0,00'}<span class="pen">✎</span></td><td class="acc" title="Αυτόματο: Σύνολο − Λουτράκι">${fmt(r.liosia)}</td><td class="num edit-cell" style="color:var(--muted)" title="Κλικ για επεξεργασία ΛΟΥΤΡΑΚΙ" onclick="editShareCell(event,'telos',${i},'loutraki')">${r.loutraki?fmt(r.loutraki):'0,00'}<span class="pen">✎</span></td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTel(${i})">✕</button></td></tr>`;}).join('')+(rows.length?`<tr class="tot"><td colspan="4">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
 }
 
 // ===== Inline επεξεργασία ΛΙΟΣΙΑ/ΛΟΥΤΡΑΚΙ στα 15ου & Τέλος (κλικ → input → save) =====
@@ -5356,7 +5365,11 @@ async function exportCSV(){
   const trEi=D.trapEisp[k]||[], trPl=D.trapPl[k]||[];
   const tEisp=trEi.reduce((s,r)=>s+(r.poso||0),0);
   const totPl=trPl.reduce((s,r)=>s+(r.poso||0),0);
-  const met3=D.metrita[k]||[], bnk=D.bank[k]||[], d15=D.d15[k]||[], tel=D.telos[k]||[];
+  const met3=D.metrita[k]||[], bnk=D.bank[k]||[];
+  // 15ου & Τέλος → ΑΛΦΑΒΗΤΙΚΑ στο Excel (sorted ΑΝΤΙΓΡΑΦΑ· τα original D.d15/D.telos μένουν άθικτα· τα sums order-independent ⇒ ίδια σύνολα)
+  const _d15raw=D.d15[k]||[], _telraw=D.telos[k]||[];
+  const d15=_alphaIdx(_d15raw,'prom').map(function(i){return _d15raw[i];});
+  const tel=_alphaIdx(_telraw,'name').map(function(i){return _telraw[i];});
   const isLou=(STORE==='LOUTRAKI');                         // STORE-AWARE export (ίδια λογική με calcYP)
   const pMet=met3.reduce((s,r)=>s+(r.poso||0),0);
   const pBnk=bnk.reduce((s,r)=>s+(r.poso||0),0);
