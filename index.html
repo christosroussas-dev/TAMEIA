@@ -1172,7 +1172,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
 <!-- 15ου ΜΗΝΑ -->
 <div class="panel" id="tab-deka5">
   <div class="kpis">
-    <div class="kpi danger"><div class="kl">Σύνολο 15ου ΛΙΟΣΙΑ</div><div class="kv" id="d5Tot">—</div></div>
+    <div class="kpi danger"><div class="kl" id="d5TotLbl">Σύνολο 15ου ΛΙΟΣΙΑ</div><div class="kv" id="d5Tot">—</div></div>
     <div class="kpi"><div class="kl">Προμηθευτές</div><div class="kv" id="d5Cnt">0</div></div>
   </div>
   <div class="tw">
@@ -1211,7 +1211,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
 <!-- ΤΕΛΟΣ ΜΗΝΑ -->
 <div class="panel" id="tab-telos">
   <div class="kpis">
-    <div class="kpi danger"><div class="kl">Σύνολο Τέλους ΛΙΟΣΙΑ</div><div class="kv" id="telTot">—</div></div>
+    <div class="kpi danger"><div class="kl" id="telTotLbl">Σύνολο Τέλους ΛΙΟΣΙΑ</div><div class="kv" id="telTot">—</div></div>
     <div class="kpi"><div class="kl">Εγγραφές</div><div class="kv" id="telCnt">0</div></div>
   </div>
   <div class="tw">
@@ -2248,8 +2248,8 @@ function calcYP(){
   const met=(D.metrita[k]||[]).reduce((s,r)=>s+(r.poso||0),0);
   const bnk=(D.bank[k]||[]).reduce((s,r)=>s+(r.poso||0),0);
   const isLou=(STORE==='LOUTRAKI');
-  const d15=isLou?0:(D.d15[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
-  const tel=isLou?0:(D.telos[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
+  const d15=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
+  const tel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
   const epit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
   const cf=carryFor(k);
   return eisp+tEisp-met-bnk-d15-tel-epit - cf.out + cf.in;
@@ -2585,8 +2585,8 @@ function dashMetrics(){
   const pMet=(D.metrita[k]||[]).reduce((s,r)=>s+(r.poso||0),0);
   const pBnk=(D.bank[k]||[]).reduce((s,r)=>s+(r.poso||0),0);
   const isLou=(STORE==='LOUTRAKI');
-  const pD5=isLou?0:(D.d15[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
-  const pTel=isLou?0:(D.telos[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
+  const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
+  const pTel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
   const mn=k.split('_')[0],yr=k.split('_')[1];
   const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
   const allP=pMet+pBnk+pD5+pTel+pEpit;
@@ -2944,7 +2944,7 @@ function renderMain(){
   if(yp<=-15000)card.classList.add('crit');else card.classList.remove('crit'); // pulse μόνο σε κρίσιμη κατάσταση
   const pMet=(D.metrita[k]||[]).reduce((s,r)=>s+r.poso,0),pBnk=(D.bank[k]||[]).reduce((s,r)=>s+r.poso,0);
   const isLou=(STORE==='LOUTRAKI');
-  const pD5=isLou?0:(D.d15[k]||[]).reduce((s,r)=>s+(r.liosia||0),0),pTel=isLou?0:(D.telos[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
+  const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0),pTel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
   const pEisp=(D.trapEisp[k]||[]).reduce((s,r)=>s+r.poso,0);
   const mn=ek().split('_')[0],yr2=ek().split('_')[1],pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr2||(e.date&&e.date.startsWith(yr2)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
   const allP=pMet+pBnk+pD5+pTel+pEpit;
@@ -2953,7 +2953,7 @@ function renderMain(){
   var _yl=document.querySelector('#ypCard .yp-label');if(_yl)_yl.textContent='ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ — '+stLbl;
   var _ph=document.getElementById('paySumH');if(_ph)_ph.textContent='Ανάλυση Πληρωμών '+stLbl;
   document.getElementById('sumBody').innerHTML=`<tr><td>Σύνολο Εισπράξεων + POS</td><td class="pos">${fmt(tAll)}</td></tr><tr><td>+ Εμβάσματα / Καταθέσεις${cf.in?' (+POS προηγ. μήνα)':''}</td><td class="pos">${fmt(pEisp+cf.in)}</td></tr><tr class="tot"><td>Σύνολο Εισπράξεων + POS + Καταθέσεις</td><td class="pos">${fmt(tAll+pEisp+cf.in)}</td></tr><tr><td>− Κρατήσεις τράπεζας POS (${rateLbl}%)</td><td class="neg">−${fmt(kratiseis)}</td></tr>${carryRows}<tr><td>Ιστορικός Στόχος/Μέρα</td><td class="num">${fmt(t.ok)}</td></tr><tr><td>Σύνολο Πληρωμών ${stLbl}</td><td class="neg">−${fmt(allP)}</td></tr><tr class="tot"><td>ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ</td><td class="${yp>=0?'pos':'neg'}">${(yp>=0?'+':'')+fmt(yp)}</td></tr>`;
-  document.getElementById('paySum').innerHTML=isLou?`<tr><td>Μετρητά</td><td class="neg">${fmt(pMet)}</td></tr><tr><td>Τράπεζα ΛΟΥΤΡΑΚΙ</td><td class="neg">${fmt(pBnk)}</td></tr><tr><td>Επιταγές ΛΟΥΤΡΑΚΙ (μήνα)</td><td class="neg">${fmt(pEpit)}</td></tr><tr class="tot"><td>ΣΥΝΟΛΟ ΠΛΗΡΩΜΩΝ ΛΟΥΤΡΑΚΙ</td><td class="neg">${fmt(allP)}</td></tr>`:`<tr><td>Μετρητά</td><td class="neg">${fmt(pMet)}</td></tr><tr><td>Τράπεζα ΛΙΟΣΙΑ</td><td class="neg">${fmt(pBnk)}</td></tr><tr><td>15ου Μήνα ΛΙΟΣΙΑ</td><td class="neg">${fmt(pD5)}</td></tr><tr><td>Τέλους Μήνα ΛΙΟΣΙΑ</td><td class="neg">${fmt(pTel)}</td></tr><tr><td>Επιταγές ΛΙΟΣΙΑ (μήνα)</td><td class="neg">${fmt(pEpit)}</td></tr><tr class="tot"><td>ΣΥΝΟΛΟ ΠΛΗΡΩΜΩΝ ΛΙΟΣΙΑ</td><td class="neg">${fmt(allP)}</td></tr>`;
+  document.getElementById('paySum').innerHTML=isLou?`<tr><td>Μετρητά</td><td class="neg">${fmt(pMet)}</td></tr><tr><td>Τράπεζα ΛΟΥΤΡΑΚΙ</td><td class="neg">${fmt(pBnk)}</td></tr><tr><td>15ου Μήνα ΛΟΥΤΡΑΚΙ</td><td class="neg">${fmt(pD5)}</td></tr><tr><td>Τέλους Μήνα ΛΟΥΤΡΑΚΙ</td><td class="neg">${fmt(pTel)}</td></tr><tr><td>Επιταγές ΛΟΥΤΡΑΚΙ (μήνα)</td><td class="neg">${fmt(pEpit)}</td></tr><tr class="tot"><td>ΣΥΝΟΛΟ ΠΛΗΡΩΜΩΝ ΛΟΥΤΡΑΚΙ</td><td class="neg">${fmt(allP)}</td></tr>`:`<tr><td>Μετρητά</td><td class="neg">${fmt(pMet)}</td></tr><tr><td>Τράπεζα ΛΙΟΣΙΑ</td><td class="neg">${fmt(pBnk)}</td></tr><tr><td>15ου Μήνα ΛΙΟΣΙΑ</td><td class="neg">${fmt(pD5)}</td></tr><tr><td>Τέλους Μήνα ΛΙΟΣΙΑ</td><td class="neg">${fmt(pTel)}</td></tr><tr><td>Επιταγές ΛΙΟΣΙΑ (μήνα)</td><td class="neg">${fmt(pEpit)}</td></tr><tr class="tot"><td>ΣΥΝΟΛΟ ΠΛΗΡΩΜΩΝ ΛΙΟΣΙΑ</td><td class="neg">${fmt(allP)}</td></tr>`;
   buildDD();
 }
 
@@ -2998,11 +2998,12 @@ function renderCashFlow(){
   // Πληρωμές
   const pMet=(D.metrita[k]||[]).reduce((s,r)=>s+r.poso,0);
   const pBnk=(D.bank[k]||[]).reduce((s,r)=>s+r.poso,0);
-  const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
-  const pTel=(D.telos[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
+  const isLou=(STORE==='LOUTRAKI');   // STORE-AWARE (ίδια λογική με calcYP — Λουτράκι: 0 για 15ου/Τέλος, epK για επιταγές)
+  const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
+  const pTel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
   const pEisp=(D.trapEisp[k]||[]).reduce((s,r)=>s+r.poso,0);
   const mn=k.split('_')[0],yr=k.split('_')[1];
-  const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(e.liosia||0),0);
+  const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
   const allP=pMet+pBnk+pD5+pTel+pEpit;
 
   // 3 Σενάρια πρόβλεψης
@@ -3116,9 +3117,10 @@ function renderCompare(){
   const pEisp=(D.trapEisp[k]||[]).reduce((s,r)=>s+r.poso,0);
   const pMet=(D.metrita[k]||[]).reduce((s,r)=>s+r.poso,0);
   const pBnk=(D.bank[k]||[]).reduce((s,r)=>s+r.poso,0);
-  const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
-  const pTel=(D.telos[k]||[]).reduce((s,r)=>s+(r.liosia||0),0);
-  const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(e.liosia||0),0);
+  const isLou=(STORE==='LOUTRAKI');   // STORE-AWARE σύγκριση (Λουτράκι: 0 για 15ου/Τέλος, epK για επιταγές)
+  const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
+  const pTel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
+  const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
   const allP=pMet+pBnk+pD5+pTel+pEpit;const ypCur=tAllNet+pEisp-allP;
   const wd=rows.filter(r=>r.dayName!=='ΚΥΡΙΑΚΗ'&&(r.metrita+r.pos)>0).length;
   const avgCur=wd?tAllNet/wd:0;
@@ -3131,10 +3133,10 @@ function renderCompare(){
   const rowsPrev=D.days[kPrev]||[];
   const pMetPrev=(D.metrita[kPrev]||[]).reduce((s,r)=>s+r.poso,0);
   const pBnkPrev=(D.bank[kPrev]||[]).reduce((s,r)=>s+r.poso,0);
-  const pD5Prev=(D.d15[kPrev]||[]).reduce((s,r)=>s+(r.liosia||0),0);
-  const pTelPrev=(D.telos[kPrev]||[]).reduce((s,r)=>s+(r.liosia||0),0);
+  const pD5Prev=(D.d15[kPrev]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
+  const pTelPrev=(D.telos[kPrev]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
   const pEispPrev=(D.trapEisp[kPrev]||[]).reduce((s,r)=>s+r.poso,0);
-  const pEpitPrev=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===prevYr||(e.date&&e.date.startsWith(prevYr)))).reduce((s,e)=>s+(e.liosia||0),0);
+  const pEpitPrev=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===prevYr||(e.date&&e.date.startsWith(prevYr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
   const allPPrev=pMetPrev+pBnkPrev+pD5Prev+pTelPrev+pEpitPrev;
 
   // ΚΑΘΑΡΕΣ εισπράξεις πέρσι (apples-to-apples): πραγματικά δεδομένα αν υπάρχουν, αλλιώς HIST (μικτό fallback)
@@ -3166,8 +3168,8 @@ function renderCompare(){
     <div style="font-size:10px;color:var(--muted);margin-bottom:8px;">${prevYpData?'Καθαρές · Google Sheets':'Από HIST (μικτό)'}</div>
     <div class="comp-row"><span class="comp-label">Μέσος/εργάσιμη</span><span style="font-family:var(--mono)">${prevAvg?fmt(prevAvg):'—'}</span></div>
     <div class="comp-row"><span class="comp-label">Εργάσιμες</span><span style="font-family:var(--mono)">${prevWD||'—'}</span></div>
-    <div class="comp-row"><span class="comp-label">Επιταγές ΛΙΟΣΙΑ</span><span style="font-family:var(--mono);color:var(--red)">${fmt(pEpitPrev)}</span></div>
-    <div class="comp-row"><span class="comp-label">Πληρωμές ΛΙΟΣΙΑ</span><span style="font-family:var(--mono);color:var(--red)">${fmt(allPPrev)}</span></div>
+    <div class="comp-row"><span class="comp-label">Επιταγές ${isLou?'ΛΟΥΤΡΑΚΙ':'ΛΙΟΣΙΑ'}</span><span style="font-family:var(--mono);color:var(--red)">${fmt(pEpitPrev)}</span></div>
+    <div class="comp-row"><span class="comp-label">Πληρωμές ${isLou?'ΛΟΥΤΡΑΚΙ':'ΛΙΟΣΙΑ'}</span><span style="font-family:var(--mono);color:var(--red)">${fmt(allPPrev)}</span></div>
     ${prevYpData?`<div class="comp-row" style="font-weight:600;"><span>Υπόλοιπο</span><span style="font-family:var(--mono);color:${prevYpCalc>=0?'var(--green)':'var(--red)'}">${(prevYpCalc>=0?'+':'')+fmt(prevYpCalc)}</span></div>`:'<div style="font-size:10px;color:var(--muted);margin-top:8px;">⏳ Φόρτωση δεδομένων...</div>'}`;
 
   // Delta area
@@ -3457,7 +3459,10 @@ function _alphaIdx(rows,field){
 }
 function renderD5(){
   const k=ek();const rows=D.d15[k]||[];const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);const totS=rows.reduce((s,r)=>s+(r.synolo||0),0),totK=rows.reduce((s,r)=>s+(r.loutraki||0),0);
-  document.getElementById('d5Tot').textContent=fmt(tot);document.getElementById('d5Cnt').textContent=rows.length;
+  const _isLou=(STORE==='LOUTRAKI');
+  document.getElementById('d5Tot').textContent=fmt(_isLou?totK:tot);
+  var _d5l=document.getElementById('d5TotLbl');if(_d5l)_d5l.textContent='Σύνολο 15ου '+(_isLou?'ΛΟΥΤΡΑΚΙ':'ΛΙΟΣΙΑ');
+  document.getElementById('d5Cnt').textContent=rows.length;
   document.getElementById('d5Body').innerHTML=_alphaIdx(rows,'prom').map(function(i){const r=rows[i];return `<tr><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td>${r.prom}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td class="num edit-cell" title="Κλικ για επεξεργασία ΣΥΝΟΛΟ" onclick="editShareCell(event,'d15',${i},'synolo')">${r.synolo?fmt(r.synolo):'0,00'}<span class="pen">✎</span></td><td class="acc" title="Αυτόματο: Σύνολο − Λουτράκι">${fmt(r.liosia)}</td><td class="num edit-cell" style="color:var(--muted)" title="Κλικ για επεξεργασία ΛΟΥΤΡΑΚΙ" onclick="editShareCell(event,'d15',${i},'loutraki')">${r.loutraki?fmt(r.loutraki):'0,00'}<span class="pen">✎</span></td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delD5(${i})">✕</button></td></tr>`;}).join('')+(rows.length?`<tr class="tot"><td colspan="3">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
 }
 
@@ -3481,7 +3486,10 @@ async function delTel(idx){
 }
 function renderTel(){
   const k=ek();const rows=D.telos[k]||[];const tot=rows.reduce((s,r)=>s+(r.liosia||0),0);const totS=rows.reduce((s,r)=>s+(r.synolo||0),0),totK=rows.reduce((s,r)=>s+(r.loutraki||0),0);
-  document.getElementById('telTot').textContent=fmt(tot);document.getElementById('telCnt').textContent=rows.length;
+  const _isLou=(STORE==='LOUTRAKI');
+  document.getElementById('telTot').textContent=fmt(_isLou?totK:tot);
+  var _tell=document.getElementById('telTotLbl');if(_tell)_tell.textContent='Σύνολο Τέλους '+(_isLou?'ΛΟΥΤΡΑΚΙ':'ΛΙΟΣΙΑ');
+  document.getElementById('telCnt').textContent=rows.length;
   const kb=kt=>`<span style="font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(200,168,75,.12);color:var(--accent)">${kt}</span>`;
   document.getElementById('telBody').innerHTML=_alphaIdx(rows,'name').map(function(i){const r=rows[i];return `<tr><td>${kb(r.kat)}</td><td style="color:var(--muted);font-size:10px">${r.cod||'—'}</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.iban||'—'}</td><td>${r.name}</td><td class="num edit-cell" title="Κλικ για επεξεργασία ΣΥΝΟΛΟ" onclick="editShareCell(event,'telos',${i},'synolo')">${r.synolo?fmt(r.synolo):'0,00'}<span class="pen">✎</span></td><td class="acc" title="Αυτόματο: Σύνολο − Λουτράκι">${fmt(r.liosia)}</td><td class="num edit-cell" style="color:var(--muted)" title="Κλικ για επεξεργασία ΛΟΥΤΡΑΚΙ" onclick="editShareCell(event,'telos',${i},'loutraki')">${r.loutraki?fmt(r.loutraki):'0,00'}<span class="pen">✎</span></td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delTel(${i})">✕</button></td></tr>`;}).join('')+(rows.length?`<tr class="tot"><td colspan="4">ΣΥΝΟΛΑ</td><td class="num">${fmt(totS)}</td><td class="acc">${fmt(tot)}</td><td class="num">${fmt(totK)}</td><td></td></tr>`:'');
 }
@@ -5375,8 +5383,10 @@ async function exportCSV(){
   const pBnk=bnk.reduce((s,r)=>s+(r.poso||0),0);
   const pD5L=d15.reduce((s,r)=>s+(r.liosia||0),0);          // άθροισμα στήλης ΛΙΟΣΙΑ (για το G-total των sheets 15ου/Τέλος)
   const pTelL=tel.reduce((s,r)=>s+(r.liosia||0),0);
-  const pD5=isLou?0:pD5L;                                   // ΛΟΥΤΡΑΚΙ δεν αφαιρεί 15ου/Τέλος (τα πληρώνει μέσα από δικά του ΠΛΗΡΩΜΕΣ-ΤΡΑΠΕΖΑ)
-  const pTel=isLou?0:pTelL;
+  const pD5K=d15.reduce((s,r)=>s+(r.loutraki||0),0);        // άθροισμα στήλης ΛΟΥΤΡΑΚΙ
+  const pTelK=tel.reduce((s,r)=>s+(r.loutraki||0),0);
+  const pD5=isLou?pD5K:pD5L;                                // v73: ΛΟΥΤΡΑΚΙ αφαιρεί το ΛΟΥΤΡΑΚΙ μερίδιο (συμμετρικά με Λιόσια)
+  const pTel=isLou?pTelK:pTelL;
   const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
   const cf=carryFor(k);                                     // POS carry-forward (ίδιο με dashboard/calcYP)
   const allP=pMet+pBnk+pD5+pTel+pEpit;
