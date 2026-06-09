@@ -1552,11 +1552,11 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
 <!-- 💾 BACKUP modal (ADMIN· File System Access API → φάκελος προτεραιότητας Google Drive) -->
 <div id="bkModal" class="ui-modal-overlay">
   <div class="ui-modal" style="max-width:540px;">
-    <div class="ui-modal-title">💾 Backup Δεδομένων Ταμείου</div>
+    <div class="ui-modal-title" style="display:flex;align-items:center;gap:10px;justify-content:center;"><img src="backup-icon.png?v=1" alt="" style="width:36px;height:36px;border-radius:8px;" onerror="this.style.display='none'"><span>Αντίγραφο Ασφαλείας &amp; Επαναφορά</span></div>
     <div class="ui-modal-msg" style="text-align:left;">
       <div id="bkReminder" style="display:none;background:rgba(255,207,107,.12);border:1px solid rgba(255,207,107,.4);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;color:#f0e2bb;">⏰ <b>Δεν έχει γίνει backup σήμερα.</b> Κάνε ένα τώρα για ασφάλεια.</div>
       <div style="background:rgba(61,220,151,.08);border:1px solid rgba(61,220,151,.3);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12.5px;line-height:1.55;color:#bff5dc;">
-        Κατεβάζει ΟΛΑ τα δεδομένα (μήνες/επιταγές/άδειες/πρότυπα) σε ένα αρχείο <b>.json</b>.
+        💾 Κατεβάζει ΟΛΑ τα δεδομένα (μήνες/επιταγές/άδειες/πρότυπα) σε ένα αρχείο <b>.json</b>.
       </div>
       <div style="margin-bottom:10px;">
         <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">📁 Φάκελος αποθήκευσης</div>
@@ -1564,6 +1564,11 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
         <button class="btn-add" style="margin:0;padding:9px 14px;font-size:12px;" onclick="bkPickFolder()" id="bkPickBtn">📁 Επιλογή φακέλου…</button>
         <button class="btn-add" style="margin:0 0 0 6px;padding:9px 14px;font-size:12px;background:transparent;border:1px solid var(--border2);color:var(--muted);box-shadow:none;" onclick="bkClearFolder()" id="bkClearBtn">✕ Καθαρισμός</button>
         <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5;">💡 <b>Συμβουλή:</b> διάλεξε τον τοπικό φάκελο του <b>Google Drive</b> (π.χ. <code>G:\Το Drive μου\ΤΑΜΕΙΟ Backups</code>) — τα backup θα ανεβαίνουν αυτόματα στο cloud. Ο φάκελος <b>θυμάται</b>.</div>
+      </div>
+      <div style="margin-top:14px;padding-top:13px;border-top:1px solid var(--border);">
+        <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">♻️ Επαναφορά δεδομένων</div>
+        <button class="btn-add" style="margin:0;padding:10px 16px;font-size:12.5px;background:linear-gradient(135deg,#ffcf6b,#e0a93b);color:#3a2c08;box-shadow:none;" onclick="openRestoreTool()">♻️ Άνοιγμα εργαλείου Επαναφοράς…</button>
+        <div style="font-size:11px;color:var(--muted);margin-top:7px;line-height:1.5;">Ανοίγει ξεχωριστά (για ασφάλεια). Διαλέγεις αρχείο backup .json → <b>βλέπεις & επιλέγεις αναλυτικά</b> τι θα επαναφερθεί → 4 επιβεβαιώσεις.</div>
       </div>
     </div>
     <div class="ui-modal-actions">
@@ -5398,6 +5403,10 @@ async function openBackupModal(){
   document.getElementById('bkModal').classList.add('show');
 }
 function closeBackupModal(){ var m=document.getElementById('bkModal'); if(m)m.classList.remove('show'); }
+function openRestoreTool(){
+  try{ var w=window.open('backup_restore.html#restore','_blank'); if(!w) throw new Error('blocked'); }
+  catch(e){ uiAlert('Άνοιξε το αρχείο backup_restore.html (καρτέλα Επαναφορά). Τρέξε το τοπικά με διπλό κλικ αν δεν ανοίγει.',{title:'Εργαλείο Επαναφοράς',icon:'♻️'}); }
+}
 function _bkUpdateFolderUI(){
   var el=document.getElementById('bkFolderName'); if(!el)return;
   if(_bkDirHandle){ el.textContent='📂 '+(_bkDirHandle.name||'επιλεγμένος φάκελος'); el.style.color='var(--green-2)'; }

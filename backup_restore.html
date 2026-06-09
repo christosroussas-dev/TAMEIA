@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="el"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>💾 Backup & Επαναφορά — ΤΑΜΕΙΟ ΑΦΟΙ ΡΟΥΣΣΑ</title>
+<style>
+ body{font-family:"Segoe UI",Arial,sans-serif;background:#070d1a;color:#e8eefb;margin:0;padding:30px;}
+ .box{max-width:920px;margin:0 auto;background:#0f1830;border:1px solid #24304f;border-radius:14px;padding:26px;}
+ h1{font-size:20px;margin:0 0 4px;color:#9cc6ff;} .sub{color:#8aa;font-size:12px;margin-bottom:16px;}
+ input[type=email],input[type=password],input[type=text]{background:#0a1226;border:1px solid #2a3a5e;color:#fff;padding:10px 12px;border-radius:8px;font-size:14px;width:240px;margin:4px 6px 4px 0;}
+ button{background:#4d9fff;color:#06101f;border:none;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;}
+ button:disabled{opacity:.4;cursor:not-allowed;}
+ button.green{background:#3ddc97;} button.danger{background:#ff5d6c;color:#fff;} button.big{font-size:16px;padding:15px 30px;}
+ .tabs{display:flex;gap:8px;margin:16px 0;}
+ .tabs button{flex:1;background:#0a1226;border:1px solid #24304f;color:#8aa;font-size:14px;}
+ .tabs button.on{background:linear-gradient(135deg,#4d9fff,#2f7fe6);color:#06101f;border:none;}
+ .pane{display:none;} .pane.on{display:block;}
+ .warn{background:rgba(61,220,151,.1);border:1px solid #3ddc97;border-radius:8px;padding:12px 14px;font-size:12.5px;margin:12px 0;line-height:1.55;}
+ .danger-box{background:rgba(255,93,108,.1);border:1.5px solid #ff5d6c;border-radius:10px;padding:13px 15px;font-size:13px;margin:12px 0;line-height:1.6;color:#ffd0d6;}
+ .step{background:#0a1226;border:1px solid #24304f;border-radius:10px;padding:13px 15px;margin:10px 0;}
+ .step h3{margin:0 0 8px;font-size:14px;color:#9cc6ff;} .step.done{border-color:#3ddc97;} .step.done h3{color:#3ddc97;}
+ #log{margin-top:16px;font-family:monospace;font-size:12px;background:#0a1226;border:1px solid #24304f;border-radius:8px;padding:12px;max-height:340px;overflow:auto;white-space:pre-wrap;}
+ .ok{color:#3ddc97;} .err{color:#ff5d6c;} .info{color:#4d9fff;} .wn{color:#ffcf6b;} .hd{color:#9cc6ff;font-weight:800;}
+ table{border-collapse:collapse;width:100%;margin-top:8px;font-size:12.5px;} th,td{border:1px solid #24304f;padding:6px 9px;text-align:right;} th{background:#0a1226;color:#8aa;} td.l{text-align:left;}
+ label.cb{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin:6px 0;} label.cb input{width:18px;height:18px;}
+ .colsel{display:flex;flex-wrap:wrap;gap:14px;margin:8px 0;}
+ #bar{height:8px;background:#0a1226;border-radius:6px;overflow:hidden;margin:12px 0;} #barf{height:100%;width:0;background:#3ddc97;transition:.2s;}
+</style></head><body>
+<div class="box">
+ <h1 style="display:flex;align-items:center;gap:12px;"><img src="backup-icon.png?v=1" alt="" style="width:42px;height:42px;border-radius:9px;" onerror="this.style.display='none'"><span>Αντίγραφο Ασφαλείας &amp; Επαναφορά</span></h1>
+ <div class="sub">Ένα εργαλείο για λήψη & επαναφορά ΟΛΩΝ των δεδομένων ταμείου · project tameio-afoi-roussa</div>
+
+ <div id="loginArea" class="step">
+  <h3>Σύνδεση ADMIN</h3>
+  <input id="em" type="email" placeholder="email (ADMIN)" value="christosroussas@gmail.com">
+  <input id="pw" type="password" placeholder="κωδικός">
+  <button onclick="doLogin()">Σύνδεση</button>
+ </div>
+
+ <div id="main" style="display:none;">
+  <div class="tabs">
+   <button id="tabB" class="on" onclick="showTab('B')">💾 Λήψη Backup</button>
+   <button id="tabR" onclick="showTab('R')">♻️ Επαναφορά</button>
+  </div>
+
+  <!-- ===== BACKUP PANE ===== -->
+  <div id="paneB" class="pane on">
+   <div class="warn">✅ <b>Μόνο διαβάζει</b> — κατεβάζει ένα <b>.json</b> με ΟΛΑ τα δεδομένα. Τρέξ' το κάθε τέλος μήνα & φύλαξέ το σε Google Drive.</div>
+   <button class="green" id="cntBtn" onclick="doCount()">🔍 Έλεγχος (πόσα δεδομένα)</button>
+   <button class="green big" id="dlBtn" onclick="doBackup()">💾 ΚΑΤΕΒΑΣΜΑ ΠΛΗΡΟΥΣ BACKUP</button>
+  </div>
+
+  <!-- ===== RESTORE PANE ===== -->
+  <div id="paneR" class="pane">
+   <div class="danger-box">🔴 <b>ΕΠΙΚΙΝΔΥΝΟ.</b> Αντικαθιστά τα τρέχοντα δεδομένα με του backup. ✅ <b>ΠΡΩΤΑ</b> κάνε φρέσκο backup (καρτέλα δίπλα).</div>
+   <div class="step" id="rs1"><h3>1 · Επίλεξε αρχείο backup (.json)</h3>
+    <input type="file" id="file" accept=".json,application/json" onchange="onFile()" style="color:#cfe;">
+    <div id="fileInfo" style="font-size:12px;color:#8aa;margin-top:8px;"></div><div id="preview"></div></div>
+   <div class="step" id="rs2" style="display:none;"><h3>2 · Τι να επαναφερθεί</h3><div class="colsel" id="colSel"></div></div>
+   <div class="step" id="rs3" style="display:none;"><h3>3 · Επιβεβαιώσεις ασφαλείας</h3>
+    <label class="cb"><input type="checkbox" id="cb1" onchange="gate()"> <span><b>1.</b> Κατάλαβα ότι τα τρέχοντα δεδομένα θα <b>αντικατασταθούν</b>.</span></label>
+    <label class="cb"><input type="checkbox" id="cb2" onchange="gate()"> <span><b>2.</b> Έκανα ήδη <b>φρέσκο backup</b>.</span></label>
+    <div style="margin:10px 0;font-size:13px;"><b>3.</b> Γράψε <code style="color:#ffcf6b">ΕΠΑΝΑΦΟΡΑ</code>:<br><input type="text" id="cb3" placeholder="ΕΠΑΝΑΦΟΡΑ" oninput="gate()" style="margin-top:6px;"></div>
+    <div style="margin:10px 0;font-size:13px;"><b>4.</b> Κωδικός ADMIN (επαλήθευση):<br><input type="password" id="cbpw" placeholder="κωδικός" oninput="gate()" style="margin-top:6px;"></div></div>
+   <div class="step" id="rs4" style="display:none;"><button class="danger big" id="goBtn" onclick="doRestore()" disabled>🔴 ΕΚΤΕΛΕΣΗ ΕΠΑΝΑΦΟΡΑΣ</button><div id="bar"><div id="barf"></div></div></div>
+  </div>
+ </div>
+ <div id="log"></div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+const CFG={apiKey:"AIzaSyDvE-jXUzjvmSertOZ2xI-pnMw76S6L2Vc",authDomain:"tameio-afoi-roussa.firebaseapp.com",projectId:"tameio-afoi-roussa",storageBucket:"tameio-afoi-roussa.firebasestorage.app",messagingSenderId:"65747757533",appId:"1:65747757533:web:9dc1d7ee46efbf6c67ee34"};
+firebase.initializeApp(CFG); const _db=firebase.firestore(); const _auth=firebase.auth();
+const COLS=['months','epitages','templates','personnel','leaveImports','audit'];
+let BK=null;
+function log(m,c){const l=document.getElementById('log');l.innerHTML+='<div class="'+(c||'')+'">'+m+'</div>';l.scrollTop=l.scrollHeight;}
+function pad(n){return String(n).padStart(2,'0');}
+function stamp(){const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'_'+pad(d.getHours())+pad(d.getMinutes());}
+function showTab(t){document.getElementById('tabB').classList.toggle('on',t==='B');document.getElementById('tabR').classList.toggle('on',t==='R');document.getElementById('paneB').classList.toggle('on',t==='B');document.getElementById('paneR').classList.toggle('on',t==='R');}
+
+async function doLogin(){
+ try{ await _auth.signInWithEmailAndPassword(document.getElementById('em').value.trim(),document.getElementById('pw').value);
+  document.getElementById('loginArea').classList.add('done'); document.getElementById('main').style.display='block';
+  log('✓ Σύνδεση OK ('+_auth.currentUser.email+')','ok');
+  if(location.hash==='#restore') showTab('R');   // άνοιγμα κατευθείαν στην Επαναφορά (από το κουμπί της app)
+ }catch(e){log('✗ Σφάλμα σύνδεσης: '+e.message,'err');}
+}
+
+/* ---------- BACKUP ---------- */
+async function doCount(){
+ document.getElementById('cntBtn').disabled=true; log('━━━ ΕΛΕΓΧΟΣ ━━━','hd'); let rows='';
+ for(const c of COLS){ try{ const s=await _db.collection(c).get(); rows+='<tr><td class="l">'+c+'</td><td>'+s.size+'</td></tr>'; }catch(e){ rows+='<tr><td class="l">'+c+'</td><td style="color:#ff5d6c">'+e.message+'</td></tr>'; } }
+ log('<table><tr><th class="l">Collection</th><th>Έγγραφα</th></tr>'+rows+'</table>','info'); document.getElementById('cntBtn').disabled=false;
+}
+async function readAll(){ const out={},cnt={}; for(const c of COLS){ out[c]={}; try{ const s=await _db.collection(c).get(); s.forEach(d=>out[c][d.id]=d.data()); cnt[c]=s.size; }catch(e){ cnt[c]='err'; } } return {out,cnt}; }
+async function doBackup(){
+ document.getElementById('dlBtn').disabled=true; log('━━━ ΛΗΨΗ BACKUP ━━━','hd');
+ try{
+  const {out,cnt}=await readAll();
+  let tot=0; for(const c of COLS){ if(typeof cnt[c]==='number'){tot+=cnt[c];log('  • '+c+': '+cnt[c],'ok');} }
+  const payload={_meta:{app:'ΤΑΜΕΙΟ ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε.',project:'tameio-afoi-roussa',exportedAt:new Date().toISOString(),exportedBy:(_auth.currentUser||{}).email||'',collections:COLS,counts:cnt},data:out};
+  const json=JSON.stringify(payload,null,1); const blob=new Blob([json],{type:'application/json'}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='ΤΑΜΕΙΟ_BACKUP_'+stamp()+'.json'; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(()=>URL.revokeObjectURL(url),1000);
+  log('━━━ ✅ ΕΤΟΙΜΟ: '+tot+' έγγραφα · '+(json.length/1048576).toFixed(2)+' MB ━━━','hd');
+  log('➡️ Φύλαξέ το σε Google Drive / USB.','wn');
+ }catch(e){ log('✗ '+e.message,'err'); } document.getElementById('dlBtn').disabled=false;
+}
+
+/* ---------- RESTORE (αναλυτική επιλογή ανά έγγραφο) ---------- */
+const RLBL={months:'📅 Μήνες Ταμείου (ημέρες/πληρωμές/εισπράξεις)',epitages:'🔖 Επιταγές',templates:'⚡ Πρότυπα κινήσεων',personnel:'👥 Προσωπικό & Άδειες',leaveImports:'📋 Εισαγωγές αδειών (αρχείο)',audit:'🗂️ Ιστορικό ενεργειών (log)'};
+function rLbl(col){ return RLBL[col]||col; }
+function rDocLbl(col,id){
+ if(col==='months'){ if(id.indexOf('LOUTRAKI_')===0) return '🌊 ΛΟΥΤΡΑΚΙ · '+id.replace('LOUTRAKI_','').replace(/_/g,' '); return '📍 ΛΙΟΣΙΑ · '+id.replace(/_/g,' '); }
+ if(col==='personnel'){ return (id.indexOf('LOUTRAKI')===0?'🌊 ':'📍 ')+id.replace(/_/g,' '); }
+ return id.replace(/_/g,' ');
+}
+// ταξινόμηση doc ids (μήνες χρονολογικά αν γίνεται, αλλιώς αλφαβητικά)
+const MO=['ΙΑΝΟΥΑΡΙΟΣ','ΦΕΒΡΟΥΑΡΙΟΣ','ΜΑΡΤΙΟΣ','ΑΠΡΙΛΙΟΣ','ΜΑΙΟΣ','ΙΟΥΝΙΟΣ','ΙΟΥΛΙΟΣ','ΑΥΓΟΥΣΤΟΣ','ΣΕΠΤΕΜΒΡΙΟΣ','ΟΚΤΩΒΡΙΟΣ','ΝΟΕΜΒΡΙΟΣ','ΔΕΚΕΜΒΡΙΟΣ'];
+function rKey(col,id){ if(col==='months'){ var s=id.replace('LOUTRAKI_',''); var p=s.split('_'); var mi=MO.indexOf(p[0]); var yr=p[1]||'0'; return (id.indexOf('LOUTRAKI_')===0?'2_':'1_')+yr+'_'+String(mi+1).padStart(2,'0'); } return id; }
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function onFile(){
+ const f=document.getElementById('file').files[0]; if(!f)return; const r=new FileReader();
+ r.onload=async function(){ try{
+   const j=JSON.parse(r.result); if(!j.data||typeof j.data!=='object') throw new Error('Άκυρο αρχείο: λείπει το πεδίο data'); BK=j;
+   const meta=j._meta||{}; document.getElementById('fileInfo').innerHTML='✓ <b>'+esc(f.name)+'</b> · εξήχθη: '+(meta.exportedAt||'—');
+   log('━━━ Διαβάζω τι περιέχει το backup… ━━━','hd');
+   const cols=Object.keys(j.data); let html='';
+   for(const col of cols){
+     const ids=Object.keys(j.data[col]||{}).sort((a,b)=>rKey(col,a).localeCompare(rKey(col,b)));
+     let liveN='—'; try{ liveN=(await _db.collection(col).get()).size; }catch(e){ liveN='?'; }
+     const defOn=(col!=='audit'); // audit (log) default ξεκλείδωτο
+     let docs='';
+     for(const id of ids){ docs+='<label class="cb" style="font-size:11.5px;margin:2px 0;"><input type="checkbox" class="doccb" data-col="'+esc(col)+'" value="'+esc(id)+'" '+(defOn?'checked':'')+' onchange="rDoc(\''+esc(col)+'\')"> '+esc(rDocLbl(col,id))+'</label>'; }
+     html+='<div style="border:1px solid #24304f;border-radius:9px;padding:9px 11px;margin:7px 0;background:#0a1226;">'
+        +'<label class="cb" style="margin:0;font-weight:700;font-size:13px;"><input type="checkbox" class="colmaster" data-col="'+esc(col)+'" '+(defOn?'checked':'')+' onchange="rMaster(\''+esc(col)+'\')"> '+rLbl(col)+' <span style="color:#8aa;font-weight:400;">· '+ids.length+' στο backup · live: '+liveN+'</span></label>'
+        +'<div style="margin:4px 0 0 26px;"><button onclick="rDetail(\''+esc(col)+'\')" style="background:none;border:none;color:#4d9fff;font-size:11px;cursor:pointer;padding:2px 0;" id="rb_'+esc(col)+'">▸ δες/επίλεξε ένα-ένα</button>'
+        +'<div id="rd_'+esc(col)+'" style="display:none;padding:4px 0 2px 2px;max-height:200px;overflow:auto;border-top:1px solid #1a2238;margin-top:4px;">'+(docs||'<span style="color:#8aa;font-size:11px">— κενό —</span>')+'</div></div></div>';
+   }
+   document.getElementById('colSel').innerHTML=html+'<div id="rSum" style="margin-top:10px;font-size:13px;font-weight:700;color:#3ddc97;"></div>';
+   document.getElementById('rs1').classList.add('done'); ['rs2','rs3','rs4'].forEach(id=>document.getElementById(id).style.display='block');
+   log('✓ Φορτώθηκε. Διάλεξε ΤΙ να επαναφερθεί (κατηγορία ή ένα-ένα), μετά κάνε τις 4 επιβεβαιώσεις.','ok'); gate();
+  }catch(e){ log('✗ '+e.message,'err'); BK=null; } };
+ r.readAsText(f);
+}
+function rDetail(col){ const d=document.getElementById('rd_'+col),b=document.getElementById('rb_'+col); const open=d.style.display==='none'; d.style.display=open?'block':'none'; if(b)b.textContent=(open?'▾':'▸')+' δες/επίλεξε ένα-ένα'; }
+function rMaster(col){ const on=document.querySelector('.colmaster[data-col="'+col+'"]').checked; document.querySelectorAll('.doccb[data-col="'+col+'"]').forEach(c=>c.checked=on); gate(); }
+function rDoc(col){ const all=[...document.querySelectorAll('.doccb[data-col="'+col+'"]')], ch=all.filter(c=>c.checked).length, m=document.querySelector('.colmaster[data-col="'+col+'"]'); if(m){ m.checked=ch===all.length; m.indeterminate=ch>0&&ch<all.length; } gate(); }
+function selDocs(){ const out={}; document.querySelectorAll('.doccb:checked').forEach(c=>{ (out[c.dataset.col]=out[c.dataset.col]||[]).push(c.value); }); return out; }
+function selCount(){ return document.querySelectorAll('.doccb:checked').length; }
+function gate(){
+ const sel=selDocs(), n=selCount();
+ const sum=document.getElementById('rSum');
+ if(sum){ if(n===0){ sum.style.color='#ff5d6c'; sum.textContent='⚠ Δεν έχεις επιλέξει τίποτα προς επαναφορά.'; }
+   else { sum.style.color='#3ddc97'; sum.innerHTML='📦 Θα επαναφερθούν: <b>'+n+'</b> έγγραφα — '+Object.keys(sel).map(c=>rLbl(c).replace(/\s·.*$/,'').replace(/\(.*?\)/,'').trim()+' ('+sel[c].length+')').join(' · '); }
+ }
+ const ok=BK&&n>0&&document.getElementById('cb1').checked&&document.getElementById('cb2').checked&&document.getElementById('cb3').value.trim()==='ΕΠΑΝΑΦΟΡΑ'&&document.getElementById('cbpw').value.length>0;
+ document.getElementById('goBtn').disabled=!ok; document.getElementById('rs3').classList.toggle('done',document.getElementById('cb1').checked&&document.getElementById('cb2').checked&&document.getElementById('cb3').value.trim()==='ΕΠΑΝΑΦΟΡΑ'&&document.getElementById('cbpw').value.length>0);
+}
+function reviveTS(o){ if(o===null||typeof o!=='object')return o; if(Array.isArray(o))return o.map(reviveTS);
+ if(typeof o.seconds==='number'&&typeof o.nanoseconds==='number'&&Object.keys(o).length<=3){ try{return new firebase.firestore.Timestamp(o.seconds,o.nanoseconds);}catch(e){return o;} }
+ const out={}; for(const k in o)out[k]=reviveTS(o[k]); return out; }
+async function doRestore(){
+ const sel=selDocs(), n=selCount(); if(n===0)return;
+ const summ=Object.keys(sel).map(c=>rLbl(c).replace(/\s·.*$/,'')+': '+sel[c].length).join('\n');
+ if(!confirm('ΤΕΛΕΥΤΑΙΑ ΕΠΙΒΕΒΑΙΩΣΗ:\n\nΘα αντικατασταθούν '+n+' έγγραφα:\n'+summ+'\n\nΣυνέχεια;'))return;
+ document.getElementById('goBtn').disabled=true; log('━━━ ΕΠΑΝΑΦΟΡΑ ━━━','hd');
+ try{ const cred=firebase.auth.EmailAuthProvider.credential(_auth.currentUser.email,document.getElementById('cbpw').value);
+  await _auth.currentUser.reauthenticateWithCredential(cred); log('✓ Επαλήθευση ταυτότητας OK','ok');
+ }catch(e){ log('✗ Λάθος κωδικός — ακύρωση','err'); document.getElementById('goBtn').disabled=false; return; }
+ const ops=[]; for(const col in sel){ const docs=BK.data[col]||{}; sel[col].forEach(id=>{ if(docs[id]!==undefined) ops.push({col,id,data:reviveTS(docs[id])}); }); }
+ log('Έγγραφα προς εγγραφή: '+ops.length,'info'); let done=0,errs=0;
+ for(let i=0;i<ops.length;i+=450){ const chunk=ops.slice(i,i+450); const batch=_db.batch();
+  chunk.forEach(o=>batch.set(_db.collection(o.col).doc(o.id),o.data));
+  try{ await batch.commit(); done+=chunk.length; }catch(e){ errs+=chunk.length; log('✗ '+e.message,'err'); }
+  document.getElementById('barf').style.width=Math.round((done+errs)/ops.length*100)+'%'; log('  … '+(done+errs)+'/'+ops.length,'info'); }
+ log('━━━ ΤΕΛΟΣ: '+done+' OK · '+errs+' σφάλματα ━━━',errs?'err':'hd');
+ if(!errs)log('✅ Η επαναφορά ολοκληρώθηκε. Άνοιξε την εφαρμογή & έλεγξε.','ok');
+}
+</script></body></html>
