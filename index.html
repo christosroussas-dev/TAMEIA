@@ -1003,6 +1003,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
       <div class="nav-item" id="navExcel" onclick="exportCSV()"><span class="nico">📑</span>ΑΝΑΦΟΡΕΣ (Excel)</div>
       <div class="nav-item" id="navAI" onclick="exportAIReport()" title="Εξαγωγή αναλυτικής αναφοράς για ανάλυση με AI"><span class="nico" style="color:#a87dff;">🤖</span>ΑΝΑΦΟΡΑ AI</div>
       <div class="nav-item" id="navAudit" data-tab="audit" onclick="showTab('audit',this)" title="Ιστορικό: ποιος χρήστης μπήκε & τι έκανε (μόνο ADMIN)"><span class="nico" style="color:#e6c878;">📋</span>ΙΣΤΟΡΙΚΟ ΕΝΕΡΓΕΙΩΝ</div>
+      <div class="nav-item" id="navBackup" onclick="openBackupModal()" title="Backup δεδομένων ταμείου (μόνο ADMIN)"><span class="nico" id="navBackupIco" style="color:#3ddc97;">💾</span>BACKUP</div>
       <div class="nav-item" onclick="window.open('odigies.html','_blank')"><span class="nico">❓</span>ΟΔΗΓΙΕΣ</div>
       <div class="nav-sep" style="margin-top:14px;"></div>
       <div class="nav-item" id="navPersonnel" data-tab="personnel" onclick="showTab('personnel',this)"><span class="nico" style="color:#22c55e;">👥</span>ΠΡΟΣΩΠΙΚΟ &amp; ΑΔΕΙΕΣ</div>
@@ -1548,6 +1549,30 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
     </div>
   </div>
 </div>
+<!-- 💾 BACKUP modal (ADMIN· File System Access API → φάκελος προτεραιότητας Google Drive) -->
+<div id="bkModal" class="ui-modal-overlay">
+  <div class="ui-modal" style="max-width:540px;">
+    <div class="ui-modal-title">💾 Backup Δεδομένων Ταμείου</div>
+    <div class="ui-modal-msg" style="text-align:left;">
+      <div id="bkReminder" style="display:none;background:rgba(255,207,107,.12);border:1px solid rgba(255,207,107,.4);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;color:#f0e2bb;">⏰ <b>Δεν έχει γίνει backup σήμερα.</b> Κάνε ένα τώρα για ασφάλεια.</div>
+      <div style="background:rgba(61,220,151,.08);border:1px solid rgba(61,220,151,.3);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:12.5px;line-height:1.55;color:#bff5dc;">
+        Κατεβάζει ΟΛΑ τα δεδομένα (μήνες/επιταγές/άδειες/πρότυπα) σε ένα αρχείο <b>.json</b>.
+      </div>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">📁 Φάκελος αποθήκευσης</div>
+        <div id="bkFolderName" style="font-weight:700;font-size:13px;color:var(--accent);margin-bottom:7px;">— (προεπιλογή: φάκελος Λήψεων)</div>
+        <button class="btn-add" style="margin:0;padding:9px 14px;font-size:12px;" onclick="bkPickFolder()" id="bkPickBtn">📁 Επιλογή φακέλου…</button>
+        <button class="btn-add" style="margin:0 0 0 6px;padding:9px 14px;font-size:12px;background:transparent;border:1px solid var(--border2);color:var(--muted);box-shadow:none;" onclick="bkClearFolder()" id="bkClearBtn">✕ Καθαρισμός</button>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5;">💡 <b>Συμβουλή:</b> διάλεξε τον τοπικό φάκελο του <b>Google Drive</b> (π.χ. <code>G:\Το Drive μου\ΤΑΜΕΙΟ Backups</code>) — τα backup θα ανεβαίνουν αυτόματα στο cloud. Ο φάκελος <b>θυμάται</b>.</div>
+      </div>
+    </div>
+    <div class="ui-modal-actions">
+      <button class="ui-modal-btn ghost" onclick="closeBackupModal()">Κλείσιμο</button>
+      <button class="ui-modal-btn primary" id="bkRunBtn" onclick="bkRun()" style="background:#3ddc97;">💾 Backup τώρα</button>
+    </div>
+    <div id="bkLog" style="margin-top:12px;font-family:var(--mono);font-size:11.5px;color:var(--muted);max-height:140px;overflow:auto;"></div>
+  </div>
+</div>
 <!-- Πρότυπα κινήσεων (γρήγορη προσθήκη επαναλαμβανόμενων) -->
 <div id="tplModal" class="tpl-overlay">
   <div class="tpl-modal">
@@ -2063,6 +2088,7 @@ function applyRole(){
   var navExcel=document.getElementById('navExcel');if(navExcel)navExcel.style.display=isAdmin?'':'none';
   var navAI=document.getElementById('navAI');if(navAI)navAI.style.display=isAdmin?'':'none';
   var navAudit=document.getElementById('navAudit');if(navAudit)navAudit.style.display=isAdmin?'':'none';
+  var navBackup=document.getElementById('navBackup');if(navBackup)navBackup.style.display=isAdmin?'':'none';
   var navPersonnel=document.getElementById('navPersonnel');if(navPersonnel)navPersonnel.style.display=(isAdmin||isTabAllowed('personnel'))?'':'none';
   // Personnel head action buttons (admin-only για mutations· export ορατό σε όλους)
   var ppHA=document.getElementById('ppHeadAdd'); if(ppHA)ppHA.style.display=isAdmin?'':'none';
@@ -5348,6 +5374,96 @@ async function ppRestoreEmp(idx){
   renderPersonnel();
 }
 
+// ════════════ 💾 BACKUP ΔΕΔΟΜΕΝΩΝ (v74) — ADMIN, File System Access API ════════════
+const BK_COLS=['months','epitages','templates','personnel','leaveImports','audit'];
+var _bkDirHandle=null;   // directory handle (File System Access API)
+function _bkLog(m,c){ var l=document.getElementById('bkLog'); if(l){ l.innerHTML+='<div'+(c?' style="color:'+c+'"':'')+'>'+m+'</div>'; l.scrollTop=l.scrollHeight; } }
+function _bkToday(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function _bkStamp(){ var d=new Date(),p=function(n){return String(n).padStart(2,'0');}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes()); }
+// --- IndexedDB για να «θυμάται» τον φάκελο ---
+function _bkIDB(){ return new Promise(function(res,rej){ var r=indexedDB.open('tameio_bk',1); r.onupgradeneeded=function(){ r.result.createObjectStore('h'); }; r.onsuccess=function(){res(r.result);}; r.onerror=function(){rej(r.error);}; }); }
+async function _bkSaveHandle(h){ try{ var db=await _bkIDB(); await new Promise(function(res,rej){ var t=db.transaction('h','readwrite'); t.objectStore('h').put(h,'dir'); t.oncomplete=res; t.onerror=function(){rej(t.error);}; }); }catch(e){} }
+async function _bkLoadHandle(){ try{ var db=await _bkIDB(); return await new Promise(function(res){ var t=db.transaction('h','readonly'); var g=t.objectStore('h').get('dir'); g.onsuccess=function(){res(g.result||null);}; g.onerror=function(){res(null);}; }); }catch(e){ return null; } }
+async function _bkClearHandle(){ try{ var db=await _bkIDB(); await new Promise(function(res){ var t=db.transaction('h','readwrite'); t.objectStore('h').delete('dir'); t.oncomplete=res; t.onerror=res; }); }catch(e){} }
+function _bkSupported(){ return (typeof window.showDirectoryPicker==='function'); }
+
+async function openBackupModal(){
+  if(currentRole!=='ADMIN'){ toast&&toast('Μόνο για διαχειριστές','err'); return; }
+  var rem=document.getElementById('bkReminder'); if(rem) rem.style.display=(localStorage.getItem('bkLastDay')!==_bkToday())?'block':'none';
+  document.getElementById('bkLog').innerHTML='';
+  // ανάκτηση αποθηκευμένου φακέλου
+  if(!_bkDirHandle && _bkSupported()){ _bkDirHandle=await _bkLoadHandle(); }
+  _bkUpdateFolderUI();
+  if(!_bkSupported()){ var pb=document.getElementById('bkPickBtn'); if(pb){pb.disabled=true; pb.title='Ο browser δεν υποστηρίζει επιλογή φακέλου — θα γίνει κανονική λήψη';} }
+  document.getElementById('bkModal').classList.add('show');
+}
+function closeBackupModal(){ var m=document.getElementById('bkModal'); if(m)m.classList.remove('show'); }
+function _bkUpdateFolderUI(){
+  var el=document.getElementById('bkFolderName'); if(!el)return;
+  if(_bkDirHandle){ el.textContent='📂 '+(_bkDirHandle.name||'επιλεγμένος φάκελος'); el.style.color='var(--green-2)'; }
+  else { el.textContent=_bkSupported()?'— (προεπιλογή: φάκελος Λήψεων)':'— (λήψη στον φάκελο Λήψεων)'; el.style.color='var(--muted)'; }
+}
+async function bkPickFolder(){
+  if(!_bkSupported()){ toast&&toast('Ο browser δεν υποστηρίζει επιλογή φακέλου','warn'); return; }
+  try{
+    var h=await window.showDirectoryPicker({mode:'readwrite'});
+    _bkDirHandle=h; await _bkSaveHandle(h); _bkUpdateFolderUI();
+    toast&&toast('Φάκελος ορίστηκε: '+h.name,'ok');
+  }catch(e){ if(e&&e.name!=='AbortError') toast&&toast('Ακυρώθηκε','info'); }
+}
+async function bkClearFolder(){ _bkDirHandle=null; await _bkClearHandle(); _bkUpdateFolderUI(); toast&&toast('Επαναφορά σε λήψη','info'); }
+
+async function _bkReadAll(){
+  var out={},cnt={};
+  for(var i=0;i<BK_COLS.length;i++){ var c=BK_COLS[i]; out[c]={};
+    try{ var snap=await _db.collection(c).get(); snap.forEach(function(d){ out[c][d.id]=d.data(); }); cnt[c]=snap.size; }
+    catch(e){ cnt[c]='err'; }
+  }
+  return {out:out,cnt:cnt};
+}
+async function bkRun(){
+  if(currentRole!=='ADMIN')return;
+  var btn=document.getElementById('bkRunBtn'); if(btn)btn.disabled=true;
+  _bkLog('Διαβάζω δεδομένα…','#4d9fff');
+  try{
+    var r=await _bkReadAll();
+    var tot=0; BK_COLS.forEach(function(c){ if(typeof r.cnt[c]==='number'){tot+=r.cnt[c];} });
+    var payload={_meta:{app:'ΤΑΜΕΙΟ ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε.',project:'tameio-afoi-roussa',exportedAt:new Date().toISOString(),exportedBy:(_auth.currentUser||{}).email||'',counts:r.cnt},data:r.out};
+    var json=JSON.stringify(payload);
+    var fname='ΤΑΜΕΙΟ_BACKUP_'+_bkStamp()+'.json';
+    var savedTo='';
+    if(_bkDirHandle){
+      try{
+        var perm=await _bkDirHandle.requestPermission({mode:'readwrite'});
+        if(perm!=='granted') throw new Error('no-perm');
+        var fh=await _bkDirHandle.getFileHandle(fname,{create:true});
+        var w=await fh.createWritable(); await w.write(json); await w.close();
+        savedTo='📂 '+_bkDirHandle.name;
+      }catch(e){ _bkLog('⚠ Φάκελος απέτυχε ('+(e.message||e.name)+') → κανονική λήψη','#ffcf6b'); _bkDownload(json,fname); savedTo='Λήψεις'; }
+    } else { _bkDownload(json,fname); savedTo='Λήψεις'; }
+    localStorage.setItem('bkLastDay',_bkToday());
+    var rem=document.getElementById('bkReminder'); if(rem)rem.style.display='none';
+    _bkLog('✅ Backup OK: '+tot+' έγγραφα · '+(json.length/1048576).toFixed(2)+' MB','#3ddc97');
+    _bkLog('📁 Αποθηκεύτηκε: '+savedTo+' · '+fname,'#3ddc97');
+    toast&&toast('✓ Backup ολοκληρώθηκε ('+savedTo+')','ok');
+    logAction&&logAction('Backup δεδομένων','['+savedTo+'] '+tot+' έγγραφα · '+fname);
+  }catch(e){ _bkLog('✗ Σφάλμα: '+(e.message||e),'#ff5d6c'); toast&&toast('Σφάλμα backup','err'); }
+  if(btn)btn.disabled=false;
+}
+function _bkDownload(json,fname){ var blob=new Blob([json],{type:'application/json'}); var url=URL.createObjectURL(blob); var a=document.createElement('a'); a.href=url; a.download=fname; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function(){URL.revokeObjectURL(url);},1000); }
+// Καθημερινός έλεγχος (μετά το login· μόνο ADMIN) — διακριτική υπενθύμιση
+function bkDailyCheck(){
+  try{
+    if(currentRole!=='ADMIN')return;
+    if(localStorage.getItem('bkLastDay')===_bkToday())return;
+    setTimeout(function(){
+      var ico=document.getElementById('navBackupIco'); if(ico){ ico.textContent='🔴'; }
+      var nb=document.getElementById('navBackup'); if(nb){ nb.title='⏰ Δεν έχει γίνει backup σήμερα — κάνε κλικ'; }
+      toast&&toast('💾 Υπενθύμιση: δεν έχει γίνει backup σήμερα','warn');
+    },2500);
+  }catch(e){}
+}
+
 async function exportCSV(){
   if(typeof ExcelJS==='undefined'){toast('Φόρτωση βιβλιοθήκης…','info');setTimeout(exportCSV,1500);return;}
   if(!window.TEMPLATE_B64||window.TEMPLATE_B64==='__TEMPLATE_B64__'){toast('⚠️ Λείπει το template — re-deploy','err');return;}
@@ -5502,6 +5618,7 @@ async function initApp(){
   setGreeting();
   prefillDates();   // σημερινή ημ/νία στα date πεδία
   renderDashboard();   // γέμισε την αρχική (default active panel)
+  bkDailyCheck();   // υπενθύμιση backup αν δεν έγινε σήμερα (ADMIN)
 }
 function setGreeting(){
   const now=new Date();const h=now.getHours();
