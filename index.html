@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>ΤΑΜΕΙΟ — ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε. v6</title>
+<title>ΤΑΜΕΙΟ — ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε.</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -968,7 +968,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
   <div class="login-box">
     <img src="logo.png?v=42" alt="ΤΑΜΕΙΑ ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε." class="login-logo-img" onerror="this.style.display='none';">
     <div class="login-logo">ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε.</div>
-    <div class="login-sub">ΛΙΟΣΙΑ · Σύστημα Ταμείου v6</div>
+    <div class="login-sub">Σύστημα Ταμείου · <span id="loginVer"></span></div>
     <input class="login-inp" type="email" id="loginEmail" placeholder="email" autocomplete="username"
       onkeydown="if(event.key==='Enter'){document.getElementById('loginPwd').focus();}"/>
     <input class="login-inp" type="password" id="loginPwd" placeholder="κωδικός" autocomplete="current-password"
@@ -1918,6 +1918,10 @@ async function migrateFromSheets(){
 window.migrateFromSheets=migrateFromSheets;
 
 let CM='ΜΑΙΟΣ_2026';
+// ═══ ΕΚΔΟΣΗ ΕΦΑΡΜΟΓΗΣ — ΕΝΑ σημείο αλλαγής. Bump σε ΚΑΘΕ deploy (ίδιο N με το ?v=N του cache-bust). ═══
+const APP_VERSION='v82';
+document.title='ΤΑΜΕΙΟ — ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε. '+APP_VERSION;
+(function(){var el=document.getElementById('loginVer');if(el)el.textContent=APP_VERSION;})();
 let D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},exoda:{},epitages:[],templates:{metrita:[],bank:[],d15:[],telos:[]}};
 // DUAL-STORE buffer: για χρήστες με dualStore (π.χ. Λουτράκι), κρατά τα δεδομένα του ΑΛΛΟΥ καταστήματος
 // (per-store sections μόνο: trapEisp/trapPl/metrita/bank). Τα d15/telos είναι ήδη shared.
@@ -2634,10 +2638,11 @@ function expPayRemaining(k,y,curMet,curBnk,curD5,curTel,remainWD){
   const isLou=(STORE==='LOUTRAKI');
   const sum=a=>(a||[]).reduce((s,r)=>s+(r.poso||0),0);
   const share=a=>(a||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
+  // Τράπεζα+15ου+Τέλος = ΜΙΑ κατηγορία «σταθερές υποχρεώσεις»: οι ίδιες υποχρεώσεις άλλαξαν στήλη
+  // με το συμμετρικό μοντέλο v73 (Λουτράκι: πέρσι μέσω ΠΛΗΡ.ΤΡΑΠΕΖΑ, φέτος μερίδια 15ου/Τέλος).
+  // Η ανά-στήλη σύγκριση τις διπλομετρούσε (αποδείχθηκε ΙΟΥΝ 2026 Λουτράκι: 44k πέρσι bank ≈ 43,8k φέτος 15ου/Τέλος).
   const cats=[
-    {lbl:'15ου',rem:Math.max(0,share(D.d15[kPrev])-curD5)},
-    {lbl:'Τέλος',rem:Math.max(0,share(D.telos[kPrev])-curTel)},
-    {lbl:'Τράπεζα',rem:Math.max(0,sum(D.bank[kPrev])-curBnk)},
+    {lbl:'Τράπεζα+15ου/Τέλος',rem:Math.max(0,(sum(D.bank[kPrev])+share(D.d15[kPrev])+share(D.telos[kPrev]))-(curBnk+curD5+curTel))},
     {lbl:'Μετρητά',rem:Math.max(0,sum(D.metrita[kPrev])-curMet)}
   ].filter(c=>c.rem>0.5);
   const total=Math.round(cats.reduce((s,c)=>s+c.rem,0)*100)/100;
@@ -2840,7 +2845,7 @@ function renderDashboard(){
     </div>
 
     <div class="dash-footer">
-      <span>🛡️ ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε. · ΤΑΜΕΙΟ v6</span>
+      <span>🛡️ ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε. · ΤΑΜΕΙΟ ${APP_VERSION}</span>
       <span>Τελευταία ανανέωση: ${hh}:${mm} · <span style="color:var(--green-2)">● Αυτόματη αποθήκευση ενεργή</span></span>
     </div>`;
   // ── Animated counters (καθαρά οπτικό· cache ανά store ώστε re-render χωρίς αλλαγή = χωρίς animation) ──
@@ -4332,7 +4337,7 @@ async function exportAIReport(){
     L('════════════════════════════════════════════════════════════');
     L('▶▶ ΚΑΤΑΣΤΗΜΑ: '+stLabel+' ◀◀');
     L('Ημερομηνία εξαγωγής: '+now.toLocaleDateString('el-GR')+' '+now.toLocaleTimeString('el-GR'));
-    L('Μήνας: '+mn+' '+yr+'  |  Έκδοση app: v48');
+    L('Μήνας: '+mn+' '+yr+'  |  Έκδοση app: '+APP_VERSION);
     L('Εργάσιμες: '+m.wd+'/'+m.twd+'  |  Εναπομένουσες: '+m.remainWD);
     L('POS κράτηση τράπεζας: '+r2(posRate(k)*100)+'%');
     L('');
