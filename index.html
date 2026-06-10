@@ -2607,6 +2607,42 @@ function svgDonut(segs,centerVal,centerLabel){
   if(total>0){segs.forEach(s=>{if(s.value<=0)return;const frac=s.value/total;const len=c*frac;arcs+=`<circle cx="60" cy="60" r="${r}" fill="none" stroke="${s.color}" stroke-width="14" stroke-dasharray="${len.toFixed(1)} ${(c-len).toFixed(1)}" stroke-dashoffset="${(-c*acc).toFixed(1)}" transform="rotate(-90 60 60)"/>`;acc+=frac;});}
   return `<svg viewBox="0 0 120 120" class="svg-donut"><circle cx="60" cy="60" r="${r}" fill="none" stroke="${_BG3}" stroke-width="14"/>${arcs}<text x="60" y="56" text-anchor="middle" font-size="14" font-weight="700" fill="#fff" font-family="monospace">${centerVal||''}</text><text x="60" y="73" text-anchor="middle" font-size="8" fill="${_MUT}">${centerLabel||''}</text></svg>`;
 }
+// ===== Αναμενόμενες ΥΠΟΛΟΙΠΕΣ πληρωμές μήνα (βάσει ίδιου μήνα ΠΕΡΣΙ) — καθαρά ενημερωτικό =====
+// Σύγκριση ΑΝΑ ΚΑΤΗΓΟΡΙΑ (15ου/Τέλος/Τράπεζα/Μετρητά): τι είχε ο μήνας πέρσι vs τι έχει μπει φέτος.
+// Επιταγές ΕΚΤΟΣ (οι φετινές είναι ήδη γνωστές & μετρημένες). max(0,..) ανά κατηγορία.
+// ΔΕΝ αγγίζει calcYP/αποθηκευμένα δεδομένα. Store-aware (per-store sections + μερίδια d15/telos όπως calcYP).
+// Το setStore καθαρίζει το D → δεν διαβάζονται ποτέ δεδομένα άλλου καταστήματος.
+const _expPayInflight=new Set();
+function expPayRemaining(k,y,curMet,curBnk,curD5,curTel,remainWD){
+  if(!(remainWD>0))return null;                          // κλεισμένος μήνας → δεν αφορά
+  const kPrev=k.split('_')[0]+'_'+(y-1);
+  const have=['metrita','bank','d15','telos'].every(s=>D[s][kPrev]!==undefined);
+  if(!have){
+    const gk=kPrev+'|'+STORE;
+    if(!_expPayInflight.has(gk)){
+      _expPayInflight.add(gk);
+      fbLoadMonth(kPrev).then(j=>{
+        const d=(j&&j.exists&&j.data)||{};
+        ['metrita','bank','d15','telos'].forEach(s=>{D[s][kPrev]=(d[s]&&d[s][kPrev])||D[s][kPrev]||[];});
+        _expPayInflight.delete(gk);
+        try{renderDashboard();}catch(e){}
+        try{renderCashFlow();}catch(e){}
+      }).catch(()=>{_expPayInflight.delete(gk);});       // σε σφάλμα: ΟΧΙ re-render (αποφυγή fetch-loop)
+    }
+    return null;                                         // θα εμφανιστεί στο επόμενο render
+  }
+  const isLou=(STORE==='LOUTRAKI');
+  const sum=a=>(a||[]).reduce((s,r)=>s+(r.poso||0),0);
+  const share=a=>(a||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
+  const cats=[
+    {lbl:'15ου',rem:Math.max(0,share(D.d15[kPrev])-curD5)},
+    {lbl:'Τέλος',rem:Math.max(0,share(D.telos[kPrev])-curTel)},
+    {lbl:'Τράπεζα',rem:Math.max(0,sum(D.bank[kPrev])-curBnk)},
+    {lbl:'Μετρητά',rem:Math.max(0,sum(D.metrita[kPrev])-curMet)}
+  ].filter(c=>c.rem>0.5);
+  const total=Math.round(cats.reduce((s,c)=>s+c.rem,0)*100)/100;
+  return {total,cats,prevYear:y-1};
+}
 function dashMetrics(){
   const k=ek();const{mi,y,days:dim}=gmi(k);const rows=D.days[k]||[];
   const tMet=rows.reduce((s,r)=>s+(r.metrita||0),0);
@@ -2628,7 +2664,11 @@ function dashMetrics(){
   let twd=0;for(let d=1;d<=dim;d++){if(dn(y,mi,d)!=='ΚΥΡΙΑΚΗ')twd++;}
   const t=curTgt()[mi+1]||{ok:1700,warn:1445,danger:1190};
   const avg=wd?tAllNet/wd:0;const tgt=t.ok*twd;const pct=tgt>0?(tAllNet/tgt*100):0;
-  const remainWD=Math.max(0,twd-wd);
+  // remainWD: σε ΚΛΕΙΣΜΕΝΟ (παρελθόντα) μήνα = 0 — αλλιώς αργία χωρίς εγγραφή (π.χ. Αγ. Πνεύματος ΙΟΥΝ 2025)
+  // μετρούσε «φάντασμα» εργάσιμη και η πρόβλεψη απείχε από το πραγματικό κλείσιμο κατά 1×avg.
+  const _nowD=new Date();
+  const _isPastMonth=(y<_nowD.getFullYear())||(y===_nowD.getFullYear()&&mi<_nowD.getMonth());
+  const remainWD=_isPastMonth?0:Math.max(0,twd-wd);
   // Σενάρια ΣΧΕΤΙΚΑ με τον τρέχοντα μέσο όρο (εγγυάται weak<base<strong):
   // απαισιόδοξο = avg−15% · ρεαλιστικό = avg · αισιόδοξο = avg+15%. Fallback t.warn αν δεν υπάρχει ακόμη μέσος.
   const sBase=avg>0?avg:t.warn, sWeak=sBase*0.85, sStrong=sBase*1.15;
@@ -2643,6 +2683,9 @@ function dashMetrics(){
   for(let hy=y-1;hy>=y-3;hy--){const hh=histGet(String(hy),mi+1);if(hh&&(hh.avg_day||0)>0){_hYrs.push(hy);_hRates.push(hh.avg_day);}}
   const sHist=_hRates.length?_hRates.reduce((a,b)=>a+b,0)/_hRates.length:null;
   const projHist=sHist!=null?_projFix+sHist*remainWD:null;
+  // «Ιστορικό» = ΠΛΗΡΕΣ ρεαλιστικό σενάριο: αφαιρεί ΚΑΙ τις εκτιμώμενες πληρωμές που δεν έχουν μπει ακόμη
+  const expPay=expPayRemaining(k,y,pMet,pBnk,pD5,pTel,remainWD);
+  const projHistFull=(projHist!=null&&expPay&&expPay.total>0)?projHist-expPay.total:projHist;
   // Σύγκριση από HIST (live: ζωντανά κλεισμένα data από D.days υπερισχύουν)
   const cy=parseInt(yr),cm=mi+1;
   const hPrevYear=histGet(String(cy-1),cm);
@@ -2653,7 +2696,7 @@ function dashMetrics(){
   // Τελευταία καταχωρημένη ημέρα
   const dayRows=rows.filter(r=>r.dayName!=='ΚΥΡΙΑΚΗ'&&(r.metrita+r.pos)>0);
   const lastDay=dayRows.length?dayRows[dayRows.length-1]:null;
-  return{rows,tMet,tPos,kratiseis,tAll,tAllNet,pEisp,pMet,pBnk,pD5,pTel,pEpit,allP,yp,wd,twd,avg,tgt,pct,t,mi,y,dim,remainWD,projWeak,projBase,projStrong,projHist,sHist,histYrs:_hYrs,dPrevYear,dPrevMonth,hPrevYear,hPrevMonth,lastDay,pmM,cfIn:cf.in,synKatath:Math.round((tAll+pEisp+cf.in)*100)/100};
+  return{rows,tMet,tPos,kratiseis,tAll,tAllNet,pEisp,pMet,pBnk,pD5,pTel,pEpit,allP,yp,wd,twd,avg,tgt,pct,t,mi,y,dim,remainWD,projWeak,projBase,projStrong,projHist,projHistFull,expPay,sHist,histYrs:_hYrs,dPrevYear,dPrevMonth,hPrevYear,hPrevMonth,lastDay,pmM,cfIn:cf.in,synKatath:Math.round((tAll+pEisp+cf.in)*100)/100};
 }
 function tbadge(d){if(d===null||d===undefined)return '';return d>=0?`<span class="dk-tr up">▲ ${Math.abs(d).toFixed(1)}%</span>`:`<span class="dk-tr dn">▼ ${Math.abs(d).toFixed(1)}%</span>`;}
 function renderDashboard(){
@@ -2770,7 +2813,8 @@ function renderDashboard(){
           <div class="cf-row"><span class="cf-dot" style="background:var(--red-2)"></span><span>Ασθενικό</span><b class="${m.projWeak>=0?'pos':'neg'}">${sc(m.projWeak)}</b></div>
           <div class="cf-row"><span class="cf-dot" style="background:var(--blue)"></span><span>Βάση</span><b class="${m.projBase>=0?'pos':'neg'}">${sc(m.projBase)}</b></div>
           <div class="cf-row"><span class="cf-dot" style="background:var(--green-2)"></span><span>Δυνατό</span><b class="${m.projStrong>=0?'pos':'neg'}">${sc(m.projStrong)}</b></div>
-          ${m.projHist!=null?`<div class="cf-row"><span class="cf-dot" style="background:#a87dff"></span><span>Ιστορικό (μ.ο. ετών ${m.histYrs.slice().sort().join('/')})</span><b class="${m.projHist>=0?'pos':'neg'}">${sc(m.projHist)}</b></div>`:''}
+          ${m.projHist!=null?`<div class="cf-row"><span class="cf-dot" style="background:#a87dff"></span><span>Ιστορικό (μ.ο. ετών ${m.histYrs.slice().sort().join('/')}${m.expPay&&m.expPay.total>0?' + εκτιμ. πληρωμές':''})</span><b class="${m.projHistFull>=0?'pos':'neg'}">${sc(m.projHistFull)}</b></div>`:''}
+          ${m.expPay&&m.expPay.total>0?`<div style="margin-top:8px;background:rgba(224,184,75,.08);border:1px solid rgba(224,184,75,.35);border-radius:8px;padding:7px 10px;font-size:10px;color:var(--yellow);line-height:1.5;">⚠️ Εκτιμώμενες πληρωμές που δεν έχουν καταχωρηθεί: <b>−${fmt(m.expPay.total)}</b> (${m.expPay.cats.map(c=>c.lbl+' '+fmt(c.rem)).join(' · ')}) — βάσει ${m.expPay.prevYear}. Αφαιρούνται ΜΟΝΟ από το «Ιστορικό».</div>`:''}
         </div>
       </div>
       <div class="tw"><div class="tw-h">🔖 Επιταγές <span style="color:var(--muted);font-weight:400;">${monthEps.length} τον μήνα</span></div>
@@ -3063,6 +3107,9 @@ function renderCashFlow(){
   for(let hy=y-1;hy>=y-3;hy--){const hh=histGet(String(hy),mi+1);if(hh&&(hh.avg_day||0)>0){_hYrs.push(hy);_hRates.push(hh.avg_day);}}
   const sHist=_hRates.length?_hRates.reduce((a,b)=>a+b,0)/_hRates.length:null;
   const projHist=sHist!=null?tAllNet+pEisp+(sHist*workDaysLeft)-allP+carryNet:null;
+  // «Ιστορικό» = ΠΛΗΡΕΣ ρεαλιστικό: + εκτιμώμενες πληρωμές που δεν έχουν μπει (βάσει ίδιου μήνα πέρσι)
+  const expPay=expPayRemaining(k,y,pMet,pBnk,pD5,pTel,workDaysLeft);
+  const projHistFull=(projHist!=null&&expPay&&expPay.total>0)?projHist-expPay.total:projHist;
 
   // KPIs
   const curYP=calcYP();
@@ -3108,9 +3155,10 @@ function renderCashFlow(){
     </div>
     ${projHist!=null?`<div class="sc-card hist">
       <div class="sc-label">📊 Ιστορικό (${fmt(Math.round(sHist))}/μ)</div>
-      <div class="sc-val">${(projHist>=0?'+':'')+fmt(projHist)}</div>
-      <div class="sc-sub">Μ.ο. ίδιου μήνα ${_hYrs.slice().sort().join('/')}</div>
-    </div>`:''}`;
+      <div class="sc-val">${(projHistFull>=0?'+':'')+fmt(projHistFull)}</div>
+      <div class="sc-sub">${expPay&&expPay.total>0?`Μ.ο. ${_hYrs.slice().sort().join('/')} + εκτιμ. πληρωμές`:`Μ.ο. ίδιου μήνα ${_hYrs.slice().sort().join('/')}`}</div>
+    </div>`:''}
+    ${expPay&&expPay.total>0?`<div style="grid-column:1/-1;background:rgba(224,184,75,.08);border:1px solid rgba(224,184,75,.35);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--yellow);line-height:1.6;">⚠️ Εκτιμώμενες πληρωμές που ΔΕΝ έχουν καταχωρηθεί ακόμη: <b>−${fmt(expPay.total)}</b> (${expPay.cats.map(c=>c.lbl+': '+fmt(c.rem)).join(' · ')}) — βάσει ${mn} ${expPay.prevYear}. Έχουν αφαιρεθεί ΜΟΝΟ από το σενάριο «Ιστορικό»· τα 3 βασικά σενάρια δείχνουν καθαρή προβολή εισπράξεων.</div>`:''}`;
 
   // Αναλυτικό
   document.getElementById('cf-detail').innerHTML=`
@@ -4321,8 +4369,9 @@ async function exportAIReport(){
     L('Απαισιόδοξο σενάριο:   '+fmtE(m.projWeak));
     L('Ρεαλιστικό σενάριο:    '+fmtE(m.projBase));
     L('Αισιόδοξο σενάριο:     '+fmtE(m.projStrong));
-    if(m.projHist!=null)L('Ιστορικό σενάριο:      '+fmtE(m.projHist)+'  (μ.ο. '+MONTHS_GR[CM-1]+' ετών '+m.histYrs.slice().sort().join('/')+', '+fmtE(m.sHist)+'/εργάσιμη)');
-    L('(βάσει '+m.remainWD+' εναπομενουσών εργασίμων)');
+    if(m.projHist!=null)L('Ιστορικό σενάριο:      '+fmtE(m.projHistFull!=null?m.projHistFull:m.projHist)+'  (μ.ο. '+MONTHS_GR[CM-1]+' ετών '+m.histYrs.slice().sort().join('/')+', '+fmtE(m.sHist)+'/εργάσιμη)');
+    if(m.expPay&&m.expPay.total>0)L('  └ περιλαμβάνει εκτιμ. πληρωμές που εκκρεμούν: -'+fmtE(m.expPay.total)+' ('+m.expPay.cats.map(c=>c.lbl+' '+fmtE(c.rem)).join(', ')+') βάσει '+MONTHS_GR[CM-1]+' '+m.expPay.prevYear);
+    L('(βάσει '+m.remainWD+' εναπομενουσών εργασίμων — τα 3 σενάρια προβάλλουν ΜΟΝΟ εισπράξεις)');
     L('');
     L('━━━ 3. ΤΕΛΕΥΤΑΙΟΙ 3 ΜΗΝΕΣ — '+stLabel+' ━━━');
     L('─────────────────────────────────────────');
