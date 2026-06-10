@@ -521,7 +521,7 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 .cf-sub{font-size:10px;color:var(--muted);margin-top:3px;}
 .cf-bar-wrap{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:8px;}
 .cf-bar{height:100%;border-radius:3px;transition:width .6s;}
-.scenario-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.scenario-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:12px;}
 .sc-card{background:linear-gradient(158deg,#1b2438,#141b2b);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px;text-align:center;box-shadow:var(--shadow-sm);transition:transform .18s var(--ease),box-shadow .2s;}
 .sc-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
 .sc-label{font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
@@ -529,6 +529,7 @@ tbody tr.tot:nth-child(even) td{background:linear-gradient(180deg,rgba(212,175,9
 .sc-card.weak .sc-val{color:var(--red);}
 .sc-card.base .sc-val{color:var(--yellow);}
 .sc-card.strong .sc-val{color:var(--green);}
+.sc-card.hist .sc-val{color:var(--blue);}
 .sc-sub{font-size:9px;color:var(--muted);margin-top:3px;}
 .day-remain-bar{display:flex;gap:2px;margin-bottom:12px;flex-wrap:wrap;}
 .drb{width:12px;height:12px;border-radius:2px;}
@@ -2628,9 +2629,20 @@ function dashMetrics(){
   const t=curTgt()[mi+1]||{ok:1700,warn:1445,danger:1190};
   const avg=wd?tAllNet/wd:0;const tgt=t.ok*twd;const pct=tgt>0?(tAllNet/tgt*100):0;
   const remainWD=Math.max(0,twd-wd);
-  const projWeak=tAllNet+pEisp+(t.danger*remainWD)-allP-cf.out+cf.in;
-  const projBase=tAllNet+pEisp+((avg||t.warn)*remainWD)-allP-cf.out+cf.in;
-  const projStrong=tAllNet+pEisp+(t.ok*remainWD)-allP-cf.out+cf.in;
+  // Σενάρια ΣΧΕΤΙΚΑ με τον τρέχοντα μέσο όρο (εγγυάται weak<base<strong):
+  // απαισιόδοξο = avg−15% · ρεαλιστικό = avg · αισιόδοξο = avg+15%. Fallback t.warn αν δεν υπάρχει ακόμη μέσος.
+  const sBase=avg>0?avg:t.warn, sWeak=sBase*0.85, sStrong=sBase*1.15;
+  const _projFix=tAllNet+pEisp-allP-cf.out+cf.in;   // κοινός όρος (= yp)
+  const projWeak=_projFix+sWeak*remainWD;
+  const projBase=_projFix+sBase*remainWD;
+  const projStrong=_projFix+sStrong*remainWD;
+  if(projWeak>projBase||projBase>projStrong)console.warn('[ΣΕΝΑΡΙΑ] Ανάποδη σειρά πρόβλεψης!',{projWeak,projBase,projStrong,sWeak,sBase,sStrong,remainWD});
+  // 4ο σενάριο «Ιστορικό» (στατιστική ετών): ρυθμός = μ.ο. €/εργάσιμη του ΙΔΙΟΥ μήνα στα 1-3 προηγούμενα έτη.
+  // Store-aware αυτόματα (histGet→curHist: HIST Λιόσια / HIST_LOUTRAKI Λουτράκι). Πιάνει εποχικότητα μήνα.
+  const _hYrs=[],_hRates=[];
+  for(let hy=y-1;hy>=y-3;hy--){const hh=histGet(String(hy),mi+1);if(hh&&(hh.avg_day||0)>0){_hYrs.push(hy);_hRates.push(hh.avg_day);}}
+  const sHist=_hRates.length?_hRates.reduce((a,b)=>a+b,0)/_hRates.length:null;
+  const projHist=sHist!=null?_projFix+sHist*remainWD:null;
   // Σύγκριση από HIST (live: ζωντανά κλεισμένα data από D.days υπερισχύουν)
   const cy=parseInt(yr),cm=mi+1;
   const hPrevYear=histGet(String(cy-1),cm);
@@ -2641,7 +2653,7 @@ function dashMetrics(){
   // Τελευταία καταχωρημένη ημέρα
   const dayRows=rows.filter(r=>r.dayName!=='ΚΥΡΙΑΚΗ'&&(r.metrita+r.pos)>0);
   const lastDay=dayRows.length?dayRows[dayRows.length-1]:null;
-  return{rows,tMet,tPos,kratiseis,tAll,tAllNet,pEisp,pMet,pBnk,pD5,pTel,pEpit,allP,yp,wd,twd,avg,tgt,pct,t,mi,y,dim,remainWD,projWeak,projBase,projStrong,dPrevYear,dPrevMonth,hPrevYear,hPrevMonth,lastDay,pmM,cfIn:cf.in,synKatath:Math.round((tAll+pEisp+cf.in)*100)/100};
+  return{rows,tMet,tPos,kratiseis,tAll,tAllNet,pEisp,pMet,pBnk,pD5,pTel,pEpit,allP,yp,wd,twd,avg,tgt,pct,t,mi,y,dim,remainWD,projWeak,projBase,projStrong,projHist,sHist,histYrs:_hYrs,dPrevYear,dPrevMonth,hPrevYear,hPrevMonth,lastDay,pmM,cfIn:cf.in,synKatath:Math.round((tAll+pEisp+cf.in)*100)/100};
 }
 function tbadge(d){if(d===null||d===undefined)return '';return d>=0?`<span class="dk-tr up">▲ ${Math.abs(d).toFixed(1)}%</span>`:`<span class="dk-tr dn">▼ ${Math.abs(d).toFixed(1)}%</span>`;}
 function renderDashboard(){
@@ -2758,6 +2770,7 @@ function renderDashboard(){
           <div class="cf-row"><span class="cf-dot" style="background:var(--red-2)"></span><span>Ασθενικό</span><b class="${m.projWeak>=0?'pos':'neg'}">${sc(m.projWeak)}</b></div>
           <div class="cf-row"><span class="cf-dot" style="background:var(--blue)"></span><span>Βάση</span><b class="${m.projBase>=0?'pos':'neg'}">${sc(m.projBase)}</b></div>
           <div class="cf-row"><span class="cf-dot" style="background:var(--green-2)"></span><span>Δυνατό</span><b class="${m.projStrong>=0?'pos':'neg'}">${sc(m.projStrong)}</b></div>
+          ${m.projHist!=null?`<div class="cf-row"><span class="cf-dot" style="background:#a87dff"></span><span>Ιστορικό (μ.ο. ετών ${m.histYrs.slice().sort().join('/')})</span><b class="${m.projHist>=0?'pos':'neg'}">${sc(m.projHist)}</b></div>`:''}
         </div>
       </div>
       <div class="tw"><div class="tw-h">🔖 Επιταγές <span style="color:var(--muted);font-weight:400;">${monthEps.length} τον μήνα</span></div>
@@ -3037,11 +3050,19 @@ function renderCashFlow(){
   const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
   const allP=pMet+pBnk+pD5+pTel+pEpit;
 
-  // 3 Σενάρια πρόβλεψης
-  const weakRate=t.danger;const baseRate=avg||t.warn;const strongRate=t.ok;
-  const projWeak=tAllNet+pEisp+(weakRate*workDaysLeft)-allP;
-  const projBase=tAllNet+pEisp+(baseRate*workDaysLeft)-allP;
-  const projStrong=tAllNet+pEisp+(strongRate*workDaysLeft)-allP;
+  // 3 Σενάρια πρόβλεψης ΣΧΕΤΙΚΑ με τον τρέχοντα μέσο όρο (weak=avg−15% / base=avg / strong=avg+15%)
+  // (+ carry-forward POS ώστε η ΒΑΣΗ να ταυτίζεται με το calcYP/Τρέχον Υπόλοιπο)
+  const cf=carryFor(k);const carryNet=(cf.in||0)-(cf.out||0);
+  const baseRate=avg>0?avg:t.warn;const weakRate=baseRate*0.85;const strongRate=baseRate*1.15;
+  const projWeak=tAllNet+pEisp+(weakRate*workDaysLeft)-allP+carryNet;
+  const projBase=tAllNet+pEisp+(baseRate*workDaysLeft)-allP+carryNet;
+  const projStrong=tAllNet+pEisp+(strongRate*workDaysLeft)-allP+carryNet;
+  if(projWeak>projBase||projBase>projStrong)console.warn('[ΣΕΝΑΡΙΑ CashFlow] Ανάποδη σειρά πρόβλεψης!',{projWeak,projBase,projStrong,weakRate,baseRate,strongRate,workDaysLeft});
+  // 4ο σενάριο «Ιστορικό» (στατιστική ετών) — μ.ο. €/εργάσιμη ίδιου μήνα 1-3 προηγ. ετών (store-aware μέσω histGet)
+  const _hYrs=[],_hRates=[];
+  for(let hy=y-1;hy>=y-3;hy--){const hh=histGet(String(hy),mi+1);if(hh&&(hh.avg_day||0)>0){_hYrs.push(hy);_hRates.push(hh.avg_day);}}
+  const sHist=_hRates.length?_hRates.reduce((a,b)=>a+b,0)/_hRates.length:null;
+  const projHist=sHist!=null?tAllNet+pEisp+(sHist*workDaysLeft)-allP+carryNet:null;
 
   // KPIs
   const curYP=calcYP();
@@ -3053,7 +3074,7 @@ function renderCashFlow(){
       <div class="cf-bar-wrap"><div class="cf-bar" style="width:${Math.min(100,(tAllNet/(t.ok*(wd+workDaysLeft))*100))}%;background:var(--green);"></div></div>
     </div>
     <div class="cf-card ${allP>0?'neg':'info'}">
-      <div class="cf-label">Σύνολο Πληρωμών ΛΙΟΣΙΑ</div>
+      <div class="cf-label">Σύνολο Πληρωμών ${STORES[STORE].label}</div>
       <div class="cf-val" style="color:var(--red)">${fmt(allP)}</div>
       <div class="cf-sub">Μετρητά + Τράπεζα + 15ου + Τέλους + Επιταγές</div>
     </div>
@@ -3084,7 +3105,12 @@ function renderCashFlow(){
       <div class="sc-label">💪 Δυνατό (${fmt(strongRate)}/μ)</div>
       <div class="sc-val">${(projStrong>=0?'+':'')+fmt(projStrong)}</div>
       <div class="sc-sub">Αν φτάσει ιστορικό στόχο</div>
-    </div>`;
+    </div>
+    ${projHist!=null?`<div class="sc-card hist">
+      <div class="sc-label">📊 Ιστορικό (${fmt(Math.round(sHist))}/μ)</div>
+      <div class="sc-val">${(projHist>=0?'+':'')+fmt(projHist)}</div>
+      <div class="sc-sub">Μ.ο. ίδιου μήνα ${_hYrs.slice().sort().join('/')}</div>
+    </div>`:''}`;
 
   // Αναλυτικό
   document.getElementById('cf-detail').innerHTML=`
@@ -3093,10 +3119,11 @@ function renderCashFlow(){
     <tr><td>+ Πρόβλεψη (${workDaysLeft} μέρες × ${fmt(Math.round(baseRate))})</td><td class="pos">${fmt(Math.round(baseRate)*workDaysLeft)}</td></tr>
     <tr class="tot"><td>= Εκτιμώμενες Εισπράξεις Μήνα</td><td class="pos">${fmt(tAllNet+pEisp+Math.round(baseRate)*workDaysLeft)}</td></tr>
     <tr><td>− Μετρητά</td><td class="neg">${fmt(pMet)}</td></tr>
-    <tr><td>− Τράπεζα ΛΙΟΣΙΑ</td><td class="neg">${fmt(pBnk)}</td></tr>
-    <tr><td>− 15ου Μήνα ΛΙΟΣΙΑ</td><td class="neg">${fmt(pD5)}</td></tr>
-    <tr><td>− Τέλους Μήνα ΛΙΟΣΙΑ</td><td class="neg">${fmt(pTel)}</td></tr>
-    <tr><td>− Επιταγές ΛΙΟΣΙΑ</td><td class="neg">${fmt(pEpit)}</td></tr>
+    <tr><td>− Τράπεζα ${STORES[STORE].label}</td><td class="neg">${fmt(pBnk)}</td></tr>
+    <tr><td>− 15ου Μήνα ${STORES[STORE].label}</td><td class="neg">${fmt(pD5)}</td></tr>
+    <tr><td>− Τέλους Μήνα ${STORES[STORE].label}</td><td class="neg">${fmt(pTel)}</td></tr>
+    <tr><td>− Επιταγές ${STORES[STORE].label}</td><td class="neg">${fmt(pEpit)}</td></tr>
+    ${carryNet!==0?`<tr><td>${carryNet>=0?'+ Μεταφορά POS προηγ. μήνα':'− Μεταφορά POS σε επόμενο μήνα'}</td><td class="${carryNet>=0?'pos':'neg'}">${(carryNet>=0?'+':'')+fmt(carryNet)}</td></tr>`:''}
     <tr class="tot"><td>= ΕΚΤΙΜΩΜΕΝΟ ΥΠΟΛΟΙΠΟ (ΒΑΣΗ)</td><td class="${projBase>=0?'pos':'neg'}">${(projBase>=0?'+':'')+fmt(projBase)}</td></tr>`;
 
   // Επόμενες επιταγές μήνα
@@ -3105,7 +3132,7 @@ function renderCashFlow(){
   document.getElementById('cf-epitages').innerHTML=monthEps.length?monthEps.map(e=>{
     const past=e.date&&e.date<today2;
     const st=past?'<span style="color:var(--green);font-size:10px;">✓ ΕΞΟΦΛ.</span>':'<span style="color:var(--red);font-size:10px;">⚠ ΕΡΧΕΤΑΙ</span>';
-    return`<tr><td style="font-family:var(--mono)">${fmtDate(e.date)}</td><td>${e.prom}</td><td class="acc">${fmt(e.liosia)}</td><td>${st}</td></tr>`;
+    return`<tr><td style="font-family:var(--mono)">${fmtDate(e.date)}</td><td>${e.prom}</td><td class="acc">${fmt(isLou?epK(e):(e.liosia||0))}</td><td>${st}</td></tr>`;
   }).join(''):'<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:12px;">Δεν υπάρχουν επιταγές για αυτόν τον μήνα</td></tr>';
 }
 
@@ -4294,6 +4321,7 @@ async function exportAIReport(){
     L('Απαισιόδοξο σενάριο:   '+fmtE(m.projWeak));
     L('Ρεαλιστικό σενάριο:    '+fmtE(m.projBase));
     L('Αισιόδοξο σενάριο:     '+fmtE(m.projStrong));
+    if(m.projHist!=null)L('Ιστορικό σενάριο:      '+fmtE(m.projHist)+'  (μ.ο. '+MONTHS_GR[CM-1]+' ετών '+m.histYrs.slice().sort().join('/')+', '+fmtE(m.sHist)+'/εργάσιμη)');
     L('(βάσει '+m.remainWD+' εναπομενουσών εργασίμων)');
     L('');
     L('━━━ 3. ΤΕΛΕΥΤΑΙΟΙ 3 ΜΗΝΕΣ — '+stLabel+' ━━━');
