@@ -3309,7 +3309,7 @@ function renderCompare(){
     {cat:'− Μετρητά',cur:pMet,prev:pMetPrev,neg:true},
     {cat:'− Πληρ.Τράπεζας',cur:pBnk,prev:pBnkPrev,neg:true},
     {cat:'− 15ου + Τέλους',cur:pD5+pTel,prev:pD5Prev+pTelPrev,neg:true},
-    {cat:'− Επιταγές ΛΙΟΣΙΑ',cur:pEpit,prev:pEpitPrev,neg:true},
+    {cat:'− Επιταγές '+STORES[STORE].label,cur:pEpit,prev:pEpitPrev,neg:true},
     {cat:'= Υπόλοιπο για Μάζεμα',cur:ypCur,prev:prevYpData?prevYpCalc:null,bold:true},
   ];
   document.getElementById('cmp-table').innerHTML=rows2.map(r=>{
