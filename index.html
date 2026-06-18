@@ -1919,7 +1919,7 @@ window.migrateFromSheets=migrateFromSheets;
 
 let CM='ΜΑΙΟΣ_2026';
 // ═══ ΕΚΔΟΣΗ ΕΦΑΡΜΟΓΗΣ — ΕΝΑ σημείο αλλαγής. Bump σε ΚΑΘΕ deploy (ίδιο N με το ?v=N του cache-bust). ═══
-const APP_VERSION='v82';
+const APP_VERSION='v83';
 document.title='ΤΑΜΕΙΟ — ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε. '+APP_VERSION;
 (function(){var el=document.getElementById('loginVer');if(el)el.textContent=APP_VERSION;})();
 let D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},exoda:{},epitages:[],templates:{metrita:[],bank:[],d15:[],telos:[]}};
@@ -2293,6 +2293,7 @@ function calcYP(){
 
 // ===== SYNC =====
 async function saveToSheets(changedSection){
+  refreshDerived();   // ζωντανή ενημέρωση Dashboard/CASH FLOW με την κάθε καταχώρηση
   markSaving();Prog.start();
   try{
     const allSections={
@@ -2478,6 +2479,14 @@ function refreshActiveTab(){
   }
   else if(id==='alerts') runRules();
   else if(id==='personnel') renderPersonnel();
+}
+// Ζωντανή ανανέωση των "παράγωγων" όψεων (Dashboard + CASH FLOW) μετά από ΚΑΘΕ καταχώρηση/διαγραφή,
+// ώστε η πρόβλεψη & τα σύνολα πληρωμών να ενημερώνονται ΑΜΕΣΩΣ — όχι μόνο όταν ξαναμπαίνεις στην καρτέλα.
+// Καθαρά rendering: ΔΕΝ αγγίζει calcYP/δεδομένα. Store-aware (διαβάζει το ενεργό STORE). Αφορά Λιόσια+Λουτράκι.
+function refreshDerived(){
+  if(typeof appReady!=='undefined' && !appReady) return;   // μην τρέχεις κατά τη φόρτωση/αλλαγή μήνα
+  try{ if(document.getElementById('tab-dashboard')) renderDashboard(); }catch(e){}
+  try{ const cf=document.getElementById('st-panel-cashflow'); if(cf && cf.style.display!=='none') renderCashFlow(); }catch(e){}
 }
 function autoInitNewMonth(v){
   const hasData=(D.days[v]||[]).length>0||(D.bank[v]||[]).length>0||(D.metrita[v]||[]).length>0;
@@ -3501,6 +3510,7 @@ function _storeChosen(selId){
   return false;
 }
 async function savePeerSection(section){
+  refreshDerived();   // ζωντανή ενημέρωση Dashboard/CASH FLOW (dual-store roussasp)
   markSaving(); Prog.start();
   try{
     const arr=(Dpeer[section]||{})[CM]||[];
@@ -3840,7 +3850,7 @@ function saveEpitages(){
   _epYearsLoaded.forEach(yr=>{ if(!byYr[yr]) byYr[yr]=[]; });
   markSaving();
   Promise.all(Object.entries(byYr).map(([yr,epit])=>fbSaveEpitages(yr,epit))).then(markSaved).catch(markDirty);
-  renderEpit();renderMain();runRules();
+  renderEpit();renderMain();runRules();refreshDerived();   // ζωντανή ενημέρωση Dashboard/CASH FLOW (επιταγές)
 }
 let epYear='ΟΛΕΣ';
 let epMonth=null,epMonthYear=null;   // #6: drill-down ανά μήνα από το 12μηνο ημερολόγιο
