@@ -998,6 +998,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
       <div class="nav-item" data-tab="deka5" onclick="showTab('deka5',this)"><span class="nico">📅</span>15ου ΜΗΝΑ</div>
       <div class="nav-item" data-tab="telos" onclick="showTab('telos',this)"><span class="nico">📋</span>ΤΕΛΟΣ ΜΗΝΑ</div>
       <div class="nav-item" data-tab="epitages" onclick="showTab('epitages',this)"><span class="nico">🔖</span>ΕΠΙΤΑΓΕΣ</div>
+      <div class="nav-item" data-tab="recvchk" onclick="showTab('recvchk',this)"><span class="nico">💳</span>ΕΠΙΤΑΓΕΣ ΠΕΛΑΤΩΝ</div>
       <div class="nav-item" data-tab="stats" onclick="showTab('stats',this)"><span class="nico">📈</span>ΣΤΑΤΙΣΤΙΚΑ</div>
       <div class="nav-item" id="alertsTab" data-tab="alerts" onclick="showTab('alerts',this)"><span class="nico">🔔</span>ΕΙΔΟΠΟΙΗΣΕΙΣ</div>
       <div class="nav-sep"></div>
@@ -1065,7 +1066,7 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
     <div style="flex:1">
       <div class="yp-label">ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ — ΛΙΟΣΙΑ</div>
       <div class="yp-val" id="ypVal" style="color:var(--green)">0,00€</div>
-      <div class="yp-sub" id="ypSub">Εισπράξεις + Εμβάσματα − Πληρωμές ΛΙΟΣΙΑ − Επιταγές</div>
+      <div class="yp-sub" id="ypSub">Εισπράξεις + Εμβάσματα + Επιτ.Πελατών − Πληρωμές ΛΙΟΣΙΑ − Επιταγές</div>
     </div>
     <div id="ypMonthLabel" style="font-family:var(--mono);font-size:26px;font-weight:700;align-self:center;text-align:center;padding:0 12px;"></div>
     <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;">
@@ -1132,6 +1133,28 @@ tr.holiday-row td:first-child{box-shadow:inset 3px 0 0 var(--gold2);}
     </div>
     <button class="btn-add" onclick="addTPl()">ΚΑΤΑΧΩΡΗΣΗ</button>
     <table><thead id="tPlHead"><tr><th>ΗΜΕΡΟΜΗΝΙΑ</th><th>ΠΡΟΜΗΘΕΥΤΗΣ</th><th class="num">ΠΟΣΟ</th><th></th></tr></thead><tbody id="tPlBody"></tbody></table>
+  </div>
+</div>
+
+<!-- ΕΙΣΠΡΑΚΤΕΕΣ ΕΠΙΤΑΓΕΣ ΠΕΛΑΤΩΝ -->
+<div class="panel" id="tab-recvchk">
+  <div class="kpis">
+    <div class="kpi info"><div class="kl">Σύνολο Εισπρακτέων Επιταγών</div><div class="kv" id="recvTot">—</div></div>
+    <div class="kpi"><div class="kl">Πλήθος Επιταγών</div><div class="kv" id="recvCnt">—</div></div>
+  </div>
+  <div class="sh"><div class="st">💳 Εισπρακτέες Επιταγές Πελατών — <span id="recvStoreLbl">ΛΙΟΣΙΑ</span> <span style="font-weight:400;color:var(--muted);font-size:11px;">(εισπράττονται αυτόν τον μήνα)</span></div></div>
+  <div class="tw" style="margin-bottom:12px;">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.55;background:rgba(76,175,125,.06);border:1px solid rgba(76,175,125,.22);border-radius:8px;padding:8px 12px;">💡 Ο πελάτης φέρνει επιταγή για να εξοφλήσει το υπόλοιπό του. <b>Προστίθεται στο «ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ»</b> ως είσπραξη (ανά κατάστημα). <b>📅 Το έσοδο μετράει στον μήνα της ΗΜ/ΝΙΑΣ ΛΗΞΗΣ</b> (μεταχρονολογημένη) — άσχετα ποιον μήνα βλέπεις τώρα· αν η λήξη είναι σε άλλον μήνα, καταχωρείται αυτόματα εκεί. <b>⚠️ Όταν την καταθέσεις/εισπράξεις, ΜΗΝ την ξαναβάλεις στα «Εμβάσματα-Εισπράξεις»</b> — αλλιώς μετριέται 2 φορές.</div>
+    <div class="fg">
+      <div class="fi"><label>Ημ/νία παραλαβής</label><input type="date" id="rc-d"></div>
+      <div class="fi"><label>Πελάτης</label><input type="text" id="rc-p" placeholder="Επωνυμία..."></div>
+      <div class="fi"><label>Αρ. Επιταγής</label><input type="text" id="rc-n" placeholder="π.χ. 12345678"></div>
+      <div class="fi"><label>Τράπεζα</label><input type="text" id="rc-b" placeholder="π.χ. Πειραιώς"></div>
+      <div class="fi"><label>⭐ Ημ/νία λήξης (ορίζει τον μήνα)</label><input type="date" id="rc-due"></div>
+      <div class="fi"><label>Ποσό (€)</label><input type="number" id="rc-v" step="0.01" min="0"></div>
+    </div>
+    <button class="btn-add" onclick="addRecvEpit()">ΚΑΤΑΧΩΡΗΣΗ</button>
+    <table><thead><tr><th>ΠΑΡΑΛΑΒΗ</th><th>ΠΕΛΑΤΗΣ</th><th>ΑΡ. ΕΠΙΤΑΓΗΣ</th><th>ΤΡΑΠΕΖΑ</th><th>ΛΗΞΗ</th><th class="num">ΠΟΣΟ</th><th></th></tr></thead><tbody id="recvBody"></tbody></table>
   </div>
 </div>
 
@@ -1786,8 +1809,8 @@ try{ _db.settings({ignoreUndefinedProperties:true}); }catch(e){}
 // store = σε ποιο κατάστημα «δένει» ο εργαζόμενος · tabs = ποιες καρτέλες βλέπει · hideHero = κρύβει το ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ.
 const USER_CFG={
   'christosroussas@gmail.com':{role:'ADMIN'},
-  'afoiroussa@gmail.com':{role:'EMP',store:'LIOSIA',tabs:['main','metrita','exoda','personnel'],hideHero:true,funMascot:true},
-  'roussasp@yahoo.gr':{role:'EMP',store:'LOUTRAKI',tabs:['main','metrita','trap','bank','deka5','telos','exoda','personnel'],hideHero:true,dualStore:['trap','bank'],personnelView:'all'},
+  'afoiroussa@gmail.com':{role:'EMP',store:'LIOSIA',tabs:['main','metrita','exoda','recvchk','personnel'],hideHero:true,funMascot:true},
+  'roussasp@yahoo.gr':{role:'EMP',store:'LOUTRAKI',tabs:['main','metrita','trap','bank','deka5','telos','exoda','recvchk','personnel'],hideHero:true,dualStore:['trap','bank'],personnelView:'all'},
 };
 function userCfg(em){return USER_CFG[(em||'').toLowerCase()]||{role:'EMP',store:'LIOSIA',tabs:['main','metrita','exoda']};}
 function roleForEmail(em){return userCfg(em).role;}
@@ -1864,7 +1887,7 @@ async function fbLoadMonth(key){ try{
   const existsAny=snaps[0].exists||(psKey!==shKey&&snaps[1]&&snaps[1].exists);
   if(!existsAny) return {success:true,exists:false};
   const w=(src,s)=>({[key]:(src[s]||[])});
-  return {success:true,exists:true,data:{days:w(ps,'days'),trapEisp:w(ps,'trapEisp'),trapPl:w(ps,'trapPl'),metrita:w(ps,'metrita'),bank:w(ps,'bank'),exoda:w(ps,'exoda'),d15:w(sh,'d15'),telos:w(sh,'telos')}};
+  return {success:true,exists:true,data:{days:w(ps,'days'),trapEisp:w(ps,'trapEisp'),trapPl:w(ps,'trapPl'),metrita:w(ps,'metrita'),bank:w(ps,'bank'),exoda:w(ps,'exoda'),recvEpit:w(ps,'recvEpit'),d15:w(sh,'d15'),telos:w(sh,'telos')}};
 }catch(e){return {success:false,exists:false};} }
 async function fbSaveSection(key,section,arr){ return _db.collection('months').doc(storeDocKey(key,section)).set({[section]:arr||[]},{merge:true}); }
 async function fbLoadEpitages(yr){ try{ const snap=await _db.collection('epitages').doc(String(yr)).get(); if(!snap.exists) return {success:true,exists:false}; return {success:true,exists:true,data:{epitages:(snap.data().items||[])}}; }catch(e){return {success:false,exists:false};} }
@@ -1903,7 +1926,7 @@ async function migrateFromSheets(){
     for(const yr of years){ for(const mn of MONTHS_EL){ const k=mn+'_'+yr;
       try{ const r=await fetch(API+'?action=load&month='+encodeURIComponent(k)); const j=await r.json();
         if(j&&j.success&&j.exists&&j.data){ const d=j.data,doc={};
-          ['days','trapEisp','trapPl','metrita','bank','d15','telos'].forEach(s=>{ if(d[s]&&d[s][k]) doc[s]=d[s][k]; });
+          ['days','trapEisp','trapPl','metrita','bank','d15','telos','recvEpit'].forEach(s=>{ if(d[s]&&d[s][k]) doc[s]=d[s][k]; });
           if(Object.keys(doc).length){ await _db.collection('months').doc(k).set(doc,{merge:true}); okM++; }
         } }catch(e){}
     }}
@@ -1919,10 +1942,10 @@ window.migrateFromSheets=migrateFromSheets;
 
 let CM='ΜΑΙΟΣ_2026';
 // ═══ ΕΚΔΟΣΗ ΕΦΑΡΜΟΓΗΣ — ΕΝΑ σημείο αλλαγής. Bump σε ΚΑΘΕ deploy (ίδιο N με το ?v=N του cache-bust). ═══
-const APP_VERSION='v85';
+const APP_VERSION='v86';
 document.title='ΤΑΜΕΙΟ — ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε. '+APP_VERSION;
 (function(){var el=document.getElementById('loginVer');if(el)el.textContent=APP_VERSION;})();
-let D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},exoda:{},epitages:[],templates:{metrita:[],bank:[],d15:[],telos:[]}};
+let D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},exoda:{},recvEpit:{},epitages:[],templates:{metrita:[],bank:[],d15:[],telos:[]}};
 // DUAL-STORE buffer: για χρήστες με dualStore (π.χ. Λουτράκι), κρατά τα δεδομένα του ΑΛΛΟΥ καταστήματος
 // (per-store sections μόνο: trapEisp/trapPl/metrita/bank). Τα d15/telos είναι ήδη shared.
 let Dpeer={trapEisp:{},trapPl:{},metrita:{},bank:{}};
@@ -2202,7 +2225,7 @@ async function setStore(s){
   STORE=s;
   applyStoreTheme();
   // καθάρισε δεδομένα μήνα & ξαναφόρτωσε για το νέο κατάστημα (επιταγές = κοινές, δεν αλλάζουν)
-  ['days','trapEisp','trapPl','metrita','bank','d15','telos','exoda'].forEach(function(k){D[k]={};D[k][CM]=[];});
+  ['days','trapEisp','trapPl','metrita','bank','d15','telos','exoda','recvEpit'].forEach(function(k){D[k]={};D[k][CM]=[];});
   appReady=false;
   showDashSkeletonIfActive();
   await loadFromSheets();
@@ -2287,8 +2310,11 @@ function calcYP(){
   const d15=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
   const tel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
   const epit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
+  // Εισπρακτέες επιταγές πελατών (per-store, έσοδο — πελάτης εξοφλεί υπόλοιπο): ΠΡΟΣΘΕΤΙΚΟ.
+  // Ιστορικά ασφαλές: παλιά δεδομένα δεν έχουν recvEpit → άθροισμα 0 → residual αμετάβλητο.
+  const recvEp=(D.recvEpit[k]||[]).reduce((s,r)=>s+(r.poso||0),0);
   const cf=carryFor(k);
-  return eisp+tEisp-met-bnk-d15-tel-epit - cf.out + cf.in;
+  return eisp+tEisp+recvEp-met-bnk-d15-tel-epit - cf.out + cf.in;
 }
 
 // ===== SYNC =====
@@ -2298,7 +2324,7 @@ async function saveToSheets(changedSection){
   try{
     const allSections={
       days:D.days[CM]||[], trapEisp:D.trapEisp[CM]||[], trapPl:D.trapPl[CM]||[],
-      metrita:D.metrita[CM]||[], bank:D.bank[CM]||[], d15:D.d15[CM]||[], telos:D.telos[CM]||[], exoda:D.exoda[CM]||[]
+      metrita:D.metrita[CM]||[], bank:D.bank[CM]||[], d15:D.d15[CM]||[], telos:D.telos[CM]||[], exoda:D.exoda[CM]||[], recvEpit:D.recvEpit[CM]||[]
     };
     const secs=changedSection?[changedSection]:Object.keys(allSections);
     await Promise.all(secs.map(sec=>fbSaveSection(CM,sec,allSections[sec])));
@@ -2321,6 +2347,7 @@ async function loadFromSheets(){
       if(d.d15&&d.d15[CM]) D.d15[CM]=d.d15[CM];
       if(d.telos&&d.telos[CM]) D.telos[CM]=d.telos[CM];
       if(d.exoda&&d.exoda[CM]) D.exoda[CM]=d.exoda[CM];
+      if(d.recvEpit&&d.recvEpit[CM]) D.recvEpit[CM]=d.recvEpit[CM];
       if(hasDualAny()) await fbLoadPeerMonth(CM);   // dualStore: φόρτωσε & peer
       // ΜΗΝ αγγίζεις D.epitages — φορτώνονται ξεχωριστά από EPITAGES_YYYY
       toast('Φορτώθηκε ✓','ok');
@@ -2416,6 +2443,7 @@ function showTab(id,el){
   if(id==='alerts')runRules();
   if(id==='audit')loadAudit();
   if(id==='personnel')loadPersonnel();
+  if(id==='recvchk')renderRecvEpit();
   if(id==='main')renderMain();
   prefillDates();   // προ-συμπλήρωση σημερινής ημ/νίας στα κενά date πεδία
   toggleSidebar(false);                // κλείσε το mobile sidebar
@@ -2441,7 +2469,7 @@ async function changeMonth(v){
   CM=v;
   document.getElementById('mbadge').textContent=v.replace('_',' ');
   D.days[v]=D.days[v]||[];D.trapEisp[v]=D.trapEisp[v]||[];D.trapPl[v]=D.trapPl[v]||[];
-  D.metrita[v]=D.metrita[v]||[];D.bank[v]=D.bank[v]||[];D.d15[v]=D.d15[v]||[];D.telos[v]=D.telos[v]||[];D.exoda[v]=D.exoda[v]||[];
+  D.metrita[v]=D.metrita[v]||[];D.bank[v]=D.bank[v]||[];D.d15[v]=D.d15[v]||[];D.telos[v]=D.telos[v]||[];D.exoda[v]=D.exoda[v]||[];D.recvEpit[v]=D.recvEpit[v]||[];
   appReady=false;
   showDashSkeletonIfActive();
   const btn=document.querySelector('.btn-add');
@@ -2479,6 +2507,7 @@ function refreshActiveTab(){
   }
   else if(id==='alerts') runRules();
   else if(id==='personnel') renderPersonnel();
+  else if(id==='recvchk') renderRecvEpit();
 }
 // Ζωντανή ανανέωση των "παράγωγων" όψεων (Dashboard + CASH FLOW) μετά από ΚΑΘΕ καταχώρηση/διαγραφή,
 // ώστε η πρόβλεψη & τα σύνολα πληρωμών να ενημερώνονται ΑΜΕΣΩΣ — όχι μόνο όταν ξαναμπαίνεις στην καρτέλα.
@@ -2507,7 +2536,7 @@ function autoInitNewMonth(v){
     saveToSheets("bank");
   }
 }
-function renderAll(){buildDD();renderMain();renderTrap();renderMet();renderBnk();renderD5();renderTel();renderExoda();renderEpit();runRules();document.getElementById('mbadge').textContent=CM.replace('_',' ');}
+function renderAll(){buildDD();renderMain();renderTrap();renderMet();renderBnk();renderD5();renderTel();renderExoda();renderEpit();renderRecvEpit();runRules();document.getElementById('mbadge').textContent=CM.replace('_',' ');}
 
 // DAY DROPDOWN
 function buildDD(){
@@ -2671,9 +2700,10 @@ function dashMetrics(){
   const pTel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
   const mn=k.split('_')[0],yr=k.split('_')[1];
   const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
+  const pRecv=(D.recvEpit[k]||[]).reduce((s,r)=>s+(r.poso||0),0);   // εισπρακτέες επιταγές πελατών (έσοδο, per-store)
   const allP=pMet+pBnk+pD5+pTel+pEpit;
   const cf=carryFor(k);
-  const yp=tAllNet+pEisp-allP-cf.out+cf.in;
+  const yp=tAllNet+pEisp+pRecv-allP-cf.out+cf.in;
   const wd=rows.filter(r=>r.dayName!=='ΚΥΡΙΑΚΗ'&&(r.metrita+r.pos)>0).length;
   let twd=0;for(let d=1;d<=dim;d++){if(dn(y,mi,d)!=='ΚΥΡΙΑΚΗ')twd++;}
   const t=curTgt()[mi+1]||{ok:1700,warn:1445,danger:1190};
@@ -2686,7 +2716,7 @@ function dashMetrics(){
   // Σενάρια ΣΧΕΤΙΚΑ με τον τρέχοντα μέσο όρο (εγγυάται weak<base<strong):
   // απαισιόδοξο = avg−15% · ρεαλιστικό = avg · αισιόδοξο = avg+15%. Fallback t.warn αν δεν υπάρχει ακόμη μέσος.
   const sBase=avg>0?avg:t.warn, sWeak=sBase*0.85, sStrong=sBase*1.15;
-  const _projFix=tAllNet+pEisp-allP-cf.out+cf.in;   // κοινός όρος (= yp)
+  const _projFix=tAllNet+pEisp+pRecv-allP-cf.out+cf.in;   // κοινός όρος (= yp)
   const projWeak=_projFix+sWeak*remainWD;
   const projBase=_projFix+sBase*remainWD;
   const projStrong=_projFix+sStrong*remainWD;
@@ -2710,7 +2740,7 @@ function dashMetrics(){
   // Τελευταία καταχωρημένη ημέρα
   const dayRows=rows.filter(r=>r.dayName!=='ΚΥΡΙΑΚΗ'&&(r.metrita+r.pos)>0);
   const lastDay=dayRows.length?dayRows[dayRows.length-1]:null;
-  return{rows,tMet,tPos,kratiseis,tAll,tAllNet,pEisp,pMet,pBnk,pD5,pTel,pEpit,allP,yp,wd,twd,avg,tgt,pct,t,mi,y,dim,remainWD,projWeak,projBase,projStrong,projHist,projHistFull,expPay,sHist,histYrs:_hYrs,dPrevYear,dPrevMonth,hPrevYear,hPrevMonth,lastDay,pmM,cfIn:cf.in,synKatath:Math.round((tAll+pEisp+cf.in)*100)/100};
+  return{rows,tMet,tPos,kratiseis,tAll,tAllNet,pEisp,pRecv,pMet,pBnk,pD5,pTel,pEpit,allP,yp,wd,twd,avg,tgt,pct,t,mi,y,dim,remainWD,projWeak,projBase,projStrong,projHist,projHistFull,expPay,sHist,histYrs:_hYrs,dPrevYear,dPrevMonth,hPrevYear,hPrevMonth,lastDay,pmM,cfIn:cf.in,synKatath:Math.round((tAll+pEisp+cf.in)*100)/100};
 }
 function tbadge(d){if(d===null||d===undefined)return '';return d>=0?`<span class="dk-tr up">▲ ${Math.abs(d).toFixed(1)}%</span>`:`<span class="dk-tr dn">▼ ${Math.abs(d).toFixed(1)}%</span>`;}
 function renderDashboard(){
@@ -2728,7 +2758,7 @@ function renderDashboard(){
     <div class="yph-main">
       <div class="yph-label">🪙 ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ — ${stL}</div>
       <div class="yph-val">${(yp>=0?'+':'−')+fmt(Math.abs(yp))}</div>
-      <div class="yph-sub">Εισπράξεις + Εμβάσματα − Πληρωμές ${stL} − Επιταγές</div>
+      <div class="yph-sub">Εισπράξεις + Εμβάσματα + Επιτ.Πελατών − Πληρωμές ${stL} − Επιταγές</div>
     </div>
     <div class="yph-side">
       <div class="yph-icon">${ypIcon}</div>
@@ -2736,6 +2766,64 @@ function renderDashboard(){
       <div class="yph-month">${CM.replace('_',' ')}</div>
     </div>
   </div>`;
+  // ---- 💳 ΥΠΕΝΘΥΜΙΣΗ: εισπρακτέες επιταγές πελατών που ΛΗΓΟΥΝ/εισπράττονται αυτόν τον μήνα (να μην ξεχαστούν) ----
+  const _recvList=(D.recvEpit[k]||[]).slice().sort((a,b)=>((a.due||'')<(b.due||'')?-1:(a.due||'')>(b.due||'')?1:0));
+  const _recvSum=_recvList.reduce((s,r)=>s+(r.poso||0),0);
+  const _todayISO=new Date().toISOString().slice(0,10);
+  let recvReminderHtml='';
+  if(_recvList.length){
+    const _recvItems=_recvList.map(r=>{
+      const past=r.due&&r.due<_todayISO;
+      return `<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:rgba(255,255,255,.03);border:1px solid rgba(224,184,75,${past?'.5':'.22'});border-radius:9px;padding:8px 12px;">
+        <span style="font-family:var(--mono);font-weight:700;color:${past?'var(--red)':'#e6c878'};min-width:96px;">📅 ${fmtDate(r.due)||'—'}</span>
+        <span style="flex:1;min-width:120px;color:var(--text);">${r.pelatis||''}${r.num?` · <span style="color:var(--muted)">#${r.num}</span>`:''}${r.bank?` · <span style="color:var(--muted)">${r.bank}</span>`:''}</span>
+        <span style="font-family:var(--mono);font-weight:800;color:var(--green);font-size:15px;">+${fmt(r.poso)}</span>
+        ${past?'<span style="font-size:10px;font-weight:700;color:var(--red);background:rgba(224,85,85,.12);padding:2px 8px;border-radius:5px;">⏰ ΕΛΗΞΕ</span>':'<span style="font-size:10px;font-weight:700;color:#e6c878;background:rgba(224,184,75,.12);padding:2px 8px;border-radius:5px;">προς είσπραξη</span>'}
+      </div>`;
+    }).join('');
+    recvReminderHtml=`<div style="margin:0 0 14px;background:linear-gradient(135deg,rgba(224,184,75,.16),rgba(224,184,75,.03));border:1px solid rgba(224,184,75,.55);border-radius:14px;padding:14px 18px;box-shadow:0 6px 22px rgba(224,184,75,.10);">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        <span style="font-size:20px;">💳</span>
+        <span style="font-weight:800;letter-spacing:.03em;color:#e6c878;font-size:13px;">ΕΙΣΠΡΑΚΤΕΕΣ ΕΠΙΤΑΓΕΣ ΠΕΛΑΤΩΝ — εισπράττονται ${CM.replace('_',' ')}</span>
+        <span style="margin-left:auto;font-family:var(--mono);font-weight:800;color:#e6c878;font-size:16px;">Σύνολο: ${fmt(_recvSum)}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">${_recvItems}</div>
+      <div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.5;">💡 Μην ξεχάσεις να τις εισπράξεις/καταθέσεις. Είναι ήδη μέσα στο «ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ» του μήνα.</div>
+    </div>`;
+  }
+  // ---- 🔮 ΠΡΟΣΕΧΩΣ: εισπρακτέες επιταγές με λήξη σε ΕΠΟΜΕΝΟΥΣ μήνες (1-3 μήνες μετά τον επιλεγμένο) ----
+  const _selMonAbs=y*12+mi;
+  let _upList=[];
+  Object.keys(D.recvEpit||{}).forEach(function(mk){
+    (D.recvEpit[mk]||[]).forEach(function(r){
+      if(!r||!r.poso||!r.due) return;
+      var p=String(r.due).split('-'); if(p.length<2) return;
+      var dy=parseInt(p[0],10), dm=parseInt(p[1],10)-1; if(isNaN(dy)||isNaN(dm)) return;
+      var ahead=(dy*12+dm)-_selMonAbs;
+      if(ahead>=1 && ahead<=3) _upList.push(r);
+    });
+  });
+  _upList.sort((a,b)=>((a.due||'')<(b.due||'')?-1:(a.due||'')>(b.due||'')?1:0));
+  let recvUpcomingHtml='';
+  if(_upList.length){
+    const _upSum=_upList.reduce((s,r)=>s+(r.poso||0),0);
+    const _upItems=_upList.map(r=>{
+      var p=String(r.due).split('-'); var dm=parseInt(p[1],10)-1; var monLbl=(MONTHS_EL[dm]||'').slice(0,3)+' '+p[0];
+      return `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:5px 0;border-top:1px solid rgba(93,153,221,.15);">
+        <span style="font-family:var(--mono);color:var(--blue);min-width:92px;">📅 ${fmtDate(r.due)||'—'}</span>
+        <span style="flex:1;min-width:110px;color:var(--text);">${r.pelatis||''} <span style="color:var(--muted);font-size:11px;">(λήγει ${monLbl})</span></span>
+        <span style="font-family:var(--mono);font-weight:700;color:var(--blue);">+${fmt(r.poso)}</span>
+      </div>`;
+    }).join('');
+    recvUpcomingHtml=`<div style="margin:0 0 14px;background:linear-gradient(135deg,rgba(93,153,221,.12),rgba(93,153,221,.03));border:1px solid rgba(93,153,221,.4);border-radius:14px;padding:12px 18px;">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;">
+        <span style="font-size:17px;">🔮</span>
+        <span style="font-weight:800;letter-spacing:.03em;color:var(--blue);font-size:12px;">ΠΡΟΣΕΧΩΣ — επιταγές πελατών σε επόμενους μήνες</span>
+        <span style="margin-left:auto;font-family:var(--mono);font-weight:800;color:var(--blue);font-size:14px;">${fmt(_upSum)}</span>
+      </div>
+      ${_upItems}
+    </div>`;
+  }
   // ---- KPI CARDS (5) ----
   const _dseq=m.rows.slice().sort((a,b)=>a.day-b.day);
   const _sTot=_dseq.map(r=>(r.metrita||0)+(r.pos||0));
@@ -2796,6 +2884,8 @@ function renderDashboard(){
 
   host.innerHTML=`
     ${heroHtml}
+    ${recvReminderHtml}
+    ${recvUpcomingHtml}
     <div class="dash-kpis">${kpiHtml}</div>
 
     <div class="dash-row r3">
@@ -3048,13 +3138,14 @@ function renderMain(){
   const isLou=(STORE==='LOUTRAKI');
   const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0),pTel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
   const pEisp=(D.trapEisp[k]||[]).reduce((s,r)=>s+r.poso,0);
+  const pRecv=(D.recvEpit[k]||[]).reduce((s,r)=>s+(r.poso||0),0);   // εισπρακτέες επιταγές πελατών (έσοδο)
   const mn=ek().split('_')[0],yr2=ek().split('_')[1],pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr2||(e.date&&e.date.startsWith(yr2)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
   const allP=pMet+pBnk+pD5+pTel+pEpit;
   const cf=carryFor(k);const rateLbl=(posRate(k)*100).toString().replace('.',',');const stLbl=isLou?'ΛΟΥΤΡΑΚΙ':'ΛΙΟΣΙΑ';
   const carryRows=cf.out?`<tr><td>− POS που περνά στον επόμενο μήνα</td><td class="neg">−${fmt(cf.out)}</td></tr>`:'';
   var _yl=document.querySelector('#ypCard .yp-label');if(_yl)_yl.textContent='ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ — '+stLbl;
   var _ph=document.getElementById('paySumH');if(_ph)_ph.textContent='Ανάλυση Πληρωμών '+stLbl;
-  document.getElementById('sumBody').innerHTML=`<tr><td>Σύνολο Εισπράξεων + POS</td><td class="pos">${fmt(tAll)}</td></tr><tr><td>+ Εμβάσματα / Καταθέσεις${cf.in?' (+POS προηγ. μήνα)':''}</td><td class="pos">${fmt(pEisp+cf.in)}</td></tr><tr class="tot"><td>Σύνολο Εισπράξεων + POS + Καταθέσεις</td><td class="pos">${fmt(tAll+pEisp+cf.in)}</td></tr><tr><td>− Κρατήσεις τράπεζας POS (${rateLbl}%)</td><td class="neg">−${fmt(kratiseis)}</td></tr>${carryRows}<tr><td>Ιστορικός Στόχος/Μέρα</td><td class="num">${fmt(t.ok)}</td></tr><tr><td>Σύνολο Πληρωμών ${stLbl}</td><td class="neg">−${fmt(allP)}</td></tr><tr class="tot"><td>ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ</td><td class="${yp>=0?'pos':'neg'}">${(yp>=0?'+':'')+fmt(yp)}</td></tr>`;
+  document.getElementById('sumBody').innerHTML=`<tr><td>Σύνολο Εισπράξεων + POS</td><td class="pos">${fmt(tAll)}</td></tr><tr><td>+ Εμβάσματα / Καταθέσεις${cf.in?' (+POS προηγ. μήνα)':''}</td><td class="pos">${fmt(pEisp+cf.in)}</td></tr><tr class="tot"><td>Σύνολο Εισπράξεων + POS + Καταθέσεις</td><td class="pos">${fmt(tAll+pEisp+cf.in)}</td></tr>${pRecv?`<tr><td>+ Εισπρακτέες Επιταγές Πελατών</td><td class="pos">${fmt(pRecv)}</td></tr>`:''}<tr><td>− Κρατήσεις τράπεζας POS (${rateLbl}%)</td><td class="neg">−${fmt(kratiseis)}</td></tr>${carryRows}<tr><td>Ιστορικός Στόχος/Μέρα</td><td class="num">${fmt(t.ok)}</td></tr><tr><td>Σύνολο Πληρωμών ${stLbl}</td><td class="neg">−${fmt(allP)}</td></tr><tr class="tot"><td>ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ</td><td class="${yp>=0?'pos':'neg'}">${(yp>=0?'+':'')+fmt(yp)}</td></tr>`;
   document.getElementById('paySum').innerHTML=isLou?`<tr><td>Μετρητά</td><td class="neg">${fmt(pMet)}</td></tr><tr><td>Τράπεζα ΛΟΥΤΡΑΚΙ</td><td class="neg">${fmt(pBnk)}</td></tr><tr><td>15ου Μήνα ΛΟΥΤΡΑΚΙ</td><td class="neg">${fmt(pD5)}</td></tr><tr><td>Τέλους Μήνα ΛΟΥΤΡΑΚΙ</td><td class="neg">${fmt(pTel)}</td></tr><tr><td>Επιταγές ΛΟΥΤΡΑΚΙ (μήνα)</td><td class="neg">${fmt(pEpit)}</td></tr><tr class="tot"><td>ΣΥΝΟΛΟ ΠΛΗΡΩΜΩΝ ΛΟΥΤΡΑΚΙ</td><td class="neg">${fmt(allP)}</td></tr>`:`<tr><td>Μετρητά</td><td class="neg">${fmt(pMet)}</td></tr><tr><td>Τράπεζα ΛΙΟΣΙΑ</td><td class="neg">${fmt(pBnk)}</td></tr><tr><td>15ου Μήνα ΛΙΟΣΙΑ</td><td class="neg">${fmt(pD5)}</td></tr><tr><td>Τέλους Μήνα ΛΙΟΣΙΑ</td><td class="neg">${fmt(pTel)}</td></tr><tr><td>Επιταγές ΛΙΟΣΙΑ (μήνα)</td><td class="neg">${fmt(pEpit)}</td></tr><tr class="tot"><td>ΣΥΝΟΛΟ ΠΛΗΡΩΜΩΝ ΛΙΟΣΙΑ</td><td class="neg">${fmt(allP)}</td></tr>`;
   buildDD();
 }
@@ -3104,6 +3195,7 @@ function renderCashFlow(){
   const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
   const pTel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
   const pEisp=(D.trapEisp[k]||[]).reduce((s,r)=>s+r.poso,0);
+  const pRecv=(D.recvEpit[k]||[]).reduce((s,r)=>s+(r.poso||0),0);   // εισπρακτέες επιταγές πελατών (έσοδο)
   const mn=k.split('_')[0],yr=k.split('_')[1];
   const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
   const allP=pMet+pBnk+pD5+pTel+pEpit;
@@ -3112,15 +3204,15 @@ function renderCashFlow(){
   // (+ carry-forward POS ώστε η ΒΑΣΗ να ταυτίζεται με το calcYP/Τρέχον Υπόλοιπο)
   const cf=carryFor(k);const carryNet=(cf.in||0)-(cf.out||0);
   const baseRate=avg>0?avg:t.warn;const weakRate=baseRate*0.85;const strongRate=baseRate*1.15;
-  const projWeak=tAllNet+pEisp+(weakRate*workDaysLeft)-allP+carryNet;
-  const projBase=tAllNet+pEisp+(baseRate*workDaysLeft)-allP+carryNet;
-  const projStrong=tAllNet+pEisp+(strongRate*workDaysLeft)-allP+carryNet;
+  const projWeak=tAllNet+pEisp+pRecv+(weakRate*workDaysLeft)-allP+carryNet;
+  const projBase=tAllNet+pEisp+pRecv+(baseRate*workDaysLeft)-allP+carryNet;
+  const projStrong=tAllNet+pEisp+pRecv+(strongRate*workDaysLeft)-allP+carryNet;
   if(projWeak>projBase||projBase>projStrong)console.warn('[ΣΕΝΑΡΙΑ CashFlow] Ανάποδη σειρά πρόβλεψης!',{projWeak,projBase,projStrong,weakRate,baseRate,strongRate,workDaysLeft});
   // 4ο σενάριο «Ιστορικό» (στατιστική ετών) — μ.ο. €/εργάσιμη ίδιου μήνα 1-3 προηγ. ετών (store-aware μέσω histGet)
   const _hYrs=[],_hRates=[];
   for(let hy=y-1;hy>=y-3;hy--){const hh=histGet(String(hy),mi+1);if(hh&&(hh.avg_day||0)>0){_hYrs.push(hy);_hRates.push(hh.avg_day);}}
   const sHist=_hRates.length?_hRates.reduce((a,b)=>a+b,0)/_hRates.length:null;
-  const projHist=sHist!=null?tAllNet+pEisp+(sHist*workDaysLeft)-allP+carryNet:null;
+  const projHist=sHist!=null?tAllNet+pEisp+pRecv+(sHist*workDaysLeft)-allP+carryNet:null;
   // «Ιστορικό» = ΠΛΗΡΕΣ ρεαλιστικό: + εκτιμώμενες πληρωμές που δεν έχουν μπει (βάσει ίδιου μήνα πέρσι)
   const expPay=expPayRemaining(k,y,pMet,pBnk,pD5,pTel,workDaysLeft);
   const projHistFull=(projHist!=null&&expPay&&expPay.total>0)?projHist-expPay.total:projHist;
@@ -3130,7 +3222,7 @@ function renderCashFlow(){
   document.getElementById('cf-kpis').innerHTML=`
     <div class="cf-card ${tAllNet>0?'pos':'neg'}">
       <div class="cf-label">Εισπράξεις Μέχρι Τώρα</div>
-      <div class="cf-val" style="color:var(--green)">${fmt(tAllNet+pEisp)}</div>
+      <div class="cf-val" style="color:var(--green)">${fmt(tAllNet+pEisp+pRecv)}</div>
       <div class="cf-sub">${wd} εργάσιμες καταχωρήθηκαν</div>
       <div class="cf-bar-wrap"><div class="cf-bar" style="width:${Math.min(100,(tAllNet/(t.ok*(wd+workDaysLeft))*100))}%;background:var(--green);"></div></div>
     </div>
@@ -3178,8 +3270,9 @@ function renderCashFlow(){
   document.getElementById('cf-detail').innerHTML=`
     <tr><td>Καθαρές Εισπράξεις (μέχρι τώρα)</td><td class="pos">${fmt(tAllNet)}</td></tr>
     <tr><td>+ Εισπράξεις Εμβάσματος</td><td class="pos">${fmt(pEisp)}</td></tr>
+    ${pRecv?`<tr><td>+ Εισπρακτέες Επιταγές Πελατών</td><td class="pos">${fmt(pRecv)}</td></tr>`:''}
     <tr><td>+ Πρόβλεψη (${workDaysLeft} μέρες × ${fmt(Math.round(baseRate))})</td><td class="pos">${fmt(Math.round(baseRate)*workDaysLeft)}</td></tr>
-    <tr class="tot"><td>= Εκτιμώμενες Εισπράξεις Μήνα</td><td class="pos">${fmt(tAllNet+pEisp+Math.round(baseRate)*workDaysLeft)}</td></tr>
+    <tr class="tot"><td>= Εκτιμώμενες Εισπράξεις Μήνα</td><td class="pos">${fmt(tAllNet+pEisp+pRecv+Math.round(baseRate)*workDaysLeft)}</td></tr>
     <tr><td>− Μετρητά</td><td class="neg">${fmt(pMet)}</td></tr>
     <tr><td>− Τράπεζα ${STORES[STORE].label}</td><td class="neg">${fmt(pBnk)}</td></tr>
     <tr><td>− 15ου Μήνα ${STORES[STORE].label}</td><td class="neg">${fmt(pD5)}</td></tr>
@@ -3217,6 +3310,7 @@ function renderCompare(){
         if(dd.d15&&dd.d15[kPrev]) D.d15[kPrev]=dd.d15[kPrev];
         if(dd.telos&&dd.telos[kPrev]) D.telos[kPrev]=dd.telos[kPrev];
         if(dd.trapEisp&&dd.trapEisp[kPrev]) D.trapEisp[kPrev]=dd.trapEisp[kPrev];
+        if(dd.recvEpit&&dd.recvEpit[kPrev]) D.recvEpit[kPrev]=dd.recvEpit[kPrev];
       }
     }).catch(()=>{}));
     if(needPrevEp)jobs.push(fbLoadEpitages(prevYr).then(j=>{
@@ -3235,13 +3329,14 @@ function renderCompare(){
   const totalPOS=rows.reduce((s,r)=>s+(r.pos||0),0);const kratiseis=Math.round(totalPOS*posRate(ek())*100)/100;
   const tAllNet=tAll-kratiseis;
   const pEisp=(D.trapEisp[k]||[]).reduce((s,r)=>s+r.poso,0);
+  const pRecv=(D.recvEpit[k]||[]).reduce((s,r)=>s+(r.poso||0),0);   // εισπρακτέες επιταγές πελατών (έσοδο)
   const pMet=(D.metrita[k]||[]).reduce((s,r)=>s+r.poso,0);
   const pBnk=(D.bank[k]||[]).reduce((s,r)=>s+r.poso,0);
   const isLou=(STORE==='LOUTRAKI');   // STORE-AWARE σύγκριση (Λουτράκι: 0 για 15ου/Τέλος, epK για επιταγές)
   const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
   const pTel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
   const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
-  const allP=pMet+pBnk+pD5+pTel+pEpit;const ypCur=tAllNet+pEisp-allP;
+  const allP=pMet+pBnk+pD5+pTel+pEpit;const ypCur=tAllNet+pEisp+pRecv-allP;
   const wd=rows.filter(r=>r.dayName!=='ΚΥΡΙΑΚΗ'&&(r.metrita+r.pos)>0).length;
   const avgCur=wd?tAllNet/wd:0;
 
@@ -3256,6 +3351,7 @@ function renderCompare(){
   const pD5Prev=(D.d15[kPrev]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
   const pTelPrev=(D.telos[kPrev]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
   const pEispPrev=(D.trapEisp[kPrev]||[]).reduce((s,r)=>s+r.poso,0);
+  const pRecvPrev=(D.recvEpit[kPrev]||[]).reduce((s,r)=>s+(r.poso||0),0);
   const pEpitPrev=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===prevYr||(e.date&&e.date.startsWith(prevYr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
   const allPPrev=pMetPrev+pBnkPrev+pD5Prev+pTelPrev+pEpitPrev;
 
@@ -3265,7 +3361,7 @@ function renderCompare(){
   const prevTjNet=prevTjirosFull-prevKrat;
   const prevYpData=rowsPrev.length>0;
   const prevNet=prevYpData?prevTjNet:(hPrev?hPrev.total:null);
-  const prevYpCalc=prevTjNet+pEispPrev-allPPrev;
+  const prevYpCalc=prevTjNet+pEispPrev+pRecvPrev-allPPrev;
 
   const diffTjiros=prevNet!=null?tAllNet-prevNet:null;
   const diffPct=(diffTjiros!=null&&prevNet)?(diffTjiros/prevNet*100):null;
@@ -3320,6 +3416,7 @@ function renderCompare(){
   const rows2=[
     {cat:'Εισπράξεις (καθαρές)',cur:tAllNet,prev:prevNet},
     {cat:'+ Εισπράξεις Εμβάσματος',cur:pEisp,prev:pEispPrev||0},
+    {cat:'+ Εισπρακτέες Επιταγές Πελατών',cur:pRecv,prev:pRecvPrev||0},
     {cat:'− Μετρητά',cur:pMet,prev:pMetPrev,neg:true},
     {cat:'− Πληρ.Τράπεζας',cur:pBnk,prev:pBnkPrev,neg:true},
     {cat:'− 15ου + Τέλους',cur:pD5+pTel,prev:pD5Prev+pTelPrev,neg:true},
@@ -3424,6 +3521,131 @@ function renderTrap(){
   const subPl=dual?`<tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[STORE]||{}).label}</td><td class="neg">${fmt(tpCur)}</td><td></td></tr><tr class="tot"><td colspan="${cols}">  ↳ ${(STORES[peerStore()]||{}).label}</td><td class="neg">${fmt(tpPeer)}</td><td></td></tr>`:'';
   document.getElementById('tEispBody').innerHTML=ei.map(rowEi).join('')+(ei.length?`<tr class="tot"><td colspan="${cols}">ΣΥΝΟΛΟ${dual?' (γενικό)':''}</td><td class="pos">${fmt(te)}</td><td></td></tr>${subEi}`:'');
   document.getElementById('tPlBody').innerHTML=pl.map(rowPl).join('')+(pl.length?`<tr class="tot"><td colspan="${cols}">ΣΥΝΟΛΟ${dual?' (γενικό)':''}</td><td class="neg">${fmt(tp)}</td><td></td></tr>${subPl}`:'');
+}
+
+// ===== 💳 ΕΙΣΠΡΑΚΤΕΕΣ ΕΠΙΤΑΓΕΣ ΠΕΛΑΤΩΝ (per-store έσοδο — πελάτης εξοφλεί υπόλοιπο) =====
+// Ανά κατάστημα ξεχωριστά (ΟΧΙ shared/split όπως οι πληρωτέες επιταγές): γράφει στο ενεργό STORE.
+// ⚠️ ΤΟ ΕΣΟΔΟ ΜΕΤΡΑΕΙ ΣΤΟΝ ΜΗΝΑ ΛΗΞΗΣ (απόφαση χρήστη v86): η επιταγή αποθηκεύεται στο
+// document του μήνα λήξης → calcYP[μήνα] = επιταγές που εισπράττονται εκείνον τον μήνα (μηδέν αλλαγή στο calcYP).
+function recvDueKey(due){           // unprefixed μήνας-κλειδί από ημ/νία λήξης (YYYY-MM-DD)
+  if(!due) return ek();
+  var p=String(due).split('-'); if(p.length<2) return ek();
+  var yy=p[0], mm=parseInt(p[1],10)-1;
+  if(isNaN(mm)||mm<0||mm>11||!/^\d{4}$/.test(yy)) return ek();
+  return MONTHS_EL[mm]+'_'+yy;
+}
+async function addRecvEpit(){
+  const d=document.getElementById('rc-d').value, p=document.getElementById('rc-p').value.trim();
+  const num=document.getElementById('rc-n').value.trim(), bank=document.getElementById('rc-b').value.trim();
+  const due=document.getElementById('rc-due').value, v=parseFloat(document.getElementById('rc-v').value)||0;
+  if(!p||!v){toast('⚠️ Συμπλήρωσε Πελάτη και Ποσό','warn');return;}
+  if(!due){uiAlert('Συμπλήρωσε την ΗΜΕΡΟΜΗΝΙΑ ΛΗΞΗΣ — αυτή ορίζει σε ποιον μήνα μετράει το έσοδο.',{title:'Λείπει η ημ/νία λήξης',icon:'🗓️'});return;}
+  const tgt=recvDueKey(due);            // μήνας ΛΗΞΗΣ — εκεί μπαίνει το έσοδο
+  const entry={date:d,pelatis:p,num:num,bank:bank,due:due,poso:v};
+  if(tgt===ek()){
+    ea(D.recvEpit,tgt); D.recvEpit[tgt].push(entry); saveToSheets("recvEpit");
+  } else {
+    // διαφορετικός μήνας από τον ανοιχτό: φόρτωσε ΠΡΩΤΑ ό,τι υπάρχει (αποφυγή overwrite του πεδίου recvEpit),
+    // πρόσθεσε & αποθήκευσε ΜΟΝΟ τον μήνα λήξης (current store μέσω storeDocKey).
+    Prog.start();
+    try{
+      if(D.recvEpit[tgt]===undefined){
+        const j=await fbLoadMonth(tgt);
+        D.recvEpit[tgt]=(j&&j.exists&&j.data&&j.data.recvEpit&&j.data.recvEpit[tgt])?j.data.recvEpit[tgt]:[];
+      }
+      D.recvEpit[tgt].push(entry);
+      await fbSaveSection(tgt,'recvEpit',D.recvEpit[tgt]);
+      toast('✓ Καταχωρήθηκε στον '+tgt.replace('_',' ')+' (μήνας λήξης)','ok');
+    }catch(e){toast('Σφάλμα αποθήκευσης!','err');Prog.done();return;}
+    Prog.done();
+  }
+  ['rc-p','rc-n','rc-b','rc-v'].forEach(function(id){document.getElementById(id).value='';});
+  logAction('Εισπρακτέα επιταγή πελάτη','['+((STORES[STORE]||{}).label||STORE)+'] '+p+' · '+fmt(v)+' · λήξη '+(due||'-'));
+  renderRecvEpit(); renderMain(); flashOK();
+}
+async function delRecvEpit(i){
+  const k=ek();const arr=D.recvEpit[k]||[];const r=arr[i];if(!r)return;
+  if(!(await confirmDel('Διαγραφή εισπρακτέας επιταγής: '+((r&&r.pelatis)||'')+' '+fmt((r&&r.poso)||0))))return;
+  arr.splice(i,1);
+  renderRecvEpit(); renderMain();
+  saveToSheets("recvEpit");
+  logAction('Διαγραφή εισπρακτέας επιταγής','['+((STORES[STORE]||{}).label||STORE)+'] '+((r&&r.pelatis)||'')+' · '+fmt((r&&r.poso)||0));
+}
+function renderRecvEpit(){
+  const k=ek();const arr=D.recvEpit[k]||[];
+  const tot=arr.reduce((s,r)=>s+(r.poso||0),0);
+  var te=document.getElementById('recvTot'); if(te)te.textContent=fmt(tot);
+  var tc=document.getElementById('recvCnt'); if(tc)tc.textContent=arr.length;
+  var sl=document.getElementById('recvStoreLbl'); if(sl)sl.textContent=(STORES[STORE]||{}).label||'';
+  var body=document.getElementById('recvBody'); if(!body)return;
+  const today=new Date().toISOString().slice(0,10);
+  body.innerHTML=arr.map((r,i)=>{
+    const overdue=r.due&&r.due<today;
+    const dueCell=r.due?`<span style="${overdue?'color:var(--green);font-weight:600;':''}">${fmtDate(r.due)}${overdue?' ✓':''}</span>`:'—';
+    return `<tr><td style="font-family:var(--mono)">${fmtDate(r.date)}</td><td>${r.pelatis||''}</td><td>${r.num||'—'}</td><td>${r.bank||'—'}</td><td>${dueCell}</td><td class="pos">${fmt(r.poso)}</td><td><button aria-label="Διαγραφή" class="btn-del" onclick="delRecvEpit(${i})">✕</button></td></tr>`;
+  }).join('')+(arr.length?`<tr class="tot"><td colspan="5">ΣΥΝΟΛΟ</td><td class="pos">${fmt(tot)}</td><td></td></tr>`:'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:12px;">Καμία εισπρακτέα επιταγή αυτόν τον μήνα</td></tr>');
+}
+// Όλες οι εισπρακτέες επιταγές (τρέχον store) από όλους τους φορτωμένους μήνες.
+function recvAllEntries(){
+  var out=[];
+  Object.keys(D.recvEpit||{}).forEach(function(mk){ (D.recvEpit[mk]||[]).forEach(function(r){ if(r&&r.poso) out.push(r); }); });
+  return out;
+}
+// Φορτώνει (αν λείπουν) recvEpit τρέχοντος + 3 επόμενων μηνών → popup ≤3 ημερών + refresh dashboard (για το «Προσεχώς»).
+async function recvDueSoonCheck(){
+  try{
+    var base=CM.split('_'); var bMon=MONTHS_EL.indexOf(base[0]); var bYr=parseInt(base[1],10);
+    if(bMon<0||isNaN(bYr)) return;
+    var jobs=[];
+    for(var off=0; off<=3; off++){
+      var idx=bMon+off; var yy=bYr+Math.floor(idx/12); var mm=idx%12; var mk=MONTHS_EL[mm]+'_'+yy;
+      if(D.recvEpit[mk]===undefined){
+        (function(mk){ jobs.push(fbLoadMonth(mk).then(function(j){
+          D.recvEpit[mk]=(j&&j.exists&&j.data&&j.data.recvEpit&&j.data.recvEpit[mk])?j.data.recvEpit[mk]:[];
+        }).catch(function(){ if(D.recvEpit[mk]===undefined) D.recvEpit[mk]=[]; })); })(mk);
+      }
+    }
+    if(jobs.length) await Promise.all(jobs);
+    recvPopupDueSoon();
+    try{ var ap=document.querySelector('.panel.active'); if(appReady && ap && ap.id==='tab-dashboard') renderDashboard(); }catch(e){}
+  }catch(e){}
+}
+// Popup όταν επιταγή λήγει σε ≤3 ημέρες (μία φορά/ημέρα ανά κατάστημα).
+function recvPopupDueSoon(){
+  var today=new Date(); today.setHours(0,0,0,0);
+  var soon=[];
+  recvAllEntries().forEach(function(r){
+    if(!r.due) return; var p=String(r.due).split('-'); if(p.length<3) return;
+    var dd=new Date(parseInt(p[0],10),parseInt(p[1],10)-1,parseInt(p[2],10)); if(isNaN(dd.getTime())) return; dd.setHours(0,0,0,0);
+    var diff=Math.round((dd-today)/86400000);
+    if(diff>=0 && diff<=3) soon.push(Object.assign({_diff:diff},r));
+  });
+  if(!soon.length) return;
+  var key='recvPopLast_'+STORE, todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  try{ if(localStorage.getItem(key)===todayStr) return; localStorage.setItem(key,todayStr); }catch(e){}
+  soon.sort(function(a,b){return a._diff-b._diff;});
+  showRecvPopup(soon);
+}
+// Εμφανές animated popup με τις επιταγές που λήγουν άμεσα.
+function showRecvPopup(list){
+  var old=document.getElementById('recvPopup'); if(old) old.remove();
+  var rows=list.map(function(r){
+    var lbl=r._diff===0?'ΛΗΓΕΙ ΣΗΜΕΡΑ':r._diff===1?'ΛΗΓΕΙ ΑΥΡΙΟ':'σε '+r._diff+' ημέρες';
+    return '<div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid rgba(255,255,255,.08);"><div><div style="font-weight:700;">'+(r.pelatis||'')+(r.num?' · #'+r.num:'')+'</div><div style="font-size:11px;color:#9fb0c8;">📅 '+(fmtDate(r.due)||'')+' · <b style="color:#e6c878;">'+lbl+'</b></div></div><div style="font-family:var(--mono);font-weight:800;color:#3ddc97;font-size:16px;white-space:nowrap;">+'+fmt(r.poso)+'</div></div>';
+  }).join('');
+  var wrap=document.createElement('div');
+  wrap.id='recvPopup';
+  wrap.style.cssText='position:fixed;right:24px;bottom:24px;z-index:11000;max-width:380px;background:linear-gradient(135deg,#1a2236,#0e1626);border:2px solid #e6c878;border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.55);padding:16px 18px;color:#e8edf6;';
+  wrap.innerHTML='<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;"><span style="font-size:26px;">⏰</span><div style="font-weight:800;font-size:15px;color:#e6c878;line-height:1.25;">Εισπρακτέες επιταγές<br><span style="font-size:11px;color:#9fb0c8;font-weight:600;">λήγουν σε ≤3 ημέρες — μην ξεχάσεις!</span></div><button onclick="var e=document.getElementById(\'recvPopup\');if(e)e.remove();" style="margin-left:auto;background:transparent;border:none;color:#9fb0c8;font-size:22px;cursor:pointer;line-height:1;">×</button></div>'+rows;
+  document.body.appendChild(wrap);
+  try{
+    var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(!reduce){
+      wrap.animate([{transform:'translateY(40px) scale(.8)',opacity:0},{transform:'translateY(-8px) scale(1.04)',opacity:1,offset:.7},{transform:'translateY(0) scale(1)',opacity:1}],{duration:600,easing:'cubic-bezier(.34,1.56,.64,1)'});
+      wrap.animate([{boxShadow:'0 18px 50px rgba(0,0,0,.55),0 0 0 1px rgba(224,184,75,.3)'},{boxShadow:'0 18px 50px rgba(0,0,0,.55),0 0 26px 5px rgba(224,184,75,.6)'},{boxShadow:'0 18px 50px rgba(0,0,0,.55),0 0 0 1px rgba(224,184,75,.3)'}],{duration:1700,iterations:6});
+    }
+  }catch(e){}
+  setTimeout(function(){ var el=document.getElementById('recvPopup'); if(el){ try{ var a=el.animate([{opacity:1},{opacity:0,transform:'translateY(20px)'}],{duration:400}); a.onfinish=function(){el.remove();}; }catch(e){ el.remove(); } } },14000);
 }
 
 function addMet(){
@@ -5606,8 +5828,9 @@ async function exportCSV(){
   const pTel=isLou?pTelK:pTelL;
   const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
   const cf=carryFor(k);                                     // POS carry-forward (ίδιο με dashboard/calcYP)
+  const recvEp=(D.recvEpit[k]||[]).reduce((s,r)=>s+(r.poso||0),0);   // εισπρακτέες επιταγές πελατών (έσοδο, per-store)
   const allP=pMet+pBnk+pD5+pTel+pEpit;
-  const yp=tAllNet+tEisp-allP-cf.out+cf.in;
+  const yp=tAllNet+tEisp+recvEp-allP-cf.out+cf.in;
   const wd=rows.filter(r=>r.dayName!=='ΚΥΡΙΑΚΗ'&&((r.metrita||0)+(r.pos||0))>0).length;
   const avg=wd?tAllNet/wd:0;
 
@@ -5638,7 +5861,7 @@ async function exportCSV(){
   s1.getCell('F38').value={formula:'D38+E38',result:R2(tAllNet)};
   // side-panel — ΣΩΣΤΕΣ τιμές, STORE-AWARE + carry (διορθώνει Μέσο όρο, παρακάμπτει σπασμένα [1])
   s1.getCell('K7').value=R2(avg);
-  s1.getCell('K11').value=R2(tAllNet+tEisp+cf.in);          // + POS προηγ. μήνα (carry-in), όπως το dashboard
+  s1.getCell('K11').value=R2(tAllNet+tEisp+recvEp+cf.in);   // + POS προηγ. μήνα (carry-in) + εισπρακτέες επιταγές πελατών, όπως το dashboard
   s1.getCell('K18').value=R2(yp+pEpit);
   s1.getCell('K25').value=R2(pEpit);
   s1.getCell('K38').value=R2(yp);
@@ -5720,6 +5943,7 @@ async function initApp(){
   prefillDates();   // σημερινή ημ/νία στα date πεδία
   renderDashboard();   // γέμισε την αρχική (default active panel)
   bkDailyCheck();   // υπενθύμιση backup αν δεν έγινε σήμερα (ADMIN)
+  recvDueSoonCheck();   // φόρτωσε τρέχον+3 επόμενους μήνες → popup επιταγών που λήγουν ≤3 ημέρες + «Προσεχώς» στο dashboard
 }
 function setGreeting(){
   const now=new Date();const h=now.getHours();
@@ -5765,7 +5989,7 @@ async function doLogin(){
 }
 function doLogout(){
   if(dirty){if(!confirm('Υπάρχουν μη αποθηκευμένες αλλαγές. Έξοδος χωρίς αποθήκευση;'))return;}
-  D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},exoda:{},epitages:[],templates:{metrita:[],bank:[],d15:[],telos:[]}};
+  D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},exoda:{},recvEpit:{},epitages:[],templates:{metrita:[],bank:[],d15:[],telos:[]}};
   Dpeer={trapEisp:{},trapPl:{},metrita:{},bank:{}};
   _auth.signOut().finally(function(){location.reload();});
 }
@@ -5792,6 +6016,7 @@ async function preloadAllMonths(){
           if(j.data.bank) Object.assign(D.bank,j.data.bank);
           if(j.data.d15) Object.assign(D.d15,j.data.d15);
           if(j.data.telos) Object.assign(D.telos,j.data.telos);
+          if(j.data.recvEpit) Object.assign(D.recvEpit,j.data.recvEpit);
         }
       }catch(e){}
       if(D.trapEisp[k]===undefined) D.trapEisp[k]=[];   // mark «ελέγχθηκε» (κενό αν ο μήνας δεν έχει εισπράξεις) → δεν ξαναφορτώνεται
