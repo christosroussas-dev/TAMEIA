@@ -2767,10 +2767,11 @@ function renderDashboard(){
     </div>
   </div>`;
   // ---- 💳 ΥΠΕΝΘΥΜΙΣΗ: εισπρακτέες επιταγές πελατών που ΛΗΓΟΥΝ/εισπράττονται αυτόν τον μήνα (να μην ξεχαστούν) ----
+  let recvReminderHtml='';
+  try{
   const _recvList=(D.recvEpit[k]||[]).slice().sort((a,b)=>((a.due||'')<(b.due||'')?-1:(a.due||'')>(b.due||'')?1:0));
   const _recvSum=_recvList.reduce((s,r)=>s+(r.poso||0),0);
   const _todayISO=new Date().toISOString().slice(0,10);
-  let recvReminderHtml='';
   if(_recvList.length){
     const _recvItems=_recvList.map(r=>{
       const past=r.due&&r.due<_todayISO;
@@ -2791,7 +2792,10 @@ function renderDashboard(){
       <div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.5;">💡 Μην ξεχάσεις να τις εισπράξεις/καταθέσεις. Είναι ήδη μέσα στο «ΥΠΟΛΟΙΠΟ ΓΙΑ ΜΑΖΕΜΑ» του μήνα.</div>
     </div>`;
   }
+  }catch(e){recvReminderHtml='';}
   // ---- 🔮 ΠΡΟΣΕΧΩΣ: εισπρακτέες επιταγές με λήξη σε ΕΠΟΜΕΝΟΥΣ μήνες (1-3 μήνες μετά τον επιλεγμένο) ----
+  let recvUpcomingHtml='';
+  try{
   const _selMonAbs=(parseInt(yr,10)||0)*12+MONTHS_EL.indexOf(mn);
   let _upList=[];
   Object.keys(D.recvEpit||{}).forEach(function(mk){
@@ -2804,7 +2808,6 @@ function renderDashboard(){
     });
   });
   _upList.sort((a,b)=>((a.due||'')<(b.due||'')?-1:(a.due||'')>(b.due||'')?1:0));
-  let recvUpcomingHtml='';
   if(_upList.length){
     const _upSum=_upList.reduce((s,r)=>s+(r.poso||0),0);
     const _upItems=_upList.map(r=>{
@@ -2824,6 +2827,7 @@ function renderDashboard(){
       ${_upItems}
     </div>`;
   }
+  }catch(e){recvUpcomingHtml='';}
   // ---- KPI CARDS (5) ----
   const _dseq=m.rows.slice().sort((a,b)=>a.day-b.day);
   const _sTot=_dseq.map(r=>(r.metrita||0)+(r.pos||0));
