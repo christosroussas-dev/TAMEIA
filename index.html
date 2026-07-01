@@ -1942,7 +1942,7 @@ window.migrateFromSheets=migrateFromSheets;
 
 let CM='ΜΑΙΟΣ_2026';
 // ═══ ΕΚΔΟΣΗ ΕΦΑΡΜΟΓΗΣ — ΕΝΑ σημείο αλλαγής. Bump σε ΚΑΘΕ deploy (ίδιο N με το ?v=N του cache-bust). ═══
-const APP_VERSION='v87';
+const APP_VERSION='v88';
 document.title='ΤΑΜΕΙΟ — ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε. '+APP_VERSION;
 (function(){var el=document.getElementById('loginVer');if(el)el.textContent=APP_VERSION;})();
 let D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},exoda:{},recvEpit:{},epitages:[],templates:{metrita:[],bank:[],d15:[],telos:[]}};
@@ -2307,8 +2307,8 @@ function calcYP(){
   const met=(D.metrita[k]||[]).reduce((s,r)=>s+(r.poso||0),0);
   const bnk=(D.bank[k]||[]).reduce((s,r)=>s+(r.poso||0),0);
   const isLou=(STORE==='LOUTRAKI');
-  const d15=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
-  const tel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
+  const d15=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?0:(r.liosia||0)),0);
+  const tel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?0:(r.liosia||0)),0);
   const epit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
   // Εισπρακτέες επιταγές πελατών (per-store, έσοδο — πελάτης εξοφλεί υπόλοιπο): ΠΡΟΣΘΕΤΙΚΟ.
   // Ιστορικά ασφαλές: παλιά δεδομένα δεν έχουν recvEpit → άθροισμα 0 → residual αμετάβλητο.
@@ -2675,7 +2675,7 @@ function expPayRemaining(k,y,curMet,curBnk,curD5,curTel,remainWD){
   }
   const isLou=(STORE==='LOUTRAKI');
   const sum=a=>(a||[]).reduce((s,r)=>s+(r.poso||0),0);
-  const share=a=>(a||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
+  const share=a=>(a||[]).reduce((s,r)=>s+(isLou?0:(r.liosia||0)),0);
   // Τράπεζα+15ου+Τέλος = ΜΙΑ κατηγορία «σταθερές υποχρεώσεις»: οι ίδιες υποχρεώσεις άλλαξαν στήλη
   // με το συμμετρικό μοντέλο v73 (Λουτράκι: πέρσι μέσω ΠΛΗΡ.ΤΡΑΠΕΖΑ, φέτος μερίδια 15ου/Τέλος).
   // Η ανά-στήλη σύγκριση τις διπλομετρούσε (αποδείχθηκε ΙΟΥΝ 2026 Λουτράκι: 44k πέρσι bank ≈ 43,8k φέτος 15ου/Τέλος).
@@ -2696,8 +2696,8 @@ function dashMetrics(){
   const pMet=(D.metrita[k]||[]).reduce((s,r)=>s+(r.poso||0),0);
   const pBnk=(D.bank[k]||[]).reduce((s,r)=>s+(r.poso||0),0);
   const isLou=(STORE==='LOUTRAKI');
-  const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
-  const pTel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
+  const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?0:(r.liosia||0)),0);
+  const pTel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?0:(r.liosia||0)),0);
   const mn=k.split('_')[0],yr=k.split('_')[1];
   const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
   const pRecv=(D.recvEpit[k]||[]).reduce((s,r)=>s+(r.poso||0),0);   // εισπρακτέες επιταγές πελατών (έσοδο, per-store)
@@ -3140,7 +3140,7 @@ function renderMain(){
   if(yp<=-15000)card.classList.add('crit');else card.classList.remove('crit'); // pulse μόνο σε κρίσιμη κατάσταση
   const pMet=(D.metrita[k]||[]).reduce((s,r)=>s+r.poso,0),pBnk=(D.bank[k]||[]).reduce((s,r)=>s+r.poso,0);
   const isLou=(STORE==='LOUTRAKI');
-  const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0),pTel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
+  const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?0:(r.liosia||0)),0),pTel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?0:(r.liosia||0)),0);
   const pEisp=(D.trapEisp[k]||[]).reduce((s,r)=>s+r.poso,0);
   const pRecv=(D.recvEpit[k]||[]).reduce((s,r)=>s+(r.poso||0),0);   // εισπρακτέες επιταγές πελατών (έσοδο)
   const mn=ek().split('_')[0],yr2=ek().split('_')[1],pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr2||(e.date&&e.date.startsWith(yr2)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
@@ -3196,8 +3196,8 @@ function renderCashFlow(){
   const pMet=(D.metrita[k]||[]).reduce((s,r)=>s+r.poso,0);
   const pBnk=(D.bank[k]||[]).reduce((s,r)=>s+r.poso,0);
   const isLou=(STORE==='LOUTRAKI');   // STORE-AWARE (ίδια λογική με calcYP — Λουτράκι: 0 για 15ου/Τέλος, epK για επιταγές)
-  const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
-  const pTel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
+  const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?0:(r.liosia||0)),0);
+  const pTel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?0:(r.liosia||0)),0);
   const pEisp=(D.trapEisp[k]||[]).reduce((s,r)=>s+r.poso,0);
   const pRecv=(D.recvEpit[k]||[]).reduce((s,r)=>s+(r.poso||0),0);   // εισπρακτέες επιταγές πελατών (έσοδο)
   const mn=k.split('_')[0],yr=k.split('_')[1];
@@ -3337,8 +3337,8 @@ function renderCompare(){
   const pMet=(D.metrita[k]||[]).reduce((s,r)=>s+r.poso,0);
   const pBnk=(D.bank[k]||[]).reduce((s,r)=>s+r.poso,0);
   const isLou=(STORE==='LOUTRAKI');   // STORE-AWARE σύγκριση (Λουτράκι: 0 για 15ου/Τέλος, epK για επιταγές)
-  const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
-  const pTel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
+  const pD5=(D.d15[k]||[]).reduce((s,r)=>s+(isLou?0:(r.liosia||0)),0);
+  const pTel=(D.telos[k]||[]).reduce((s,r)=>s+(isLou?0:(r.liosia||0)),0);
   const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
   const allP=pMet+pBnk+pD5+pTel+pEpit;const ypCur=tAllNet+pEisp+pRecv-allP;
   const wd=rows.filter(r=>r.dayName!=='ΚΥΡΙΑΚΗ'&&(r.metrita+r.pos)>0).length;
@@ -3352,8 +3352,8 @@ function renderCompare(){
   const rowsPrev=D.days[kPrev]||[];
   const pMetPrev=(D.metrita[kPrev]||[]).reduce((s,r)=>s+r.poso,0);
   const pBnkPrev=(D.bank[kPrev]||[]).reduce((s,r)=>s+r.poso,0);
-  const pD5Prev=(D.d15[kPrev]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
-  const pTelPrev=(D.telos[kPrev]||[]).reduce((s,r)=>s+(isLou?(r.loutraki||0):(r.liosia||0)),0);
+  const pD5Prev=(D.d15[kPrev]||[]).reduce((s,r)=>s+(isLou?0:(r.liosia||0)),0);
+  const pTelPrev=(D.telos[kPrev]||[]).reduce((s,r)=>s+(isLou?0:(r.liosia||0)),0);
   const pEispPrev=(D.trapEisp[kPrev]||[]).reduce((s,r)=>s+r.poso,0);
   const pRecvPrev=(D.recvEpit[kPrev]||[]).reduce((s,r)=>s+(r.poso||0),0);
   const pEpitPrev=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===prevYr||(e.date&&e.date.startsWith(prevYr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
@@ -5828,8 +5828,8 @@ async function exportCSV(){
   const pTelL=tel.reduce((s,r)=>s+(r.liosia||0),0);
   const pD5K=d15.reduce((s,r)=>s+(r.loutraki||0),0);        // άθροισμα στήλης ΛΟΥΤΡΑΚΙ
   const pTelK=tel.reduce((s,r)=>s+(r.loutraki||0),0);
-  const pD5=isLou?pD5K:pD5L;                                // v73: ΛΟΥΤΡΑΚΙ αφαιρεί το ΛΟΥΤΡΑΚΙ μερίδιο (συμμετρικά με Λιόσια)
-  const pTel=isLou?pTelK:pTelL;
+  const pD5=isLou?0:pD5L;                                   // v88 FIX: ΛΟΥΤΡΑΚΙ ΔΕΝ αφαιρεί 15ου/Τέλος (πληρώνονται μέσω τράπεζας — αλλιώς διπλομέτρηση)
+  const pTel=isLou?0:pTelL;
   const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
   const cf=carryFor(k);                                     // POS carry-forward (ίδιο με dashboard/calcYP)
   const recvEp=(D.recvEpit[k]||[]).reduce((s,r)=>s+(r.poso||0),0);   // εισπρακτέες επιταγές πελατών (έσοδο, per-store)
