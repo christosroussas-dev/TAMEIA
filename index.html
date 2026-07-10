@@ -1942,7 +1942,7 @@ window.migrateFromSheets=migrateFromSheets;
 
 let CM='ΜΑΙΟΣ_2026';
 // ═══ ΕΚΔΟΣΗ ΕΦΑΡΜΟΓΗΣ — ΕΝΑ σημείο αλλαγής. Bump σε ΚΑΘΕ deploy (ίδιο N με το ?v=N του cache-bust). ═══
-const APP_VERSION='v89';
+const APP_VERSION='v90';
 document.title='ΤΑΜΕΙΟ — ΑΦΟΙ ΡΟΥΣΣΑ Ο.Ε. '+APP_VERSION;
 (function(){var el=document.getElementById('loginVer');if(el)el.textContent=APP_VERSION;})();
 let D={days:{},trapEisp:{},trapPl:{},metrita:{},bank:{},d15:{},telos:{},exoda:{},recvEpit:{},epitages:[],templates:{metrita:[],bank:[],d15:[],telos:[]}};
@@ -3376,7 +3376,9 @@ function renderCompare(){
   const pD5=shareSum(D.d15[k],isLou,k);
   const pTel=shareSum(D.telos[k],isLou,k);
   const pEpit=(D.epitages||[]).filter(e=>e.month===mn&&(e.file_year===yr||(e.date&&e.date.startsWith(yr)))).reduce((s,e)=>s+(isLou?epK(e):(e.liosia||0)),0);
-  const allP=pMet+pBnk+pTPl+pD5+pTel+pEpit;const ypCur=tAllNet+pEisp+pRecv-allP;
+  // v90 FIX: το ΥΠΟΛΟΙΠΟ της Σύγκρισης ΔΕΝ περιλάμβανε POS carry → διέφερε από ΤΑΜΕΙΟ/Dashboard.
+  const cfCur=carryFor(k);
+  const allP=pMet+pBnk+pTPl+pD5+pTel+pEpit;const ypCur=tAllNet+pEisp+pRecv-allP-cfCur.out+cfCur.in;
   const wd=rows.filter(r=>r.dayName!=='ΚΥΡΙΑΚΗ'&&(r.metrita+r.pos)>0).length;
   const avgCur=wd?tAllNet/wd:0;
 
@@ -3402,7 +3404,9 @@ function renderCompare(){
   const prevTjNet=prevTjirosFull-prevKrat;
   const prevYpData=rowsPrev.length>0;
   const prevNet=prevYpData?prevTjNet:(hPrev?hPrev.total:null);
-  const prevYpCalc=prevTjNet+pEispPrev+pRecvPrev-allPPrev;
+  // v90: ίδια λογική carry και για τον περσινό μήνα (παλιοί μήνες έχουν γραμμές carry → carryFor={0,0})
+  const cfPrev=carryFor(kPrev);
+  const prevYpCalc=prevTjNet+pEispPrev+pRecvPrev-allPPrev-cfPrev.out+cfPrev.in;
 
   const diffTjiros=prevNet!=null?tAllNet-prevNet:null;
   const diffPct=(diffTjiros!=null&&prevNet)?(diffTjiros/prevNet*100):null;
@@ -5932,7 +5936,11 @@ async function exportCSV(){
   const ex4=_fillSlots(s4,8,33,bnk,(ws,r,it)=>{ws.getCell('B'+r).value=it?_xdate(it.date):null;ws.getCell('C'+r).value=it?(it.ait||''):null;ws.getCell('D'+r).value=it?it.poso:null;});
   s4.getCell('D'+(34+ex4)).value=R2(pD5);
   s4.getCell('D'+(35+ex4)).value=R2(pTel);
-  s4.getCell('D'+(38+ex4)).value=R2(pBnk+pD5+pTel);
+  // v90 FIX: γράψε το ΠΡΑΓΜΑΤΙΚΟ carry-out του μήνα (D36 «ΜΕΤΑΦΟΡΑ ΑΠΟ POS»).
+  // Πριν έμενε το παλιό νούμερο του template. Σε παλιούς μήνες (που έχουν ήδη γραμμή carry
+  // μέσα στο bnk) το carryFor επιστρέφει 0 → D36=0, χωρίς διπλομέτρηση.
+  s4.getCell('D'+(36+ex4)).value=R2(cf.out);
+  s4.getCell('D'+(38+ex4)).value=R2(pBnk+pD5+pTel+cf.out);
 
   // ════ ΦΥΛΛΟ 5: ΠΛΗΡΩΜΕΣ 15 ΤΟΥ ΜΗΝΑ (C/D/E/F/G/H · slots 7-58 · totals 59) ════
   const s5=wb.getWorksheet('ΠΛΗΡΩΜΕΣ 15 ΤΟΥ ΜΗΝΑ');
